@@ -21,7 +21,7 @@
 
 QT       += core gui xml
 
-TARGET = STlinkV2
+TARGET = qstlink2
 TEMPLATE = app
 
 
