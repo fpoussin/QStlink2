@@ -476,7 +476,7 @@
      <attribute name="title">
       <string>Flash Info</string>
      </attribute>
-     <widget class="QLabel" name="label">
+     <widget class="QLabel" name="l_readpr">
       <property name="geometry">
        <rect>
         <x>100</x>
@@ -489,7 +489,7 @@
        <string>Read Protection:</string>
       </property>
      </widget>
-     <widget class="QLabel" name="label_2">
+     <widget class="QLabel" name="l_writepr">
       <property name="geometry">
        <rect>
         <x>320</x>
@@ -502,7 +502,7 @@
        <string>Write Protection:</string>
       </property>
      </widget>
-     <widget class="QLineEdit" name="lineEdit">
+     <widget class="QLineEdit" name="le_readpr">
       <property name="geometry">
        <rect>
         <x>200</x>
@@ -512,7 +512,7 @@
        </rect>
       </property>
      </widget>
-     <widget class="QLineEdit" name="lineEdit_2">
+     <widget class="QLineEdit" name="le_writepr">
       <property name="geometry">
        <rect>
         <x>420</x>
