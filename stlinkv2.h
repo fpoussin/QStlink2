@@ -210,8 +210,6 @@ private:
     quint16 ST_VendorID;
     quint16 ST_ProductID;
     short verbose;
-//    quint32 core_id;
-//    quint32 chip_id;
     QString version;
     QString mode;
     char mode_id;

@@ -148,7 +148,7 @@ void MainWindow::Send()
         quint32 to = this->stlink->device->flash_base+file.size();
         qDebug() << "Writing from" << QString::number(from, 16) << "to" << QString::number(to, 16);
         QByteArray buf;
-        quint32 addr, progress;
+        quint32 addr, progress, read;
         char buf2[program_size];
 
         // Unlock flash
@@ -187,19 +187,19 @@ void MainWindow::Send()
         if (!this->stlink->unlockFlash())
             return;
 
-        for (int i=0; i+program_size<=file.size(); i+=program_size)
+        for (int i=0; i<=file.size(); i+=program_size)
         {
-
             QApplication::processEvents(); // Dirty hack
             buf.clear();
 
-            if (file.atEnd()) { // This should never happen
-                qDebug() << "EOF!";
-                return;
+            if (file.atEnd()) {
+                qDebug() << "EOF";
+                break;
             }
-
-            file.read(buf2, program_size);
-            buf.append(buf2, program_size);
+            memset(buf2, 0, program_size);
+            if ((read = file.read(buf2, program_size)) <= 0)
+                break;
+            buf.append(buf2, read);
 
             addr = this->stlink->device->flash_base+i;
             this->stlink->writeMem32(addr, buf);
@@ -208,15 +208,8 @@ void MainWindow::Send()
             qDebug() << "Progress:"<< QString::number(progress)+"%";
             this->ui->l_progress->setText("Transfered "+QString::number(i/1024)+" kilobytes out of "+QString::number(file.size()/1024));
         }
+        file.close();
 
-
-        if (!file.atEnd()) {
-            // last bytes of the file
-            file.read(buf2, file.size() % program_size);
-            buf.append(buf2, sizeof(buf2));
-            addr = this->stlink->device->flash_base-file.size()-program_size;
-            this->stlink->writeMem32(addr, buf);
-        }
         this->ui->pgb_tranfer->setValue(100);
         this->ui->l_progress->setText("Transfer done");
 
@@ -229,9 +222,7 @@ void MainWindow::Send()
 
         this->stlink->resetMCU();
         this->stlink->runMCU();
-        file.close();
     }
-
 }
 
 void MainWindow::Receive()
