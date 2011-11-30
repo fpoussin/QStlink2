@@ -604,5 +604,21 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>b_quit</sender>
+   <signal>clicked()</signal>
+   <receiver>b_stop</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>529</x>
+     <y>32</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>543</x>
+     <y>386</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
 </ui>
