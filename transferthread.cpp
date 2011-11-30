@@ -50,7 +50,7 @@ void transferThread::send(QString filename)
     if (!this->stlink->unlockFlash())
         return;
 
-    this->stlink->setProgramSize(4); // WORD (4 bytes)
+    this->stlink->setProgramSize(program_size); // WORD (4 bytes)
 
     // Erase flash
     if (!this->stlink->setMassErase(true))

@@ -55,7 +55,5 @@ private:
     int readEndpoint, writeEndpoint;
     int interface;
     int alternate;
-
-    bool isDllLoaded;
 };
 #endif
