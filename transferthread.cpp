@@ -68,21 +68,8 @@ void transferThread::send(QString filename)
 
     this->stlink->setProgramSize(program_size);
 
-    // Erase flash
-    if (!this->stlink->setMassErase(true))
-        return;
-
     emit sendStatus("Erasing flash... This might take some time.");
-
-    this->stlink->setSTRT();
-    while(this->stlink->isBusy()) {
-        usleep(500000); // 500ms
-    }
-
-    qDebug() << "\n";
-    // Remove erase flash flag
-    if (this->stlink->setMassErase(false))
-        return;
+    this->stlink->eraseFlash();
 
     qDebug() << "\n";
     // We finally enable flash programming

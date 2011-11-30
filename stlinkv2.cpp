@@ -38,7 +38,10 @@ stlinkv2::~stlinkv2()
 
 int stlinkv2::connect()
 {
-    return this->libusb->open();
+    int open;
+    if (open = this->libusb->open())
+        this->libusb->read(&this->recv_buf, 6192); // We clean the usb buffer
+    return open;
 }
 
 void stlinkv2::disconnect()
@@ -192,11 +195,19 @@ void stlinkv2::haltMCU()
 void stlinkv2::eraseFlash()
 {
     qDebug() << "***[eraseFlash]***";
-    this->unlockFlash();
+    // We set the mass erase flag
+    if (!this->setMassErase(true))
+        return;
 
+    // We set the STRT flag in order to start the mass erase
+    this->setSTRT();
+    while(this->isBusy()) { // then we wait for completion
+        usleep(500000); // 500ms
+    }
 
-
-    this->lockFlash();
+    // We remove the mass erase flag
+    if (this->setMassErase(false))
+        return;
 }
 
 bool stlinkv2::unlockFlash()
@@ -253,6 +264,37 @@ bool stlinkv2::lockFlash()
             return false;
         }
     }
+    return true;
+}
+
+bool stlinkv2::unlockFlashOpt()
+{
+// TODO
+//    if (this->isOptLocked()) {
+//        qDebug() << "***[unlockFlashOpt]***";
+//        uchar buf[4];
+//        quint32 addr;
+//        if (this->chip_id == STM32_CHIPID_F4) {
+//            addr = FLASH_F4_OPT_KEYR;
+//        }
+//        else {
+//            addr = FLASH_OPT_KEYR;
+//        }
+
+//        qToLittleEndian(FLASH_OPTKEY1, buf);
+//         this->send_buf.append((const char*)buf, sizeof(buf));
+//        this->writeMem32(addr,  this->send_buf);
+
+//         this->send_buf.clear();
+//        qToLittleEndian(FLASH_OPTKEY2, buf);
+//         this->send_buf.append((const char*)buf, sizeof(buf));
+//        this->writeMem32(addr,  this->send_buf);
+
+//        if (this->isOptLocked()) {
+//            qCritical() << "Failed to unlock flash!" ;
+//            return false;
+//        }
+//    }
     return true;
 }
 

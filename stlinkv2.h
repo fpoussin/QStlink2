@@ -25,17 +25,6 @@ This file is part of QSTLink2.
 #include <QtEndian>
 #include <devices.h>
 
-#define BYTETOBINARYPATTERN "%d%d%d%d%d%d%d%d"
-#define BYTETOBINARY(byte)  \
-  (byte & 0x80 ? 1 : 0), \
-  (byte & 0x40 ? 1 : 0), \
-  (byte & 0x20 ? 1 : 0), \
-  (byte & 0x10 ? 1 : 0), \
-  (byte & 0x08 ? 1 : 0), \
-  (byte & 0x04 ? 1 : 0), \
-  (byte & 0x02 ? 1 : 0), \
-  (byte & 0x01 ? 1 : 0)
-
 #define STLINK_OK 0x80
 #define STLINK_FALSE 0x81
 #define STLINK_CORE_RUNNING 0x80
@@ -101,6 +90,7 @@ This file is part of QSTLink2.
 
 #define FLASH_ACR (FLASH_REGS_ADDR + 0x00)
 #define FLASH_KEYR (FLASH_REGS_ADDR + 0x04)
+#define FLASH_OPT_KEYR (FLASH_REGS_ADDR + 0x08)
 #define FLASH_SR (FLASH_REGS_ADDR + 0x0c)
 #define FLASH_CR (FLASH_REGS_ADDR + 0x10)
 #define FLASH_AR (FLASH_REGS_ADDR + 0x14)
@@ -185,6 +175,7 @@ public slots:
     void eraseFlash();
     bool unlockFlash();
     bool lockFlash();
+    bool unlockFlashOpt();
     bool isBusy();
     quint32 readFlashCR();
     quint32 writeFlashCR(quint32 mask, bool value);
