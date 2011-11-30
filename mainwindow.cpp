@@ -50,6 +50,7 @@ MainWindow::MainWindow(QWidget *parent) :
     if (this->devices->IsLoaded() && this->isroot) {
         this->ui->gb_top->setEnabled(true);
         this->log(QString::number(this->devices->getDevicesCount())+" Device descriptions loaded.");
+        QObject::connect(this->ui->b_quit,SIGNAL(clicked()),qApp,SLOT(quit()));
         QObject::connect(this->ui->b_connect, SIGNAL(clicked()), this, SLOT(Connect()));
         QObject::connect(this->ui->b_disconnect, SIGNAL(clicked()), this, SLOT(Disconnect()));
         QObject::connect(this->ui->b_send, SIGNAL(clicked()), this, SLOT(Send()));
