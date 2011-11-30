@@ -30,13 +30,15 @@ SOURCES += main.cpp\
     stlinkv2.cpp \
     LibUsb.cpp \
     devices.cpp \
-    dialog.cpp
+    dialog.cpp \
+    transferthread.cpp
 
 HEADERS  += mainwindow.h \
     stlinkv2.h \
     LibUsb.h \
     devices.h \
-    dialog.h
+    dialog.h \
+    transferthread.h
 
 FORMS    += mainwindow.ui \
     dialog.ui
@@ -44,6 +46,8 @@ FORMS    += mainwindow.ui \
 LIBS += -L/usr/lib -lusb
 
 #DEFINES += GC_HAVE_LIBUSB
+
+
 
 
 

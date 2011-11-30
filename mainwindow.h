@@ -26,6 +26,7 @@ This file is part of QSTLink2.
 #include <QThread>
 #include <QByteArray>
 #include "dialog.h"
+#include "transferthread.h"
 
 namespace Ui {
     class MainWindow;
@@ -42,19 +43,22 @@ public:
 public slots:
     void Connect();
     void Disconnect();
+    void updateProgress(quint32 p);
+    void updateStatus(QString s);
 
 private:
     Ui::MainWindow *ui;
-    stlinkv2 *stlink;
-    QString *username;
-    DeviceList *devices;
-    bool isroot;
-    QString filename;
-    QThread usbThread;
-    QByteArray data;
     Dialog dialog;
+    stlinkv2 *stlink;
+    DeviceList *devices;
+    QString filename;
+    QString username;
+    QThread usbThread;
+    bool isroot;
+    transferThread *tfThread;
 
 private slots:
+    void lockUI(bool enabled);
     void getVersion();
     void getMode();
     void getMCU();

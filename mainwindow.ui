@@ -527,7 +527,7 @@
      <attribute name="title">
       <string>Transfer Progress</string>
      </attribute>
-     <widget class="QProgressBar" name="pgb_tranfer">
+     <widget class="QProgressBar" name="pgb_transfer">
       <property name="geometry">
        <rect>
         <x>10</x>

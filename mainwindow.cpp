@@ -28,8 +28,8 @@ MainWindow::MainWindow(QWidget *parent) :
     this->ui->b_send->setEnabled(false);
     this->ui->b_receive->setEnabled(false);
 
-    this->username = new QString(getenv("USER"));
-    if (this->username != QString("root")) {
+    this->username = getenv("USER");
+    if (this->username != "root") {
         this->ui->t_log->appendPlainText("You need to run the program as root in order to access USB subsystems. Use sudo.");
     }
     else {
@@ -39,6 +39,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     this->stlink = new stlinkv2();
     this->devices = new DeviceList(this);
+
+    this->tfThread = new transferThread();
+
     stlink->moveToThread(&this->usbThread);
     this->stlink->start();
     qDebug() << "Thread running:" << this->stlink->isRunning() ;
@@ -57,6 +60,11 @@ MainWindow::MainWindow(QWidget *parent) :
         QObject::connect(this->ui->r_jtag, SIGNAL(clicked()), this, SLOT(setModeJTAG()));
         QObject::connect(this->ui->r_swd, SIGNAL(clicked()), this, SLOT(setModeSWD()));
         QObject::connect(this->ui->b_getMCU, SIGNAL(clicked()), this, SLOT(getMCU()));
+
+        // Thread
+        QObject::connect(this->tfThread, SIGNAL(sendProgress(quint32)), this, SLOT(updateProgress(quint32)));
+        QObject::connect(this->tfThread, SIGNAL(sendStatus(QString)), this, SLOT(updateStatus(QString)));
+        QObject::connect(this->tfThread, SIGNAL(sendLock(bool)), this, SLOT(lockUI(bool)));
     }
 
     else {
@@ -112,6 +120,22 @@ void MainWindow::Disconnect()
     this->ui->b_receive->setEnabled(false);
 }
 
+void MainWindow::lockUI(bool enabled)
+{
+    this->ui->gb_top->setEnabled(!enabled);
+    this->ui->gb_bottom->setEnabled(!enabled);
+}
+
+void MainWindow::updateProgress(quint32 p)
+{
+    this->ui->pgb_transfer->setValue(p);
+}
+
+void MainWindow::updateStatus(QString s)
+{
+    this->ui->l_progress->setText(s);
+}
+
 void MainWindow::Send()
 {
     this->filename.clear();
@@ -139,89 +163,16 @@ void MainWindow::Send()
             }
         }
 
-        this->stlink->resetMCU(); // We stop the MCU
-        this->ui->tabw_info->setCurrentIndex(3);
-        this->ui->pgb_tranfer->setValue(0);
-        this->ui->l_progress->setText("Starting transfer...");
-        quint32 program_size = 4; // WORD (4 bytes)
-        quint32 from = this->stlink->device->flash_base;
-        quint32 to = this->stlink->device->flash_base+file.size();
-        qDebug() << "Writing from" << QString::number(from, 16) << "to" << QString::number(to, 16);
-        QByteArray buf;
-        quint32 addr, progress, read;
-        char buf2[program_size];
-
-        // Unlock flash
-        if (!this->stlink->unlockFlash())
-            return;
-
-        this->stlink->setProgramSize(4); // WORD (4 bytes)
-
-        // Erase flash
-        if (!this->stlink->setMassErase(true))
-            return;
-
-        this->ui->l_progress->setText("Erasing flash... This might take some time.");
-        this->stlink->setSTRT();
-        while(this->stlink->isBusy()) {
-            usleep(500000); // 500ms
-            QApplication::processEvents();
-        }
-
-        qDebug() << "\n";
-        // Remove erase flash flag
-        if (this->stlink->setMassErase(false))
-            return;
-
-        qDebug() << "\n";
-        // We finally enable flash programming
-        if (!this->stlink->setFlashProgramming(true))
-            return;
-
-        while(this->stlink->isBusy()) {
-            usleep(100000); // 100ms
-            QApplication::processEvents();
-        }
-
-        // Unlock flash again. Seems like this is mandatory.
-        if (!this->stlink->unlockFlash())
-            return;
-
-        for (int i=0; i<=file.size(); i+=program_size)
-        {
-            QApplication::processEvents(); // Dirty hack
-            buf.clear();
-
-            if (file.atEnd()) {
-                qDebug() << "EOF";
-                break;
-            }
-            memset(buf2, 0, program_size);
-            if ((read = file.read(buf2, program_size)) <= 0)
-                break;
-            buf.append(buf2, read);
-
-            addr = this->stlink->device->flash_base+i;
-            this->stlink->writeMem32(addr, buf);
-            progress = (i*100)/file.size();
-            this->ui->pgb_tranfer->setValue(progress);
-            qDebug() << "Progress:"<< QString::number(progress)+"%";
-            this->ui->l_progress->setText("Transfered "+QString::number(i/1024)+" kilobytes out of "+QString::number(file.size()/1024));
-        }
         file.close();
 
-        this->ui->pgb_tranfer->setValue(100);
-        this->ui->l_progress->setText("Transfer done");
+        this->stlink->resetMCU(); // We stop the MCU
+        this->ui->tabw_info->setCurrentIndex(3);
+        this->ui->pgb_transfer->setValue(0);
+        this->ui->l_progress->setText("Starting transfer...");
 
-        // We disable flash programming
-        if (this->stlink->setFlashProgramming(false))
-            return;
-
-        // Lock flash
-        this->stlink->lockFlash();
-
-        this->stlink->resetMCU();
-        this->stlink->runMCU();
+        // Transfer thread
+        this->tfThread->setParams(this->stlink, filename, true);
+        this->tfThread->start();
     }
 }
 
@@ -236,32 +187,13 @@ void MainWindow::Receive()
             qCritical("Could not save the file.");
             return;
         }
-        this->stlink->resetMCU(); // We stop the MCU
         this->ui->tabw_info->setCurrentIndex(3);
-        this->ui->pgb_tranfer->setValue(0);
+        this->ui->pgb_transfer->setValue(0);
         this->ui->l_progress->setText("Starting transfer...");
-        quint32 program_size = this->stlink->device->flash_pgsize*4;
-        quint32 from = this->stlink->device->flash_base;
-        quint32 to = this->stlink->device->flash_base+from;
-        qDebug() << "Reading from" << QString::number(from, 16) << "to" << QString::number(to, 16);
-        quint32 addr, progress;
 
-        for (int i=0; i<this->stlink->device->flash_size; i+=program_size)
-        {
-            QApplication::processEvents();// Dirty hack
-            addr = this->stlink->device->flash_base+i;
-            if (this->stlink->readMem32(addr, program_size) < 0)
-                break;
-            file.write(this->stlink->recv_buf);
-            progress = (i*100)/this->stlink->device->flash_size;
-            this->ui->pgb_tranfer->setValue(progress);
-            qDebug() << "Progress:"<< QString::number(progress)+"%";
-            this->ui->l_progress->setText("Transfered "+QString::number(i/1024)+" kilobytes out of "+QString::number(this->stlink->device->flash_size/1024));
-        }
-        this->ui->pgb_tranfer->setValue(100);
-        this->ui->l_progress->setText("Transfer done");
-        this->stlink->runMCU();
-        file.close();
+        // Transfer thread
+        this->tfThread->setParams(this->stlink, filename, false);
+        this->tfThread->start();
     }
 }
 
