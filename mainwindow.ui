@@ -532,8 +532,8 @@
        <rect>
         <x>10</x>
         <y>30</y>
-        <width>551</width>
-        <height>23</height>
+        <width>471</width>
+        <height>28</height>
        </rect>
       </property>
       <property name="value">
@@ -554,6 +554,22 @@
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="b_stop">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="geometry">
+       <rect>
+        <x>490</x>
+        <y>30</y>
+        <width>80</width>
+        <height>28</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Stop</string>
       </property>
      </widget>
     </widget>

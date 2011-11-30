@@ -65,6 +65,8 @@ MainWindow::MainWindow(QWidget *parent) :
         QObject::connect(this->tfThread, SIGNAL(sendProgress(quint32)), this, SLOT(updateProgress(quint32)));
         QObject::connect(this->tfThread, SIGNAL(sendStatus(QString)), this, SLOT(updateStatus(QString)));
         QObject::connect(this->tfThread, SIGNAL(sendLock(bool)), this, SLOT(lockUI(bool)));
+        QObject::connect(this->ui->b_stop, SIGNAL(clicked()), this->tfThread, SLOT(halt()));
+        QObject::connect(this->tfThread, SIGNAL(sendLog(QString)), this, SLOT(log(QString)));
     }
 
     else {

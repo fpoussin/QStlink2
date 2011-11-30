@@ -19,6 +19,7 @@ signals:
     void sendStatus(QString s);
     void sendError(QString s);
     void sendLock(bool enabled);
+    void sendLog(QString s);
 
 public slots:
     void halt();

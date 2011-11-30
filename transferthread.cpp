@@ -17,6 +17,8 @@ void transferThread::run()
 void transferThread::halt()
 {
     this->stop = true;
+    emit sendStatus("Aborted");
+    emit sendLog("Transfer Aborted");
 }
 
 void transferThread::setParams(stlinkv2 *stlink, QString filename, bool write)
@@ -28,15 +30,13 @@ void transferThread::setParams(stlinkv2 *stlink, QString filename, bool write)
 
 void transferThread::send(QString filename)
 {
-
     QFile file(filename);
     if (!file.open(QIODevice::ReadOnly)) {
         qCritical("Could not open the file.");
         return;
     }
-
     emit sendLock(true);
-
+    this->stop = false;
     this->stlink->resetMCU(); // We stop the MCU
     quint32 program_size = 4; // WORD (4 bytes)
     quint32 from = this->stlink->device->flash_base;
@@ -50,7 +50,7 @@ void transferThread::send(QString filename)
     if (!this->stlink->unlockFlash())
         return;
 
-    this->stlink->setProgramSize(program_size); // WORD (4 bytes)
+    this->stlink->setProgramSize(program_size);
 
     // Erase flash
     if (!this->stlink->setMassErase(true))
@@ -108,6 +108,7 @@ void transferThread::send(QString filename)
 
     emit sendProgress(100);
     emit sendStatus("Transfer done");
+    emit sendLog("Transfer done");
 
     // We disable flash programming
     if (this->stlink->setFlashProgramming(false))
@@ -130,6 +131,7 @@ void transferThread::receive(QString filename)
         return;
     }
     emit sendLock(true);
+    this->stop = false;
     this->stlink->resetMCU(); // We stop the MCU
     quint32 program_size = this->stlink->device->flash_pgsize*4;
     quint32 from = this->stlink->device->flash_base;
