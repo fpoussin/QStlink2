@@ -59,6 +59,7 @@ private:
 
 private slots:
     void lockUI(bool enabled);
+    void log(QString s);
     void getVersion();
     void getMode();
     void getMCU();

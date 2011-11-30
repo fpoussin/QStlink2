@@ -30,10 +30,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     this->username = getenv("USER");
     if (this->username != "root") {
-        this->ui->t_log->appendPlainText("You need to run the program as root in order to access USB subsystems. Use sudo.");
+        this->log("You need to run the program as root in order to access USB subsystems. Use sudo.");
     }
     else {
-        this->ui->t_log->appendPlainText("Running as root, good.");
+        this->log("Running as root, good.");
         this->isroot = true;
     }
 
@@ -49,7 +49,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     if (this->devices->IsLoaded() && this->isroot) {
         this->ui->gb_top->setEnabled(true);
-        this->ui->t_log->appendPlainText(QString::number(this->devices->getDevicesCount())+" Device descriptions loaded.");
+        this->log(QString::number(this->devices->getDevicesCount())+" Device descriptions loaded.");
         QObject::connect(this->ui->b_connect, SIGNAL(clicked()), this, SLOT(Connect()));
         QObject::connect(this->ui->b_disconnect, SIGNAL(clicked()), this, SLOT(Disconnect()));
         QObject::connect(this->ui->b_send, SIGNAL(clicked()), this, SLOT(Send()));
@@ -68,7 +68,7 @@ MainWindow::MainWindow(QWidget *parent) :
     }
 
     else {
-        this->ui->t_log->appendPlainText("Could not load the devices list");
+        this->log("Could not load the devices list");
     }
 
 }
@@ -84,14 +84,14 @@ MainWindow::~MainWindow()
 
 void MainWindow::Connect()
 {
-    this->ui->t_log->appendPlainText("Searching Device...");
+    this->log("Searching Device...");
 
     switch (this->stlink->connect()) {
     case -1:
-        this->ui->t_log->appendPlainText("ST Link V2 not found.");
+        this->log("ST Link V2 not found.");
         return;
     default:
-        this->ui->t_log->appendPlainText("ST Link V2 found!");
+        this->log("ST Link V2 found!");
         this->stlink->setup();
         this->getVersion();
         this->stlink->setExitModeDFU();
@@ -110,14 +110,19 @@ void MainWindow::Connect()
 
 void MainWindow::Disconnect()
 {
-    this->ui->t_log->appendPlainText("Disconnecting...");
+    this->log("Disconnecting...");
     this->stlink->disconnect();
-    this->ui->t_log->appendPlainText("Disconnected.");
+    this->log("Disconnected.");
     this->ui->b_disconnect->setEnabled(false);
     this->ui->b_connect->setEnabled(true);
     this->ui->gb_bottom->setEnabled(false);
     this->ui->b_send->setEnabled(false);
     this->ui->b_receive->setEnabled(false);
+}
+
+void MainWindow::log(QString s)
+{
+    this->ui->t_log->appendPlainText(s);
 }
 
 void MainWindow::lockUI(bool enabled)
@@ -141,28 +146,26 @@ void MainWindow::Send()
     this->filename.clear();
     this->filename = QFileDialog::getOpenFileName(this, "Open file", "/", "Binary Files (*.bin)");
     if (!this->filename.isNull()) {
-        this->ui->t_log->appendPlainText("Sending from "+this->filename);
+        this->log("Sending from "+this->filename);
         QFile file(this->filename);
         if (!file.open(QIODevice::ReadOnly)) {
             qCritical("Could not open the file.");
             return;
         }
-        this->ui->t_log->appendPlainText("Size: "+QString::number(file.size()/1024)+"KB");
+        this->log("Size: "+QString::number(file.size()/1024)+"KB");
 
         if (file.size() > this->stlink->flash_size) {
-            this->dialog.setText("Warning", "The file is biggen then the flash size, continue?");
+            this->dialog.setText("Warning", "The file is biggen then the flash size!\nThe flash memory will be erased and the new file programmed, continue?");
             if(dialog.exec() != QDialog::Accepted){
                 return;
             }
         }
-
         else {
-            this->dialog.setText("Confirm", "The flash memory will be erased and the new file programmed, continue ?");
+            this->dialog.setText("Confirm", "The flash memory will be erased and the new file programmed, continue?");
             if(dialog.exec() != QDialog::Accepted){
                 return;
             }
         }
-
         file.close();
 
         this->stlink->resetMCU(); // We stop the MCU
@@ -181,7 +184,7 @@ void MainWindow::Receive()
     this->filename.clear();
     this->filename = QFileDialog::getSaveFileName(this, "Save File", "/", "Binary Files (*.bin)");
     if (!this->filename.isNull()) {
-        this->ui->t_log->appendPlainText("Saving to "+this->filename);
+        this->log("Saving to "+this->filename);
         QFile file(this->filename);
         if (!file.open(QIODevice::ReadWrite)) {
             qCritical("Could not save the file.");
@@ -199,60 +202,60 @@ void MainWindow::Receive()
 
 void MainWindow::HaltMCU()
 {
-    this->ui->t_log->appendPlainText("Halting MCU...");
+    this->log("Halting MCU...");
     this->stlink->haltMCU();
     this->getStatus();
 }
 
 void MainWindow::RunMCU()
 {
-    this->ui->t_log->appendPlainText("Resuming MCU...");
+    this->log("Resuming MCU...");
     this->stlink->runMCU();
     this->getStatus();
 }
 
 void MainWindow::ResetMCU()
 {
-    this->ui->t_log->appendPlainText("Reseting MCU...");
+    this->log("Reseting MCU...");
     this->stlink->resetMCU();
     this->getStatus();
 }
 
 void MainWindow::setModeJTAG()
 {
-    this->ui->t_log->appendPlainText("Changing mode to JTAG...");
+    this->log("Changing mode to JTAG...");
     this->stlink->setModeJTAG();
     this->getMode();
 }
 
 void MainWindow::setModeSWD()
 {
-    this->ui->t_log->appendPlainText("Changing mode to SWD...");
+    this->log("Changing mode to SWD...");
     this->stlink->setModeSWD();
     this->getMode();
 }
 
 void MainWindow::getVersion()
 {
-    this->ui->t_log->appendPlainText("Fetching version...");
+    this->log("Fetching version...");
     this->stlink->getVersion();
 }
 
 void MainWindow::getMode()
 {
-    this->ui->t_log->appendPlainText("Fetching mode...");
-    this->ui->t_log->appendPlainText(this->stlink->getMode());
+    this->log("Fetching mode...");
+    this->log(this->stlink->getMode());
 }
 
 void MainWindow::getStatus()
 {
-    this->ui->t_log->appendPlainText("Fetching status...");
-    this->ui->t_log->appendPlainText(this->stlink->getStatus());
+    this->log("Fetching status...");
+    this->log(this->stlink->getStatus());
 }
 
 void MainWindow::getMCU()
 {
-    this->ui->t_log->appendPlainText("Fetching MCU Info...");
+    this->log("Fetching MCU Info...");
     this->stlink->getCoreID();
     this->stlink->getChipID();
 
@@ -276,5 +279,5 @@ void MainWindow::getMCU()
         if(!this->stlink->SWIM_ver)
             this->ui->le_swimver->setToolTip("Not supported");
     }
-    else this->ui->t_log->appendPlainText("Device not found!");
+    else this->log("Device not found!");
 }
