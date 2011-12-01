@@ -23,7 +23,6 @@ This file is part of QSTLink2.
 #include <QString>
 #include <QFileDialog>
 #include <QFile>
-#include <QThread>
 #include <QByteArray>
 #include "dialog.h"
 #include "transferthread.h"
@@ -39,12 +38,15 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
+    transferThread *tfThread;
 
 public slots:
     void Connect();
     void Disconnect();
     void updateProgress(quint32 p);
     void updateStatus(QString s);
+    void Send(QString path);
+    void Receive(QString path);
 
 private:
     Ui::MainWindow *ui;
@@ -53,9 +55,7 @@ private:
     DeviceList *devices;
     QString filename;
     QString username;
-    QThread usbThread;
     bool isroot;
-    transferThread *tfThread;
 
 private slots:
     void lockUI(bool enabled);

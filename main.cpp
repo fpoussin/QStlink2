@@ -20,6 +20,10 @@ This file is part of QSTLink2.
 
 quint8 verbose_level = 2;
 QStringList args;
+bool show = true;
+bool flash = false;
+bool wr = false;
+QString path;
 
 void myMessageOutput(QtMsgType type, const char *msg)
 {
@@ -38,7 +42,7 @@ void myMessageOutput(QtMsgType type, const char *msg)
             break;
         case QtDebugMsg:
             if (verbose_level >= 4)
-                fprintf(stderr, "Debug: %s\n", msg);
+                fprintf(stdout, "Debug: %s\n", msg);
             break;
         }
     }
@@ -52,18 +56,63 @@ int main(int argc, char *argv[])
     foreach (const QString &str, args) {
              if (str.contains("quiet"))
                  verbose_level = 0;
-             if (str.contains("error"))
+             else if (str.contains("error"))
                  verbose_level = 2;
-             if (str.contains("warn"))
+             else if (str.contains("warn"))
                  verbose_level = 3;
-             if (str.contains("debug"))
+             else if (str.contains("debug"))
                  verbose_level = 4;
+             if (str.contains("cli"))
+                 show = false;
+             if (str.contains("flash")) {
+                 if (str.contains("write")) {
+                    wr = true;
+                 }
+                 else
+                     wr = false;
+                 flash = true;
+                 path = str.split(":").last();
+             }
          }
 
     qDebug() << "Verbose level:" << verbose_level;
     qInstallMsgHandler(myMessageOutput);
-    MainWindow w;
-    w.show();
+    MainWindow *w = new MainWindow;
+    if (show)
+        w->show();
+
+    else {
+
+        if (flash && !path.isEmpty()) {
+
+            qDebug() << "File Path:" << path;
+            w->Connect();
+            if (wr)
+                w->Send(path);
+            else
+                w->Receive(path);
+
+            sleep(1);
+            while (w->tfThread->isRunning())
+                usleep(100000);
+            w->Disconnect();
+            w->close();
+            delete w;
+            return 0;
+            }
+
+            else {
+                qCritical() << endl << "Missing parameters" << endl
+                << "Command line usage:" << endl
+                         << "cli: Enable command line mode" << endl
+                         << "flash:[read|write]:PATH = Manual dumping/flashing of the device" << endl
+                        << "debug: Enable debug output" << endl;
+                w->close();
+                delete w;
+                return 0;
+            }
+
+    }
 
     return a.exec();
 }

@@ -42,11 +42,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     this->tfThread = new transferThread();
 
-    stlink->moveToThread(&this->usbThread);
-    this->stlink->start();
-    qDebug() << "Thread running:" << this->stlink->isRunning() ;
-
-
     if (this->devices->IsLoaded() && this->isroot) {
         this->ui->gb_top->setEnabled(true);
         this->log(QString::number(this->devices->getDevicesCount())+" Device descriptions loaded.");
@@ -79,6 +74,8 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
     this->stlink->exit();
+    this->tfThread->exit();
+    delete tfThread;
     delete stlink;
     delete devices;
     delete ui;
@@ -171,19 +168,26 @@ void MainWindow::Send()
         }
         file.close();
 
-        this->stlink->resetMCU(); // We stop the MCU
-        this->ui->tabw_info->setCurrentIndex(3);
-        this->ui->pgb_transfer->setValue(0);
-        this->ui->l_progress->setText("Starting transfer...");
-
-        // Transfer thread
-        this->tfThread->setParams(this->stlink, filename, true);
-        this->tfThread->start();
+        this->Send(this->filename);
     }
+}
+
+void MainWindow::Send(QString path)
+{
+    qDebug("Writing flash");
+    this->stlink->resetMCU(); // We stop the MCU
+    this->ui->tabw_info->setCurrentIndex(3);
+    this->ui->pgb_transfer->setValue(0);
+    this->ui->l_progress->setText("Starting transfer...");
+
+    // Transfer thread
+    this->tfThread->setParams(this->stlink, path, true);
+    this->tfThread->start();
 }
 
 void MainWindow::Receive()
 {
+    qDebug("Reading flash");
     this->filename.clear();
     this->filename = QFileDialog::getSaveFileName(this, "Save File", "/", "Binary Files (*.bin)");
     if (!this->filename.isNull()) {
@@ -193,14 +197,19 @@ void MainWindow::Receive()
             qCritical("Could not save the file.");
             return;
         }
-        this->ui->tabw_info->setCurrentIndex(3);
-        this->ui->pgb_transfer->setValue(0);
-        this->ui->l_progress->setText("Starting transfer...");
-
-        // Transfer thread
-        this->tfThread->setParams(this->stlink, filename, false);
-        this->tfThread->start();
+        this->Receive(this->filename);
     }
+}
+
+void MainWindow::Receive(QString path)
+{
+    this->ui->tabw_info->setCurrentIndex(3);
+    this->ui->pgb_transfer->setValue(0);
+    this->ui->l_progress->setText("Starting transfer...");
+
+    // Transfer thread
+    this->tfThread->setParams(this->stlink, path, false);
+    this->tfThread->start();
 }
 
 void MainWindow::HaltMCU()
