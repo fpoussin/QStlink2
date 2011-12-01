@@ -25,120 +25,120 @@ This file is part of QSTLink2.
 #include <QtEndian>
 #include <devices.h>
 
-#define STLINK_OK 0x80
-#define STLINK_FALSE 0x81
-#define STLINK_CORE_RUNNING 0x80
-#define STLINK_CORE_HALTED 0x81
-#define STLINK_CORE_UNKNOWN_STATE 2 /* Not reported, internal use. */
+const quint8 STLINK_OK = 0x80;
+const quint8 STLINK_FALSE = 0x81;
+const quint8 STLINK_CORE_RUNNING = 0x80;
+const quint8 STLINK_CORE_HALTED = 0x81;
+const quint8 STLINK_CORE_UNKNOWN_STATE = 2; /* Not reported, internal use. */
 
-#define STLINK_DEV_DFU_MODE 0x00
-#define STLINK_DEV_MASS_MODE 0x01
-#define STLINK_DEV_DEBUG_MODE 0x02
-#define STLINK_DEV_UNKNOWN_MODE	-1
+const quint8 STLINK_DEV_DFU_MODE = 0x00;
+const quint8 STLINK_DEV_MASS_MODE = 0x01;
+const quint8 STLINK_DEV_DEBUG_MODE = 0x02;
+const quint8 STLINK_DEV_UNKNOWN_MODE = -1;
 
-#define CM3_REG_CHIPID 0xE0042000
-#define CM3_REG_CPUID 0xE000ED00
-#define CM3_REG_FP_CTRL 0xE0002000
-#define CM3_REG_FP_COMP0 0xE0002008
+const quint32 CM3_REG_CHIPID = 0xE0042000;
+const quint32 CM3_REG_CPUID = 0xE000ED00;
+const quint32 CM3_REG_FP_CTRL = 0xE0002000;
+const quint32 CM3_REG_FP_COMP0 = 0xE0002008;
 
 // Constant STM32 memory map figures
-#define STM32_FLASH_BASE 0x08000000
-#define STM32_SRAM_BASE 0x20000000
+const quint32 STM32_FLASH_BASE = 0x08000000;
+const quint32 STM32_SRAM_BASE = 0x20000000;
 
 // stm32 chipids, only lower 12 bits...
-#define STM32_CHIPID_F1_MEDIUM 0x410
-#define STM32_CHIPID_F2 0x411
-#define STM32_CHIPID_F1_LOW 0x412
-#define STM32_CHIPID_F4 0x413
-#define STM32_CHIPID_F1_HIGH 0x414
-#define STM32_CHIPID_L1_MEDIUM 0x416
-#define STM32_CHIPID_F1_CONN 0x418
-#define STM32_CHIPID_F1_VL_MEDIUM 0x420
-#define STM32_CHIPID_F1_VL_HIGH 0x428
-#define STM32_CHIPID_F1_XL 0x430
+const quint32 STM32_CHIPID_F1_MEDIUM = 0x410;
+const quint32 STM32_CHIPID_F2 = 0x411;
+const quint32 STM32_CHIPID_F1_LOW = 0x412;
+const quint32 STM32_CHIPID_F4 = 0x413;
+const quint32 STM32_CHIPID_F1_HIGH = 0x414;
+const quint32 STM32_CHIPID_L1_MEDIUM = 0x416;
+const quint32 STM32_CHIPID_F1_CONN = 0x418;
+const quint32 STM32_CHIPID_F1_VL_MEDIUM = 0x420;
+const quint32 STM32_CHIPID_F1_VL_HIGH = 0x428;
+const quint32 STM32_CHIPID_F1_XL = 0x430;
 
-#define CORE_M3_R1 0x1BA00477
-#define CORE_M3_R2 0x4BA00477
-#define CORE_M4_R0 0x2BA01477
+const quint32 CORE_M3_R1 = 0x1BA00477;
+const quint32 CORE_M3_R2 = 0x4BA00477;
+const quint32 CORE_M4_R0 = 0x2BA01477;
 
-#define STLinkGetVersion 0xF1
-#define STLinkDebugCommand 0xF2
-#define STLinkDFUCommand 0xF3
-#define STLinkDFUExit 0x07
-#define STLinkDFUEnter 0x08 // Unsure...
-#define STLinkGetCurrentMode 0xF5
-#define STLinkDebugReadMem32bit 0x07 // 0x35?
-#define STLinkDebugWriteMem32bit 0x08 //0x36?
-#define STLinkDebugWriteMem8bit 0x0d
+const quint8 STLinkGetVersion = 0xF1;
+const quint8 STLinkDebugCommand = 0xF2;
+const quint8 STLinkDFUCommand = 0xF3;
+const quint8 STLinkDFUExit = 0x07;
+const quint8 STLinkDFUEnter = 0x08; // Unsure...
+const quint8 STLinkGetCurrentMode = 0xF5;
+const quint8 STLinkDebugReadMem32bit = 0x07;
+const quint8 STLinkDebugWriteMem32bit = 0x08;
+const quint8 STLinkDebugWriteMem8bit = 0x0d;
 
-#define STLinkDebugEnterMode 0x20
-#define STLinkDebugEnterSWD 0xA3
-#define STLinkDebugEnterJTAG 0x00
-#define STLinkDebugExit 0x21
-#define STLinkDebugReadCoreID 0x22
-#define STLinkDebugGetStatus 0x01
-#define STLinkDebugForceDebug 0x02
-#define STLinkDebugResetSys 0x03
-#define STLinkDebugReadAllRegs 0x04
-#define STLinkDebugRunCore 0x09
-#define STLinkDebugStepCore 0x0A
+const quint8 STLinkDebugEnterMode = 0x20;
+const quint8 STLinkDebugEnterSWD = 0xA3;
+const quint8 STLinkDebugEnterJTAG = 0x00;
+const quint8 STLinkDebugExit = 0x21;
+const quint8 STLinkDebugReadCoreID = 0x22;
+const quint8 STLinkDebugGetStatus = 0x01;
+const quint8 STLinkDebugForceDebug = 0x02;
+const quint8 STLinkDebugResetSys = 0x03;
+const quint8 STLinkDebugReadAllRegs = 0x04;
+const quint8 STLinkDebugRunCore = 0x09;
+const quint8 STLinkDebugStepCore = 0x0A;
 
 /* stm32f FPEC flash controller interface, pm0063 manual */
 // TODO - all of this needs to be abstracted out....
-#define FLASH_REGS_ADDR 0x40022000
-#define FLASH_REGS_SIZE 0x28
+const quint32 FLASH_REGS_ADDR = 0x40022000;
+const quint8 FLASH_REGS_SIZE = 0x28;
 
-#define FLASH_ACR (FLASH_REGS_ADDR + 0x00)
-#define FLASH_KEYR (FLASH_REGS_ADDR + 0x04)
-#define FLASH_OPT_KEYR (FLASH_REGS_ADDR + 0x08)
-#define FLASH_SR (FLASH_REGS_ADDR + 0x0c)
-#define FLASH_CR (FLASH_REGS_ADDR + 0x10)
-#define FLASH_AR (FLASH_REGS_ADDR + 0x14)
-#define FLASH_OBR (FLASH_REGS_ADDR + 0x1c)
-#define FLASH_WRPR (FLASH_REGS_ADDR + 0x20)
+const quint32 FLASH_ACR = FLASH_REGS_ADDR + 0x00;
+const quint32 FLASH_KEYR = FLASH_REGS_ADDR + 0x04;
+const quint32 FLASH_OPT_KEYR = FLASH_REGS_ADDR + 0x08;
+const quint32 FLASH_SR = FLASH_REGS_ADDR + 0x0c;
+const quint32 FLASH_CR = FLASH_REGS_ADDR + 0x10;
+const quint32 FLASH_AR = FLASH_REGS_ADDR + 0x14;
+const quint32 FLASH_OBR = FLASH_REGS_ADDR + 0x1c;
+const quint32 FLASH_WRPR = FLASH_REGS_ADDR + 0x20;
 
 // Needed to unlock the flash before erase/writing
-#define FLASH_RDPTR_KEY 0x00a5
-#define FLASH_KEY1 0x45670123
-#define FLASH_KEY2 0xcdef89ab
-#define FLASH_OPTKEY1 0x08192A3B
-#define FLASH_OPTKEY2 0x4C5D6E7F
+const quint32 FLASH_RDPTR_KEY = 0x00a5;
+const quint32 FLASH_KEY1 = 0x45670123;
+const quint32 FLASH_KEY2 = 0xcdef89ab;
+const quint32 FLASH_OPTKEY1 = 0x08192A3B;
+const quint32 FLASH_OPTKEY2 = 0x4C5D6E7F;
 
-#define FLASH_SR_BSY 0
-#define FLASH_SR_EOP 5
+const quint8 FLASH_SR_BSY = 0;
+const quint8 FLASH_SR_EOP = 5;
 
-#define FLASH_CR_PG 0
-#define FLASH_CR_PER 1
-#define FLASH_CR_MER 2
-#define FLASH_CR_STRT 6
-#define FLASH_CR_LOCK 7
-#define FLASH_CR_PGSIZE 8
+const quint8 FLASH_CR_PG = 0;
+const quint8 FLASH_CR_PER = 1;
+const quint8 FLASH_CR_MER = 2;
+const quint8 FLASH_CR_STRT = 6;
+const quint8 FLASH_CR_LOCK = 7;
+const quint8 FLASH_CR_PGSIZE = 8;
 
 //32L = 32F1 same CoreID as 32F4!
-#define STM32L_FLASH_REGS_ADDR 0x40023c00
-#define STM32L_FLASH_ACR (STM32L_FLASH_REGS_ADDR + 0x00)
-#define STM32L_FLASH_PECR (STM32L_FLASH_REGS_ADDR + 0x04)
-#define STM32L_FLASH_PDKEYR (STM32L_FLASH_REGS_ADDR + 0x08)
-#define STM32L_FLASH_PEKEYR (STM32L_FLASH_REGS_ADDR + 0x0c)
-#define STM32L_FLASH_PRGKEYR (STM32L_FLASH_REGS_ADDR + 0x10)
-#define STM32L_FLASH_OPTKEYR (STM32L_FLASH_REGS_ADDR + 0x14)
-#define STM32L_FLASH_SR (STM32L_FLASH_REGS_ADDR + 0x18)
-#define STM32L_FLASH_OBR (STM32L_FLASH_REGS_ADDR + 0x0c)
-#define STM32L_FLASH_WRPR (STM32L_FLASH_REGS_ADDR + 0x20)
+const quint32 STM32L_FLASH_REGS_ADDR = 0x40023c00;
+const quint32 STM32L_FLASH_ACR = STM32L_FLASH_REGS_ADDR + 0x00;
+const quint32 STM32L_FLASH_PECR = STM32L_FLASH_REGS_ADDR + 0x04;
+const quint32 STM32L_FLASH_PDKEYR = STM32L_FLASH_REGS_ADDR + 0x08;
+const quint32 STM32L_FLASH_PEKEYR = STM32L_FLASH_REGS_ADDR + 0x0c;
+const quint32 STM32L_FLASH_PRGKEYR = STM32L_FLASH_REGS_ADDR + 0x10;
+const quint32 STM32L_FLASH_OPTKEYR = STM32L_FLASH_REGS_ADDR + 0x14;
+const quint32 STM32L_FLASH_SR = STM32L_FLASH_REGS_ADDR + 0x18;
+const quint32 STM32L_FLASH_OBR = STM32L_FLASH_REGS_ADDR + 0x0c;
+const quint32 STM32L_FLASH_WRPR = STM32L_FLASH_REGS_ADDR + 0x20;
 
 //STM32F4
-#define FLASH_F4_REGS_ADDR 0x40023c00
-#define FLASH_F4_KEYR (FLASH_F4_REGS_ADDR + 0x04)
-#define FLASH_F4_OPT_KEYR (FLASH_F4_REGS_ADDR + 0x08)
-#define FLASH_F4_SR (FLASH_F4_REGS_ADDR + 0x0c)
-#define FLASH_F4_CR (FLASH_F4_REGS_ADDR + 0x10)
-#define FLASH_F4_OPT_CR (FLASH_F4_REGS_ADDR + 0x14)
-#define FLASH_F4_CR_STRT 16
-#define FLASH_F4_CR_LOCK 31
-#define FLASH_F4_CR_SER 1
-#define FLASH_F4_CR_SNB 3
-#define FLASH_F4_CR_SNB_MASK 0x38
-#define FLASH_F4_SR_BSY 16
+const quint32 FLASH_F4_REGS_ADDR = 0x40023c00;
+const quint32 FLASH_F4_KEYR = FLASH_F4_REGS_ADDR + 0x04;
+const quint32 FLASH_F4_OPT_KEYR = FLASH_F4_REGS_ADDR + 0x08;
+const quint32 FLASH_F4_SR = FLASH_F4_REGS_ADDR + 0x0c;
+const quint32 FLASH_F4_CR = FLASH_F4_REGS_ADDR + 0x10;
+const quint32 FLASH_F4_OPT_CR = FLASH_F4_REGS_ADDR + 0x14;
+const quint8 FLASH_F4_CR_STRT = 16;
+const quint8 FLASH_F4_CR_LOCK = 31;
+const quint8 FLASH_F4_CR_SER = 1;
+const quint8 FLASH_F4_CR_SNB = 3;
+const quint8 FLASH_F4_CR_SNB_MASK = 0x38;
+const quint8 FLASH_F4_SR_BSY = 16;
 
 class stlinkv2 : public QThread
 {

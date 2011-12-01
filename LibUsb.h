@@ -26,14 +26,14 @@
 #include <QByteArray>
 #include <QtEndian>
 
-#define USB_ST_VID 0x0483
-#define USB_STLINK_PID 0x3744
-#define USB_STLINKv2_PID 0x3748
-#define USB_CONFIGURATION  1   /* The sole configuration. */
-#define USB_PIPE_IN 0x81	   /* Bulk output endpoint for responses */
-#define USB_PIPE_OUT  0x02	   /* Bulk input endpoint for commands */
-#define USB_PIPE_ERR 0x83	   /* An apparently-unused bulk endpoint. */
-#define USB_TIMEOUT_MSEC 100
+const quint16 USB_ST_VID = 0x0483;
+const quint16 USB_STLINK_PID = 0x3744;
+const quint16 USB_STLINKv2_PID = 0x3748;
+const quint8 USB_CONFIGURATION = 1;   /* The sole configuration. */
+const quint8 USB_PIPE_IN = 0x81;   /* Bulk output endpoint for responses */
+const quint8 USB_PIPE_OUT = 0x02;	   /* Bulk input endpoint for commands */
+const quint8 USB_PIPE_ERR = 0x83;	   /* An apparently-unused bulk endpoint. */
+const quint16 USB_TIMEOUT_MSEC = 100;
 
 class LibUsb {
 
