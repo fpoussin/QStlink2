@@ -272,7 +272,7 @@ void MainWindow::getMCU()
     this->stlink->getChipID();
 
     if (this->devices->search(this->stlink->chip_id)) {
-        qDebug() << "Device type: " << this->devices->cur_device->type;
+        qInformal() << "Device type: " << this->devices->cur_device->type;
         this->stlink->device = this->devices->cur_device;
 
         this->ui->le_type->setText(this->stlink->device->type);

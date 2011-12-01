@@ -117,6 +117,7 @@ void transferThread::send(QString filename)
     emit sendProgress(100);
     emit sendStatus("Transfer done");
     emit sendLog("Transfer done");
+    qInformal() << "Transfer done";
 
     // We disable flash programming
     if (this->stlink->setFlashProgramming(false))
@@ -167,6 +168,7 @@ void transferThread::receive(QString filename)
     file.close();
     emit sendProgress(100);
     emit sendStatus("Transfer done");
+    qInformal() << "Transfer done";
     this->stlink->runMCU();
     emit sendLock(false);
 }
