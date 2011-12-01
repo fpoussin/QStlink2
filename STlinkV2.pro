@@ -24,7 +24,6 @@ QT       += core gui xml
 TARGET = qstlink2
 TEMPLATE = app
 
-
 SOURCES += main.cpp\
         mainwindow.cpp \
     stlinkv2.cpp \
@@ -44,8 +43,6 @@ FORMS    += mainwindow.ui \
     dialog.ui
 
 LIBS += -L/usr/lib -lusb
-
-#DEFINES += GC_HAVE_LIBUSB
 
 
 
