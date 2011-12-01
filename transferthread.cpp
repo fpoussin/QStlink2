@@ -59,7 +59,7 @@ void transferThread::send(QString filename)
     quint32 to = this->stlink->device->flash_base+file.size();
     qInformal() << "Writing from" << QString::number(from, 16) << "to" << QString::number(to, 16);
     QByteArray buf;
-    quint32 addr, progress, read;
+    quint32 addr, progress, oldprogress, read;
     char buf2[program_size];
 
     // Unlock flash
@@ -85,6 +85,7 @@ void transferThread::send(QString filename)
     if (!this->stlink->unlockFlash())
         return;
 
+    progress = 0;
     for (int i=0; i<=file.size(); i+=program_size)
     {
         buf.clear();
@@ -103,9 +104,12 @@ void transferThread::send(QString filename)
 
         addr = this->stlink->device->flash_base+i;
         this->stlink->writeMem32(addr, buf);
+        oldprogress = progress;
         progress = (i*100)/file.size();
-        emit sendProgress(progress);
-        qInformal() << "Progress:"<< QString::number(progress)+"%";
+        if (progress > oldprogress) { // Push only if number has increased
+            emit sendProgress(progress);
+            qInformal() << "Progress:"<< QString::number(progress)+"%";
+        }
         emit sendStatus("Transfered "+QString::number(i/1024)+" kilobytes out of "+QString::number(file.size()/1024));
     }
     file.close();
@@ -141,8 +145,9 @@ void transferThread::receive(QString filename)
     quint32 from = this->stlink->device->flash_base;
     quint32 to = this->stlink->device->flash_base+from;
     qInformal() << "Reading from" << QString::number(from, 16) << "to" << QString::number(to, 16);
-    quint32 addr, progress;
+    quint32 addr, progress, oldprogress;
 
+    progress = 0;
     for (quint32 i=0; i<this->stlink->device->flash_size; i+=program_size)
     {
         if (this->stop)
@@ -151,9 +156,12 @@ void transferThread::receive(QString filename)
         if (this->stlink->readMem32(addr, program_size) < 0)
             break;
         file.write(this->stlink->recv_buf);
+        oldprogress = progress;
         progress = (i*100)/this->stlink->device->flash_size;
-        emit sendProgress(progress);
-        qInformal() << "Progress:"<< QString::number(progress)+"%";
+        if (progress > oldprogress) { // Push only if number has increased
+            emit sendProgress(progress);
+            qInformal() << "Progress:"<< QString::number(progress)+"%";
+        }
         emit sendStatus("Transfered "+QString::number(i/1024)+" kilobytes out of "+QString::number(this->stlink->device->flash_size/1024));
     }
     file.close();
