@@ -84,6 +84,8 @@ const quint8 STLinkDebugResetSys = 0x03;
 const quint8 STLinkDebugReadAllRegs = 0x04;
 const quint8 STLinkDebugRunCore = 0x09;
 const quint8 STLinkDebugStepCore = 0x0A;
+const quint8 STLinkDebugResetCore = 0x3B; // Unsure, seems like it runs the core directly afterwards
+const quint8 STLinkDebugReadCoreRegs = 0x3A; // All regs fetched at once every 4 bytes
 
 /* stm32f FPEC flash controller interface, pm0063 manual */
 // TODO - all of this needs to be abstracted out....
