@@ -27,6 +27,8 @@ This file is part of QSTLink2.
 #include "dialog.h"
 #include "transferthread.h"
 
+#define qInformal() qWarning()
+
 namespace Ui {
     class MainWindow;
 }

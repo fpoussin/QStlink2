@@ -22,6 +22,8 @@ This file is part of QSTLink2.
 #include <QString>
 #include "stlinkv2.h"
 
+#define qInformal() qWarning()
+
 class transferThread : public QThread
 {
     Q_OBJECT

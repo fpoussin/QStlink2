@@ -62,3 +62,7 @@ LIBS += -L/usr/lib -lusb
 
 
 
+
+
+
+

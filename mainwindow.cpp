@@ -290,6 +290,9 @@ void MainWindow::getMCU()
             this->ui->le_jtagver->setToolTip("Not supported");
         if(!this->stlink->SWIM_ver)
             this->ui->le_swimver->setToolTip("Not supported");
+
+        return;
     }
-    else this->log("Device not found!");
+    this->log("Device not found!");
+    qCritical() << "Device not found!";
 }

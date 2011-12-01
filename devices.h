@@ -24,6 +24,8 @@ This file is part of QSTLink2.
 #include <QString>
 #include <QVector>
 
+#define qInformal() qWarning()
+
 class Device : public QObject
 {
     Q_OBJECT

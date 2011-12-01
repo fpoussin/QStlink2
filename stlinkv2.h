@@ -25,6 +25,8 @@ This file is part of QSTLink2.
 #include <QtEndian>
 #include <devices.h>
 
+#define qInformal() qWarning()
+
 const quint8 STLINK_OK = 0x80;
 const quint8 STLINK_FALSE = 0x81;
 const quint8 STLINK_CORE_RUNNING = 0x80;

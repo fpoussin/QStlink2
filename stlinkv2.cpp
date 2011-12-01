@@ -142,7 +142,7 @@ QString stlinkv2::getChipID()
             this->readFlashSize();
         }
 
-    qDebug() << "ChipID:" << QString::number(this->chip_id, 16);
+    qInformal() << "ChipID:" << QString::number(this->chip_id, 16);
     return QString::number(this->chip_id, 16);
 }
 
@@ -468,7 +468,6 @@ void stlinkv2::writeMem32(quint32 addr, QByteArray &buf)
     // the actual data we are writing is on the second command
     this->cmd_buf.append(buf);
     this->SendCommand();
-    //this->libusb->read(&this->recv_buf, 2);
     buf.clear();
 }
 

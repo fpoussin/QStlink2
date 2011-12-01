@@ -57,7 +57,7 @@ void transferThread::send(QString filename)
     quint32 program_size = 4; // WORD (4 bytes)
     quint32 from = this->stlink->device->flash_base;
     quint32 to = this->stlink->device->flash_base+file.size();
-    qDebug() << "Writing from" << QString::number(from, 16) << "to" << QString::number(to, 16);
+    qInformal() << "Writing from" << QString::number(from, 16) << "to" << QString::number(to, 16);
     QByteArray buf;
     quint32 addr, progress, read;
     char buf2[program_size];
@@ -104,7 +104,7 @@ void transferThread::send(QString filename)
         this->stlink->writeMem32(addr, buf);
         progress = (i*100)/file.size();
         emit sendProgress(progress);
-        qDebug() << "Progress:"<< QString::number(progress)+"%";
+        qInformal() << "Progress:"<< QString::number(progress)+"%";
         emit sendStatus("Transfered "+QString::number(i/1024)+" kilobytes out of "+QString::number(file.size()/1024));
     }
     file.close();
@@ -139,7 +139,7 @@ void transferThread::receive(QString filename)
     quint32 program_size = this->stlink->device->flash_pgsize*4;
     quint32 from = this->stlink->device->flash_base;
     quint32 to = this->stlink->device->flash_base+from;
-    qDebug() << "Reading from" << QString::number(from, 16) << "to" << QString::number(to, 16);
+    qInformal() << "Reading from" << QString::number(from, 16) << "to" << QString::number(to, 16);
     quint32 addr, progress;
 
     for (quint32 i=0; i<this->stlink->device->flash_size; i+=program_size)
@@ -152,7 +152,7 @@ void transferThread::receive(QString filename)
         file.write(this->stlink->recv_buf);
         progress = (i*100)/this->stlink->device->flash_size;
         emit sendProgress(progress);
-        qDebug() << "Progress:"<< QString::number(progress)+"%";
+        qInformal() << "Progress:"<< QString::number(progress)+"%";
         emit sendStatus("Transfered "+QString::number(i/1024)+" kilobytes out of "+QString::number(this->stlink->device->flash_size/1024));
     }
     file.close();

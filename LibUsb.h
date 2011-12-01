@@ -26,6 +26,8 @@
 #include <QByteArray>
 #include <QtEndian>
 
+#define qInformal() qWarning()
+
 const quint16 USB_ST_VID = 0x0483;
 const quint16 USB_STLINK_PID = 0x3744;
 const quint16 USB_STLINKv2_PID = 0x3748;

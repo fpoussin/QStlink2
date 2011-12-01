@@ -50,10 +50,10 @@ int LibUsb::open()
 #ifndef Q_OS_MAC
     // these functions fail on OS X Lion
     rc = usb_clear_halt(device, writeEndpoint);
-    if (rc < 0) qDebug()<<"usb_clear_halt writeEndpoint Error: "<< usb_strerror();
+    if (rc < 0) qCritical()<<"usb_clear_halt writeEndpoint Error: "<< usb_strerror();
 
     rc = usb_clear_halt(device, readEndpoint);
-    if (rc < 0) qDebug()<<"usb_clear_halt readEndpoint Error: "<< usb_strerror();
+    if (rc < 0) qCritical()<<"usb_clear_halt readEndpoint Error: "<< usb_strerror();
 #endif
 
     return rc;
@@ -87,21 +87,20 @@ int LibUsb::read(QByteArray *buf, int bytes)
     QString data, s;
 
     if (rc > 0) {
-        for (int i = 0; i < sizeof(buffer); i++) {
+        for (quint32 i = 0; i < sizeof(buffer); i++) {
             buf->append(buffer[i]);
             data.append(s.sprintf("%02X",(uchar)buf->at(i))+":");
         }
-        data.remove(data.size()-1, 1);
+        data.remove(data.size()-1, 1); //remove last colon
         qDebug() << "Received: " << data;
     }
 
     if (rc < 0)
     {
-        // don't report timeouts - lots of noise so commented out
         if (rc == -110)
-            qDebug()<< "Timeout";
+            qDebug() << "Timeout";
         else
-            qDebug()<<"usb_bulk_read Error reading: "<<rc<< usb_strerror();
+            qCritical() << "usb_bulk_read Error reading: " << rc << usb_strerror();
         return rc;
     }
 
@@ -118,7 +117,7 @@ int LibUsb::write(QByteArray *buf, int bytes)
         for (int i=0; i<buf->size(); i++) {
             cmd.append(s.sprintf("%02X",(uchar)buf->at(i))+":");
         }
-        cmd.remove(cmd.size()-1, 1);
+        cmd.remove(cmd.size()-1, 1); //remove last colon
         qDebug() << "Sending" << buf->size() << "bytes:" << cmd;
 
     // we use a non-interrupted write on Linux/Mac since the interrupt
@@ -128,11 +127,12 @@ int LibUsb::write(QByteArray *buf, int bytes)
 
     if (rc < 0)
     {
-        // don't report timeouts - lots of noise
-        if (rc == -110) qDebug()<<"Timeout";
-        else if (rc == -2) qDebug()<<"EndPoint no found";
-//        else qDebug()<< "Timeout";
-        else qDebug()<<"usb_interrupt_write Error writing: "<< usb_strerror();
+        if (rc == -110)
+            qDebug() << "Timeout";
+        else if (rc == -2)
+            qCritical() << "EndPoint not found";
+        else
+            qCritical() << "usb_interrupt_write Error writing: "<< usb_strerror();
     }
 
     return rc;
@@ -149,21 +149,19 @@ struct usb_dev_handle* LibUsb::OpenAntStick()
 
         for (dev = bus->devices; dev; dev = dev->next) {
 
-//            qDebug() << dev->descriptor.idVendor << ":" << dev->descriptor.idProduct;
-
             if (dev->descriptor.idVendor == USB_ST_VID && dev->descriptor.idProduct == USB_STLINK_PID) {
 
-                qDebug() << "Found ST an Link V1, this one is not supported!";
+                qCritical() << "Found ST an Link V1, this one is not supported!";
                 return NULL;
             }
 
             else if (dev->descriptor.idVendor == USB_ST_VID && dev->descriptor.idProduct == USB_STLINKv2_PID) {
 
                 //Avoid noisy output
-                qDebug() << "Found an ST Link V2.";
+                qInformal() << "Found an ST Link V2.";
 
                 if ((udev = usb_open(dev))) {
-                    qDebug() << "Opening device...";
+                    qInformal() << "Opening device...";
 
                     if (dev->descriptor.bNumConfigurations) {
 
@@ -171,26 +169,26 @@ struct usb_dev_handle* LibUsb::OpenAntStick()
 
                             int rc = usb_set_configuration(udev, 1);
                             if (rc < 0) {
-                                qDebug()<<"usb_set_configuration Error: "<< usb_strerror();
+                                qCritical()<<"usb_set_configuration Error: "<< usb_strerror();
 #ifdef __linux__
                                 // looks like the udev rule has not been implemented
-                                qDebug()<<"check permissions on:"<<QString("/dev/bus/usb/%1/%2").arg(bus->dirname).arg(dev->filename);
-                                qDebug()<<"did you remember to setup a udev rule for this device?";
+                                qCritical()<<"check permissions on:"<<QString("/dev/bus/usb/%1/%2").arg(bus->dirname).arg(dev->filename);
+                                qCritical()<<"did you remember to setup a udev rule for this device?";
 #endif
                             }
 
                             rc = usb_claim_interface(udev, this->interface);
-                            if (rc < 0) qDebug()<<"usb_claim_interface Error: "<< usb_strerror();
+                            if (rc < 0) qCritical()<<"usb_claim_interface Error: "<< usb_strerror();
 
 //#ifndef Q_OS_MAC
 //                            // fails on Mac OS X, we don't actually need it anyway
 //                            rc = usb_set_altinterface(udev, alternate);
 //                            if (rc < 0) qDebug()<<"usb_set_altinterface Error: "<< usb_strerror();
 //#endif
-                            qDebug() << "Device Open.";
+                            qInformal() << "Device Open.";
                             return udev;
                         }
-                        else qDebug() << "Could not load interface configuration.";
+                        else qCritical() << "Could not load interface configuration.";
                     }
 
                     usb_close(udev);
@@ -198,7 +196,7 @@ struct usb_dev_handle* LibUsb::OpenAntStick()
             }
         }
     }
-    qDebug() << "Found nothing...";
+    qCritical() << "Found nothing...";
     return NULL;
 }
 
@@ -220,19 +218,8 @@ struct usb_interface_descriptor* LibUsb::usb_find_interface(struct usb_config_de
 
     intf = &config_descriptor->interface[0].altsetting[0];
 
-//    if (intf->bNumEndpoints != 2) return NULL;
-
     this->interface = intf->bInterfaceNumber;
     this->alternate = intf->bAlternateSetting;
-
-    for (int i = 0 ; i < intf->bNumEndpoints; i++)
-    {
-//        qDebug() << "0x" <<QString::number(intf->endpoint[i].bEndpointAddress, 16);
-//        if (intf->endpoint[i].bEndpointAddress & USB_ENDPOINT_DIR_MASK)
-//            readEndpoint = intf->endpoint[i].bEndpointAddress;
-//        else
-//            writeEndpoint = intf->endpoint[i].bEndpointAddress;
-    }
 
     this->readEndpoint = USB_PIPE_IN; // IN = ST link -> Host
     this->writeEndpoint = USB_PIPE_OUT; // OUT = Host -> ST link

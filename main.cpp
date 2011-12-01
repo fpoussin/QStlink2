@@ -17,8 +17,11 @@ This file is part of QSTLink2.
 #include <QtGui/QApplication>
 #include "mainwindow.h"
 #include <QStringList>
+#include <QDebug>
 
-quint8 verbose_level = 2;
+#define QtInfoMsg QtWarningMsg // Little hack to have an "info" level of output.
+
+quint8 verbose_level = 2; // Level = info by default
 QStringList args;
 bool show = true;
 bool flash = false;
@@ -27,24 +30,22 @@ QString path;
 
 void myMessageOutput(QtMsgType type, const char *msg)
 {
-    if (verbose_level) {
-        switch (type) {
-        case QtFatalMsg:
-                fprintf(stderr, "Fatal: %s\n", msg);
-                abort();
-        case QtCriticalMsg:
-            if (verbose_level >= 2)
-                fprintf(stderr, "Error: %s\n", msg);
-            break;
-        case QtWarningMsg:
-            if (verbose_level >= 3)
-                fprintf(stderr, "Warning: %s\n", msg);
-            break;
-        case QtDebugMsg:
-            if (verbose_level >= 4)
-                fprintf(stdout, "Debug: %s\n", msg);
-            break;
-        }
+    switch (type) {
+    case QtFatalMsg: // Always print!
+            fprintf(stderr, "Fatal: %s\n", msg);
+            abort();
+    case QtCriticalMsg:
+        if (verbose_level >= 1)
+            fprintf(stderr, "Error: %s\n", msg);
+        break;
+    case QtInfoMsg: // Since there is no "Info" level, we use qWarning which we alias with #define...
+        if (verbose_level >= 2)
+            fprintf(stdout, "Info: %s\n", msg);
+        break;
+    case QtDebugMsg:
+        if (verbose_level >= 10)
+            fprintf(stdout, "Debug: %s\n", msg);
+        break;
     }
 }
 
@@ -61,7 +62,7 @@ int main(int argc, char *argv[])
              else if (str.contains("warn"))
                  verbose_level = 3;
              else if (str.contains("debug"))
-                 verbose_level = 4;
+                 verbose_level = 10;
              if (str.contains("cli"))
                  show = false;
              if (str.contains("flash")) {
@@ -82,9 +83,8 @@ int main(int argc, char *argv[])
         w->show();
 
     else {
-
         if (QString(getenv("USER")) != "root") {
-            qDebug("You need to run the program as root in order to access USB subsystems. Use sudo.");
+            qFatal("You need to run the program as root in order to access USB subsystems. Use sudo.");
             return 1;
         }
 
@@ -105,7 +105,6 @@ int main(int argc, char *argv[])
             delete w;
             return 0;
             }
-
             else {
                 qCritical() << endl << "Missing parameters" << endl
                 << "Command line usage:" << endl
@@ -116,8 +115,6 @@ int main(int argc, char *argv[])
                 delete w;
                 return 0;
             }
-
     }
-
     return a.exec();
 }
