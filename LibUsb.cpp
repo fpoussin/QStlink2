@@ -72,13 +72,14 @@ void LibUsb::close()
     }
 }
 
-qint32 LibUsb::read(QByteArray *buf, quint32 bytes)
+qint32 LibUsb::read(QByteArray *buf, const quint32 bytes)
 {
 
     // check it isn't closed already
     if (!device) return -1;
 
-    char buffer[bytes];
+//    char buffer[bytes];
+    char *buffer = (char*)malloc(bytes);
     qint32 rc = usb_bulk_read(this->device, this->readEndpoint, buffer, bytes, USB_TIMEOUT_MSEC);
     qDebug() << "Bytes read: " << rc;
 
@@ -103,11 +104,11 @@ qint32 LibUsb::read(QByteArray *buf, quint32 bytes)
             qCritical() << "usb_bulk_read Error reading: " << rc << usb_strerror();
         return rc;
     }
-
+    free(buffer);
     return rc;
 }
 
-qint32 LibUsb::write(QByteArray *buf, quint32 bytes)
+qint32 LibUsb::write(QByteArray *buf, const quint32 bytes)
 {
 
     // check it isn't closed
@@ -123,10 +124,12 @@ qint32 LibUsb::write(QByteArray *buf, quint32 bytes)
     // we use a non-interrupted write on Linux/Mac since the interrupt
     // write block size is incorectly implemented in the version of
     // libusb we build with. It is no less efficent.
-#ifndef Q_OS_MAC
-    qint32 rc = usb_bulk_write(this->device, this->writeEndpoint, buf->constData(), bytes, USB_TIMEOUT_MSEC);
-#else // Workaround for OSX with the brew libusb package...
+#ifdef Q_OS_MAC
     qint32 rc = usb_bulk_write(this->device, this->writeEndpoint, buf->data(), bytes, USB_TIMEOUT_MSEC);
+#elif WIN32
+    qint32 rc = usb_bulk_write(this->device, this->writeEndpoint, buf->data(), bytes, USB_TIMEOUT_MSEC);
+#else // Workaround for OSX with the brew libusb package...
+    qint32 rc = usb_bulk_write(this->device, this->writeEndpoint, buf->constData(), bytes, USB_TIMEOUT_MSEC);
 #endif
 
     if (rc < 0)

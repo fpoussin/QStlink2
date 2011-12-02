@@ -42,7 +42,8 @@ HEADERS  += mainwindow.h \
 FORMS    += mainwindow.ui \
     dialog.ui
 
-LIBS += -L/usr/lib -lusb
+unix:LIBS += -L/usr/lib -lusb
+win32:LIBS += -L"$$_PRO_FILE_PWD_/libs/" -llibusb
 
 RESOURCES += \
     res/ressources.qrc

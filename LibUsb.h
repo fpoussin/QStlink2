@@ -22,9 +22,14 @@
 
 #include <QString>
 #include <QDebug>
-#include <usb.h> // for the constants etc
 #include <QByteArray>
 #include <QtEndian>
+
+#ifdef WIN32
+#include <libs/lusb0_usb.h> // for the constants etc
+#else
+#include <usb.h> // for the constants etc
+#endif
 
 #define qInformal() qWarning()
 
@@ -45,8 +50,8 @@ public:
 public slots:
     qint32 open();
     void close();
-    qint32 read(QByteArray *buf, quint32 bytes);
-    qint32 write(QByteArray *buf, quint32 bytes);
+    qint32 read(QByteArray *buf, const quint32 bytes);
+    qint32 write(QByteArray *buf, const quint32 bytes);
 
 private:
     struct usb_dev_handle* OpenAntStick();

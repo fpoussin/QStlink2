@@ -19,6 +19,10 @@ This file is part of QSTLink2.
 #include <QStringList>
 #include <QDebug>
 
+#ifdef WIN32
+#define usleep(num) Sleep(num/1000)
+#endif
+
 #define QtInfoMsg QtWarningMsg // Little hack to have an "info" level of output.
 
 quint8 verbose_level = 2; // Level = info by default
@@ -86,11 +90,12 @@ int main(int argc, char *argv[])
         w->show();
 
     else {
+#ifndef WIN32
         if (QString(getenv("USER")) != "root") {
             qFatal("You need to run the program as root in order to access USB subsystems. Use sudo.");
             return 1;
         }
-
+#endif
         if (flash && !path.isEmpty()) {
 
             qDebug() << "File Path:" << path;
@@ -100,7 +105,7 @@ int main(int argc, char *argv[])
             else
                 w->Receive(path);
 
-            sleep(1);
+            //sleep(1);
             while (w->tfThread->isRunning())
                 usleep(100000);
             w->Disconnect();
