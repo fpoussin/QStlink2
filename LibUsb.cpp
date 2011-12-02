@@ -125,7 +125,7 @@ int LibUsb::write(QByteArray *buf, int bytes)
     // libusb we build with. It is no less efficent.
 #ifndef Q_OS_MAC
     int rc = usb_bulk_write(this->device, this->writeEndpoint, buf->constData(), bytes, USB_TIMEOUT_MSEC);
-#else // Workaround for OSX...
+#else // Workaround for OSX with the brew libusb package...
     int rc = usb_bulk_write(this->device, this->writeEndpoint, buf->data(), bytes, USB_TIMEOUT_MSEC);
 #endif
 
