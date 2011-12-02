@@ -36,9 +36,9 @@ stlinkv2::~stlinkv2()
 }
 
 
-int stlinkv2::connect()
+qint32 stlinkv2::connect()
 {
-    int open;
+    qint32 open;
     if ((open = this->libusb->open()))
         this->libusb->read(&this->recv_buf, 6192); // We clean the usb buffer
     return open;
@@ -462,7 +462,7 @@ void stlinkv2::writeMem32(const quint32 &addr, QByteArray &buf)
     buf.clear();
 }
 
-int stlinkv2::readMem32(const quint32 &addr, const quint16 &len)
+qint32 stlinkv2::readMem32(const quint32 &addr, const quint16 &len)
 {
     qDebug() << "***[readMem32] Reading at" << "0x"+QString::number(addr, 16).toUpper();
     if (len % 4 != 0)
@@ -496,7 +496,7 @@ qint32 stlinkv2::DebugCommand(const quint8 &st_cmd1, const quint8 &st_cmd2, cons
     this->cmd_buf.append(st_cmd1);
     if (st_cmd2)
         this->cmd_buf.append(st_cmd2);
-    int res = this->SendCommand();
+    qint32 res = this->SendCommand();
     if (res > 0)
         qDebug() << res << " Bytes sent";
     else qCritical() << "Error: " << res;
@@ -507,9 +507,9 @@ qint32 stlinkv2::DebugCommand(const quint8 &st_cmd1, const quint8 &st_cmd2, cons
 }
 
 
-int stlinkv2::SendCommand()
+qint32 stlinkv2::SendCommand()
 {
-    int ret = 0;
+    qint32 ret = 0;
     ret = this->libusb->write(&this->cmd_buf, this->cmd_buf.size());
     this->cmd_buf.clear();
     if (ret > 0) {
