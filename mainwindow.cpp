@@ -89,7 +89,7 @@ void MainWindow::showHelp()
 
     this->dialog.setText("Help","Could no load help file");
 
-    QFile file("help.html");
+    QFile file(":/help.html");
     if (!file.open(QIODevice::ReadOnly)) {
         qCritical("Could not open the help file.");
     }

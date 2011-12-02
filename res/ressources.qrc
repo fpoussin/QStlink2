@@ -2,5 +2,6 @@
     <qresource prefix="/">
         <file>images/icon-questionmark.png</file>
         <file>images/question_mark_icon.png</file>
+        <file>help.html</file>
     </qresource>
 </RCC>
