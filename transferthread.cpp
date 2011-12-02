@@ -37,11 +37,12 @@ void transferThread::halt()
     emit sendLog("Transfer Aborted");
 }
 
-void transferThread::setParams(stlinkv2 *stlink, QString filename, bool write)
+void transferThread::setParams(stlinkv2 *stlink, QString filename, bool write, bool erase)
 {
     this->stlink = stlink;
     this->filename = filename;
     this->write = write;
+    this->erase = erase;
 }
 
 void transferThread::send(const QString &filename)
@@ -71,9 +72,13 @@ void transferThread::send(const QString &filename)
 
     this->stlink->setProgramSize(program_size);
 
-    emit sendStatus("Erasing flash... This might take some time.");
-    qInformal() << "Erasing flash... This might take some time.";
-    this->stlink->eraseFlash();
+    if (this->erase) {
+
+        emit sendStatus("Erasing flash... This might take some time.");
+        qInformal() << "Erasing flash... This might take some time.";
+        this->stlink->eraseFlash();
+
+    }
 
     qDebug() << "\n";
     // We finally enable flash programming

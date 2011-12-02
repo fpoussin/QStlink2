@@ -166,11 +166,11 @@ void MainWindow::Send()
         }
         file.close();
 
-        this->Send(this->filename);
+        this->Send(this->filename, true);
     }
 }
 
-void MainWindow::Send(const QString &path)
+void MainWindow::Send(const QString &path, const bool &erase)
 {
     qDebug("Writing flash");
     this->stlink->resetMCU(); // We stop the MCU
@@ -179,7 +179,7 @@ void MainWindow::Send(const QString &path)
     this->ui->l_progress->setText("Starting transfer...");
 
     // Transfer thread
-    this->tfThread->setParams(this->stlink, path, true);
+    this->tfThread->setParams(this->stlink, path, true, erase);
     this->tfThread->start();
 }
 
@@ -206,7 +206,7 @@ void MainWindow::Receive(const QString &path)
     this->ui->l_progress->setText("Starting transfer...");
 
     // Transfer thread
-    this->tfThread->setParams(this->stlink, path, false);
+    this->tfThread->setParams(this->stlink, path, false, false);
     this->tfThread->start();
 }
 

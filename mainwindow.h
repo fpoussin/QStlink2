@@ -47,7 +47,7 @@ public slots:
     void Disconnect();
     void updateProgress(const quint32 &p);
     void updateStatus(const QString &s);
-    void Send(const QString &path);
+    void Send(const QString &path, const bool &erase);
     void Receive(const QString &path);
 
 private:

@@ -30,7 +30,7 @@ class transferThread : public QThread
 public:
     explicit transferThread(QObject *parent = 0);
     void run();
-    void setParams(stlinkv2 *stlink, QString filename, bool write);
+    void setParams(stlinkv2 *stlink, QString filename, bool write, bool erase);
 
 signals:
     void sendProgress(const quint32 &p);
@@ -52,6 +52,7 @@ private:
     bool write;
     stlinkv2 *stlink;
     bool stop;
+    bool erase;
 
 };
 

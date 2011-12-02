@@ -26,6 +26,7 @@ QStringList args;
 bool show = true;
 bool flash = false;
 bool wr = false;
+bool erase = true;
 QString path;
 
 void myMessageOutput(QtMsgType type, const char *msg)
@@ -66,6 +67,8 @@ int main(int argc, char *argv[])
              if (str.contains("cli"))
                  show = false;
              if (str.contains("flash")) {
+                 if (str.contains("noerase"))
+                     erase = false;
                  if (str.contains("write")) {
                     wr = true;
                  }
@@ -93,7 +96,7 @@ int main(int argc, char *argv[])
             qDebug() << "File Path:" << path;
             w->Connect();
             if (wr)
-                w->Send(path);
+                w->Send(path, erase);
             else
                 w->Receive(path);
 
