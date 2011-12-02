@@ -109,7 +109,7 @@ QString stlinkv2::getCoreID() {
 
     qDebug() << "***[getCoreID]***";
     this->DebugCommand(STLinkDebugReadCoreID, 0, 4);
-    this->core_id = this->read_uint32((uchar*)this->recv_buf.constData());
+    this->core_id = qFromLittleEndian<quint32>((uchar*)this->recv_buf.constData());
     return QString::number(this->core_id, 16);
 }
 
@@ -308,14 +308,14 @@ quint32 stlinkv2::readFlashCR()
     if(this->chip_id == STM32_CHIPID_F4) {
 
         readMem32(FLASH_F4_CR, sizeof(quint32));
-        res =  read_uint32((const uchar*)this->recv_buf.constData());
+        res =  qFromLittleEndian<quint32>((const uchar*)this->recv_buf.constData());
         qDebug() << "(F4) Flash control register:" << QString::number(res, 16);
         return res;
     }
     else {
 
         readMem32(FLASH_CR, sizeof(quint32));
-        res =  read_uint32((const uchar*)this->recv_buf.constData());
+        res =  qFromLittleEndian<quint32>((const uchar*)this->recv_buf.constData());
         qDebug() << "Flash control register:" << QString::number(res, 16);
         return res;
     }
@@ -425,13 +425,13 @@ bool stlinkv2::isBusy()
 
     if(this->chip_id == STM32_CHIPID_F4) {
         readMem32(FLASH_F4_SR, sizeof(quint32));
-        res =  read_uint32((const uchar*)this->recv_buf.constData()) & (1 << FLASH_F4_SR_BSY);
+        res =  qFromLittleEndian<quint32>((const uchar*)this->recv_buf.constData()) & (1 << FLASH_F4_SR_BSY);
         qDebug() << "(F4) Flash busy:" << res;
         return res;
     }
     else {
         readMem32(FLASH_SR, sizeof(quint32));
-        res =  read_uint32((const uchar*)this->recv_buf.constData()) & (1 << FLASH_SR_BSY);
+        res =  qFromLittleEndian<quint32>((const uchar*)this->recv_buf.constData()) & (1 << FLASH_SR_BSY);
         qDebug() << "Flash busy:" << res;
         return res;
     }
@@ -519,19 +519,4 @@ int stlinkv2::SendCommand()
         qCritical() << "Error!";
     }
     return ret;
-}
-
-void stlinkv2::write_uint32(uchar* buf, const quint32 &ui)
-{
-    qToLittleEndian(ui, buf);
-}
-
-void stlinkv2::write_uint16(uchar* buf, const quint16 &ui)
-{
-    qToLittleEndian(ui, buf);
-}
-
-quint32 stlinkv2::read_uint32(const uchar *c)
-{
-    return qFromLittleEndian<quint32>(c);
 }

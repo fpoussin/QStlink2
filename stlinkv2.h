@@ -198,9 +198,6 @@ private:
     qint32 Command(const quint8 &st_cmd0, const quint8 &st_cmd1, const quint32 &resp_len);
     qint32 DebugCommand(const quint8 &st_cmd1, const quint8 &st_cmd2, const quint32 &resp_len);
     int SendCommand();
-    void write_uint32(uchar* buf, const quint32 &ui);
-    void write_uint16(uchar* buf, const quint16 &ui);
-    quint32 read_uint32(const uchar *c);
     quint16 ST_VendorID;
     quint16 ST_ProductID;
     short verbose;
