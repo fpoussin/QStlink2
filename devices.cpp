@@ -152,7 +152,7 @@ bool DeviceList::IsLoaded() {
     return this->loaded;
 }
 
-bool DeviceList::search(const int chip_id) {
+bool DeviceList::search(const quint32 chip_id) {
     qDebug() << "Looking for:" << chip_id;
     for (int i=0; i < this->devices.count(); i++) {
 
@@ -167,7 +167,7 @@ bool DeviceList::search(const int chip_id) {
     return false;
 }
 
-short DeviceList::getDevicesCount()
+quint16 DeviceList::getDevicesCount()
 {
     return this->devices.count();
 }

@@ -45,10 +45,10 @@ public:
 public slots:
     void Connect();
     void Disconnect();
-    void updateProgress(quint32 p);
-    void updateStatus(QString s);
-    void Send(QString path);
-    void Receive(QString path);
+    void updateProgress(const quint32 &p);
+    void updateStatus(const QString &s);
+    void Send(const QString &path);
+    void Receive(const QString &path);
 
 private:
     Ui::MainWindow *ui;
@@ -61,7 +61,7 @@ private:
 
 private slots:
     void lockUI(bool enabled);
-    void log(QString s);
+    void log(const QString &s);
     void getVersion();
     void getMode();
     void getMCU();

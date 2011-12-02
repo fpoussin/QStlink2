@@ -39,7 +39,7 @@ stlinkv2::~stlinkv2()
 int stlinkv2::connect()
 {
     int open;
-    if (open = this->libusb->open())
+    if ((open = this->libusb->open()))
         this->libusb->read(&this->recv_buf, 6192); // We clean the usb buffer
     return open;
 }
@@ -48,16 +48,6 @@ void stlinkv2::disconnect()
 {
 //    this->Command(STLinkDFUCommand, STLinkDFUEnter, 0);
     this->libusb->close();
-}
-
-int stlinkv2::setup()
-{
-//    this->DebugCommand(STLinkDebugReadCoreID, 0, 4);
-//    this->libusb->read(&this->recv_buf, 2);
-//    qDebug() << "Read buffer size: " << this->recv_buf.size();
-//    this->setModeSWD();
-//    this->core_id = this->DebugCommand(STLinkDebugReadCoreID, 0, 2);
-    return 0;
 }
 
 QString stlinkv2::getVersion() {
@@ -330,7 +320,7 @@ quint32 stlinkv2::readFlashCR()
     }
 }
 
-quint32 stlinkv2::writeFlashCR(quint32 mask, bool value)
+quint32 stlinkv2::writeFlashCR(const quint32 &mask, const bool &value)
 {
     if (this->isLocked())
         this->unlockFlash();
@@ -357,7 +347,7 @@ quint32 stlinkv2::writeFlashCR(quint32 mask, bool value)
     return this->readFlashCR();
 }
 
-bool stlinkv2::setFlashProgramming(bool val)
+bool stlinkv2::setFlashProgramming(const bool &val)
 {
     quint32 mask = 0;
     qDebug() << "***[setFlashProgramming]***";
@@ -369,7 +359,7 @@ bool stlinkv2::setFlashProgramming(bool val)
     return false;
 }
 
-bool stlinkv2::setMassErase(bool val)
+bool stlinkv2::setMassErase(const bool &val)
 {
     quint32 mask = 0;
     qDebug() << "***[setMassErase]***";
@@ -395,7 +385,7 @@ void stlinkv2::setSTRT()
     this->writeFlashCR(mask, true);
 }
 
-void stlinkv2::setProgramSize(quint8 size)
+void stlinkv2::setProgramSize(const quint8 &size)
 {
     qDebug() << "***[setProgramSize]***";
 
@@ -446,7 +436,7 @@ bool stlinkv2::isBusy()
     }
 }
 
-void stlinkv2::writeMem32(quint32 addr, QByteArray &buf)
+void stlinkv2::writeMem32(const quint32 &addr, QByteArray &buf)
 {
     qDebug() << "***[writeMem32] Writing" << buf.size() << "bytes to" << "0x"+QString::number(addr, 16).toUpper();
     if (buf.size() % 4 != 0)
@@ -471,7 +461,7 @@ void stlinkv2::writeMem32(quint32 addr, QByteArray &buf)
     buf.clear();
 }
 
-int stlinkv2::readMem32(quint32 addr, quint16 len)
+int stlinkv2::readMem32(const quint32 &addr, const quint16 &len)
 {
     qDebug() << "***[readMem32] Reading at" << "0x"+QString::number(addr, 16).toUpper();
     if (len % 4 != 0)
@@ -488,7 +478,7 @@ int stlinkv2::readMem32(quint32 addr, quint16 len)
     return this->libusb->read(&this->recv_buf, len);
 }
 
-int stlinkv2::Command(quint8 st_cmd0, quint8 st_cmd1, int resp_len)
+qint32 stlinkv2::Command(const quint8 &st_cmd0, const quint8 &st_cmd1, const quint32 &resp_len)
 {
     this->cmd_buf.append(st_cmd0);
     if (st_cmd1 != 0)
@@ -499,7 +489,7 @@ int stlinkv2::Command(quint8 st_cmd0, quint8 st_cmd1, int resp_len)
     return 0;
 }
 
-int stlinkv2::DebugCommand(quint8 st_cmd1, quint8 st_cmd2, int resp_len)
+qint32 stlinkv2::DebugCommand(const quint8 &st_cmd1, const quint8 &st_cmd2, const quint32 &resp_len)
 {
     this->cmd_buf.append(STLinkDebugCommand);
     this->cmd_buf.append(st_cmd1);
@@ -530,12 +520,12 @@ int stlinkv2::SendCommand()
     return ret;
 }
 
-void stlinkv2::write_uint32(uchar* buf, quint32 ui)
+void stlinkv2::write_uint32(uchar* buf, const quint32 &ui)
 {
     qToLittleEndian(ui, buf);
 }
 
-void stlinkv2::write_uint16(uchar* buf, quint16 ui)
+void stlinkv2::write_uint16(uchar* buf, const quint16 &ui)
 {
     qToLittleEndian(ui, buf);
 }

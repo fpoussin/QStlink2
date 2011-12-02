@@ -43,10 +43,10 @@ public:
     LibUsb();
 
 public slots:
-    int open();
+    qint32 open();
     void close();
-    int read(QByteArray *buf, int bytes);
-    int write(QByteArray *buf, int bytes);
+    qint32 read(QByteArray *buf, quint32 bytes);
+    qint32 write(QByteArray *buf, quint32 bytes);
 
 private:
     struct usb_dev_handle* OpenAntStick();
@@ -54,8 +54,8 @@ private:
     struct usb_dev_handle* device;
     struct usb_interface_descriptor* intf;
 
-    int readEndpoint, writeEndpoint;
-    int interface;
-    int alternate;
+    qint32 readEndpoint, writeEndpoint;
+    qint32 interface;
+    qint32 alternate;
 };
 #endif

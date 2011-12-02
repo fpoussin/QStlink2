@@ -33,11 +33,11 @@ public:
     void setParams(stlinkv2 *stlink, QString filename, bool write);
 
 signals:
-    void sendProgress(quint32 p);
-    void sendStatus(QString s);
-    void sendError(QString s);
-    void sendLock(bool enabled);
-    void sendLog(QString s);
+    void sendProgress(const quint32 &p);
+    void sendStatus(const QString &s);
+    void sendError(const QString &s);
+    void sendLock(const bool &enabled);
+    void sendLog(const QString &s);
 
 public slots:
     void halt();
@@ -45,8 +45,8 @@ public slots:
 private slots:
 
 private:
-    void send(QString filename);
-    void receive(QString filename);
+    void send(const QString &filename);
+    void receive(const QString &filename);
 
     int i;
     QString filename;

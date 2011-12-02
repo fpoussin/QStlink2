@@ -92,7 +92,6 @@ void MainWindow::Connect()
         return;
     default:
         this->log("ST Link V2 found!");
-        this->stlink->setup();
         this->getVersion();
         this->stlink->setExitModeDFU();
         this->setModeSWD();
@@ -105,7 +104,6 @@ void MainWindow::Connect()
         this->ui->b_receive->setEnabled(true);
         break;
     }
-
 }
 
 void MainWindow::Disconnect()
@@ -120,7 +118,7 @@ void MainWindow::Disconnect()
     this->ui->b_receive->setEnabled(false);
 }
 
-void MainWindow::log(QString s)
+void MainWindow::log(const QString &s)
 {
     this->ui->t_log->appendPlainText(s);
 }
@@ -131,12 +129,12 @@ void MainWindow::lockUI(bool enabled)
     this->ui->gb_bottom->setEnabled(!enabled);
 }
 
-void MainWindow::updateProgress(quint32 p)
+void MainWindow::updateProgress(const quint32 &p)
 {
     this->ui->pgb_transfer->setValue(p);
 }
 
-void MainWindow::updateStatus(QString s)
+void MainWindow::updateStatus(const QString &s)
 {
     this->ui->l_progress->setText(s);
 }
@@ -172,7 +170,7 @@ void MainWindow::Send()
     }
 }
 
-void MainWindow::Send(QString path)
+void MainWindow::Send(const QString &path)
 {
     qDebug("Writing flash");
     this->stlink->resetMCU(); // We stop the MCU
@@ -201,7 +199,7 @@ void MainWindow::Receive()
     }
 }
 
-void MainWindow::Receive(QString path)
+void MainWindow::Receive(const QString &path)
 {
     this->ui->tabw_info->setCurrentIndex(3);
     this->ui->pgb_transfer->setValue(0);

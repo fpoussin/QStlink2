@@ -166,15 +166,14 @@ signals:
 public slots:
     int connect();
     void disconnect();
-    int setup();
     void resetMCU();
     void haltMCU();
     void runMCU();
     void setModeJTAG();
     void setModeSWD();
     void setExitModeDFU();
-    int readMem32(quint32 addr, quint16 len = 4);
-    void writeMem32(quint32 addr, QByteArray &buf);
+    int readMem32(const quint32 &addr, const quint16 &len = 4);
+    void writeMem32(const quint32 &addr, QByteArray &buf);
     bool isLocked();
     void eraseFlash();
     bool unlockFlash();
@@ -182,11 +181,11 @@ public slots:
     bool unlockFlashOpt();
     bool isBusy();
     quint32 readFlashCR();
-    quint32 writeFlashCR(quint32 mask, bool value);
-    bool setFlashProgramming(bool val);
-    bool setMassErase(bool val);
+    quint32 writeFlashCR(const quint32 &mask, const bool &value);
+    bool setFlashProgramming(const bool &val);
+    bool setMassErase(const bool &val);
     void setSTRT();
-    void setProgramSize(quint8 size);
+    void setProgramSize(const quint8 &size);
     quint32 readFlashSize();
     QString getStatus();
     QString getVersion();
@@ -196,11 +195,11 @@ public slots:
 
 private:
     LibUsb *libusb;
-    int Command(quint8 st_cmd0, quint8 st_cmd1, int resp_len);
-    int DebugCommand(quint8 st_cmd1, quint8 st_cmd2, int resp_len);
+    qint32 Command(const quint8 &st_cmd0, const quint8 &st_cmd1, const quint32 &resp_len);
+    qint32 DebugCommand(const quint8 &st_cmd1, const quint8 &st_cmd2, const quint32 &resp_len);
     int SendCommand();
-    void write_uint32(uchar* buf, quint32 ui);
-    void write_uint16(uchar* buf, quint16 ui);
+    void write_uint32(uchar* buf, const quint32 &ui);
+    void write_uint16(uchar* buf, const quint16 &ui);
     quint32 read_uint32(const uchar *c);
     quint16 ST_VendorID;
     quint16 ST_ProductID;

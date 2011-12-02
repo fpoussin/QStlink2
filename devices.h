@@ -51,8 +51,8 @@ class DeviceList : public QObject
 public:
     explicit DeviceList(QObject *parent = 0);
     bool IsLoaded();
-    short getDevicesCount();
-    bool search(const int chip_id); // returns the location of the device in the QVector.
+    quint16 getDevicesCount();
+    bool search(const quint32 chip_id); // returns the location of the device in the QVector.
     Device *cur_device;
 
 private:

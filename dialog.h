@@ -15,7 +15,7 @@ class Dialog : public QDialog
 public:
     explicit Dialog(QWidget *parent = 0);
     ~Dialog();
-    void setText(QString title, QString text);
+    void setText(const QString &title, const QString &text);
 
 private:
     Ui::Dialog *ui;

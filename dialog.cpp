@@ -13,7 +13,7 @@ Dialog::~Dialog()
     delete ui;
 }
 
-void Dialog::setText(QString title, QString text)
+void Dialog::setText(const QString &title, const QString &text)
 {
     this->ui->l_title->setText(title);
     this->ui->l_text->setText(text);

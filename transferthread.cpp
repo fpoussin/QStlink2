@@ -44,7 +44,7 @@ void transferThread::setParams(stlinkv2 *stlink, QString filename, bool write)
     this->write = write;
 }
 
-void transferThread::send(QString filename)
+void transferThread::send(const QString &filename)
 {
     QFile file(filename);
     if (!file.open(QIODevice::ReadOnly)) {
@@ -132,7 +132,7 @@ void transferThread::send(QString filename)
     emit sendLock(false);
 }
 
-void transferThread::receive(QString filename)
+void transferThread::receive(const QString &filename)
 {
     QFile file(filename);
     if (!file.open(QIODevice::ReadWrite)) {

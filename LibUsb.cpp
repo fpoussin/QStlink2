@@ -28,7 +28,7 @@ LibUsb::LibUsb()
     usb_set_debug(0);
 }
 
-int LibUsb::open()
+qint32 LibUsb::open()
 {
 
    // Initialize the library.
@@ -41,11 +41,11 @@ int LibUsb::open()
     usb_find_devices();
 
     // Search USB busses for USB2 ANT+ stick host controllers
-    this->device = OpenAntStick();
+    this->device = this->OpenAntStick();
 
     if (this->device == NULL) return -1;
 
-    int rc = 0;
+    qint32 rc = 0;
 
 #ifndef Q_OS_MAC
     // these functions fail on OS X Lion
@@ -72,14 +72,14 @@ void LibUsb::close()
     }
 }
 
-int LibUsb::read(QByteArray *buf, int bytes)
+qint32 LibUsb::read(QByteArray *buf, quint32 bytes)
 {
 
     // check it isn't closed already
     if (!device) return -1;
 
     char buffer[bytes];
-    int rc = usb_bulk_read(this->device, this->readEndpoint, buffer, bytes, USB_TIMEOUT_MSEC);
+    qint32 rc = usb_bulk_read(this->device, this->readEndpoint, buffer, bytes, USB_TIMEOUT_MSEC);
     qDebug() << "Bytes read: " << rc;
 
     // we clear the buffer.
@@ -107,7 +107,7 @@ int LibUsb::read(QByteArray *buf, int bytes)
     return rc;
 }
 
-int LibUsb::write(QByteArray *buf, int bytes)
+qint32 LibUsb::write(QByteArray *buf, quint32 bytes)
 {
 
     // check it isn't closed
@@ -124,9 +124,9 @@ int LibUsb::write(QByteArray *buf, int bytes)
     // write block size is incorectly implemented in the version of
     // libusb we build with. It is no less efficent.
 #ifndef Q_OS_MAC
-    int rc = usb_bulk_write(this->device, this->writeEndpoint, buf->constData(), bytes, USB_TIMEOUT_MSEC);
+    qint32 rc = usb_bulk_write(this->device, this->writeEndpoint, buf->constData(), bytes, USB_TIMEOUT_MSEC);
 #else // Workaround for OSX with the brew libusb package...
-    int rc = usb_bulk_write(this->device, this->writeEndpoint, buf->data(), bytes, USB_TIMEOUT_MSEC);
+    qint32 rc = usb_bulk_write(this->device, this->writeEndpoint, buf->data(), bytes, USB_TIMEOUT_MSEC);
 #endif
 
     if (rc < 0)
@@ -171,7 +171,7 @@ struct usb_dev_handle* LibUsb::OpenAntStick()
 
                         if ((intf = usb_find_interface(&dev->config[0])) != NULL) { // Loading first config.
 
-                            int rc = usb_set_configuration(udev, 1);
+                            qint32 rc = usb_set_configuration(udev, 1);
                             if (rc < 0) {
                                 qCritical()<<"usb_set_configuration Error: "<< usb_strerror();
 #ifdef __linux__
