@@ -55,12 +55,15 @@ void transferThread::send(const QString &filename)
     this->stop = false;
     this->stlink->resetMCU(); // We stop the MCU
     quint32 program_size = 4; // WORD (4 bytes)
+    // The MCU will write program_size 64 times to empty the MCU buffer.
+    // We don't have to write to USB only a few bytes at a time, the MCU handles flash programming for us.
+    quint32 step_size = program_size*64;
     quint32 from = this->stlink->device->flash_base;
     quint32 to = this->stlink->device->flash_base+file.size();
     qInformal() << "Writing from" << QString::number(from, 16) << "to" << QString::number(to, 16);
     QByteArray buf;
     quint32 addr, progress, oldprogress, read;
-    char buf2[program_size];
+    char buf2[step_size];
 
     // Unlock flash
     if (!this->stlink->unlockFlash())
@@ -86,7 +89,7 @@ void transferThread::send(const QString &filename)
         return;
 
     progress = 0;
-    for (int i=0; i<=file.size(); i+=program_size)
+    for (int i=0; i<=file.size(); i+=step_size)
     {
         buf.clear();
 
@@ -97,8 +100,12 @@ void transferThread::send(const QString &filename)
             qDebug() << "EOF";
             break;
         }
-        memset(buf2, 0, program_size);
-        if ((read = file.read(buf2, program_size)) <= 0)
+
+        while(this->stlink->isBusy())
+            usleep(50000); // 50ms
+
+        memset(buf2, 0, step_size);
+        if ((read = file.read(buf2, step_size)) <= 0)
             break;
         buf.append(buf2, read);
 
