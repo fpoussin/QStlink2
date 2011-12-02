@@ -200,10 +200,10 @@ private:
     qint32 SendCommand();
     quint16 ST_VendorID;
     quint16 ST_ProductID;
-    short verbose;
+    quint8 verbose;
     QString version;
     QString mode;
-    char mode_id;
+    qint8 mode_id;
 };
 
 #endif // STLINKV2_H

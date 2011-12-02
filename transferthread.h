@@ -48,7 +48,6 @@ private:
     void send(const QString &filename);
     void receive(const QString &filename);
 
-    int i;
     QString filename;
     bool write;
     stlinkv2 *stlink;
