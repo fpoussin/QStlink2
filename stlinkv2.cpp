@@ -169,6 +169,7 @@ void stlinkv2::setExitModeDFU()
 
 void stlinkv2::resetMCU()
 {
+    this->DebugCommand(STLinkDebugResetCore, 0, 2);
     this->DebugCommand(STLinkDebugResetSys, 0, 2);
 }
 
