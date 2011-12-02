@@ -44,6 +44,10 @@ FORMS    += mainwindow.ui \
 
 LIBS += -L/usr/lib -lusb
 
+RESOURCES += \
+    res/ressources.qrc
+
+
 
 
 

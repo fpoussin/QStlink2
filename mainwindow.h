@@ -49,6 +49,7 @@ public slots:
     void updateStatus(const QString &s);
     void Send(const QString &path, const bool &erase);
     void Receive(const QString &path);
+    void showHelp();
 
 private:
     Ui::MainWindow *ui;

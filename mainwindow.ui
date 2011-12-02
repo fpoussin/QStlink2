@@ -109,9 +109,9 @@
    <widget class="QPushButton" name="b_quit">
     <property name="geometry">
      <rect>
-      <x>469</x>
+      <x>510</x>
       <y>0</y>
-      <width>121</width>
+      <width>81</width>
       <height>50</height>
      </rect>
     </property>
@@ -574,6 +574,23 @@
      </widget>
     </widget>
    </widget>
+   <widget class="QPushButton" name="b_help">
+    <property name="geometry">
+     <rect>
+      <x>470</x>
+      <y>0</y>
+      <width>41</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="icon">
+     <iconset resource="ressources.qrc">
+      <normaloff>:/images/icon-questionmark.png</normaloff>:/images/icon-questionmark.png</iconset>
+    </property>
+   </widget>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -586,7 +603,9 @@
   <widget class="QStatusBar" name="statusBar"/>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources/>
+ <resources>
+  <include location="ressources.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>b_quit</sender>

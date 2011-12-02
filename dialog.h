@@ -3,6 +3,8 @@
 
 #include <QDialog>
 #include <QString>
+#include <QColor>
+#include <QStyle>
 
 namespace Ui {
     class Dialog;
@@ -16,8 +18,7 @@ public:
     explicit Dialog(QWidget *parent = 0);
     ~Dialog();
     void setText(const QString &title, const QString &text);
-
-private:
+    void setHTML(const QString &title, const QString &html);
     Ui::Dialog *ui;
 };
 

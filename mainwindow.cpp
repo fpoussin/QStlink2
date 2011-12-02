@@ -63,6 +63,9 @@ MainWindow::MainWindow(QWidget *parent) :
         QObject::connect(this->tfThread, SIGNAL(sendLock(bool)), this, SLOT(lockUI(bool)));
         QObject::connect(this->ui->b_stop, SIGNAL(clicked()), this->tfThread, SLOT(halt()));
         QObject::connect(this->tfThread, SIGNAL(sendLog(QString)), this, SLOT(log(QString)));
+
+        // Help
+        QObject::connect(this->ui->b_help, SIGNAL(clicked()), this, SLOT(showHelp()));
     }
 
     else {
@@ -81,6 +84,19 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::showHelp()
+{
+
+    this->dialog.setText("Help","Could no load help file");
+
+    QFile file("help.html");
+    if (!file.open(QIODevice::ReadOnly)) {
+        qCritical("Could not open the help file.");
+    }
+
+    this->dialog.setHTML(QString("Help"), QString(file.readAll()));
+    this->dialog.show();
+}
 
 void MainWindow::Connect()
 {
