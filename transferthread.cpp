@@ -106,9 +106,6 @@ void transferThread::send(const QString &filename)
             break;
         }
 
-        while(this->stlink->isBusy())
-            usleep(50000); // 50ms
-
         memset(buf2, 0, step_size);
         if ((read = file.read(buf2, step_size)) <= 0)
             break;
