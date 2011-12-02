@@ -41,18 +41,18 @@ int LibUsb::open()
     usb_find_devices();
 
     // Search USB busses for USB2 ANT+ stick host controllers
-    device = OpenAntStick();
+    this->device = OpenAntStick();
 
-    if (device == NULL) return -1;
+    if (this->device == NULL) return -1;
 
-    int rc;
+    int rc = 0;
 
 #ifndef Q_OS_MAC
     // these functions fail on OS X Lion
-    rc = usb_clear_halt(device, writeEndpoint);
+    rc = usb_clear_halt(this->device, this->writeEndpoint);
     if (rc < 0) qCritical()<<"usb_clear_halt writeEndpoint Error: "<< usb_strerror();
 
-    rc = usb_clear_halt(device, readEndpoint);
+    rc = usb_clear_halt(this->device, this->readEndpoint);
     if (rc < 0) qCritical()<<"usb_clear_halt readEndpoint Error: "<< usb_strerror();
 #endif
 
