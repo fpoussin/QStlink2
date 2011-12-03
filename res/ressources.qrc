@@ -3,5 +3,6 @@
         <file>images/icon-questionmark.png</file>
         <file>images/question_mark_icon.png</file>
         <file>help.html</file>
+        <file>devices.xml</file>
     </qresource>
 </RCC>

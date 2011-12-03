@@ -117,6 +117,7 @@ void MainWindow::Disconnect()
     this->log("Disconnecting...");
     this->stlink->disconnect();
     this->log("Disconnected.");
+    qInformal() << "Disconnected.";
     this->ui->b_disconnect->setEnabled(false);
     this->ui->b_connect->setEnabled(true);
     this->ui->gb_bottom->setEnabled(false);

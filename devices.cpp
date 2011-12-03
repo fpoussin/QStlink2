@@ -41,16 +41,16 @@ DeviceList::DeviceList(QObject *parent) :
     this->doc = new QDomDocument("stlink");
     QFile file("devices.xml");
     if (!file.open(QIODevice::ReadOnly)) {
-        qDebug("Could not open the file.");
-        return;
+        qInformal() << "Could not open the devices.xml file. Using internal file.";
     }
+    file.setFileName(":/devices.xml");
     if (!doc->setContent(&file)) {
         file.close();
-        qDebug("Devices list failed to load.");
+        qCritical() << "Devices list failed to load.";
         return;
     }
     file.close();
-    qDebug("Devices list loaded.");
+    qInformal() << "Devices list loaded.";
 
     QDomElement docElem = doc->documentElement();
     QDomNode n = docElem.firstChild();
