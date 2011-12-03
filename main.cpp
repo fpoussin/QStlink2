@@ -105,7 +105,7 @@ int main(int argc, char *argv[])
             else
                 w->Receive(path);
 
-            //sleep(1);
+            usleep(1000000); //1 sec
             while (w->tfThread->isRunning())
                 usleep(100000);
             w->Disconnect();
