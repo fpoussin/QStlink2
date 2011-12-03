@@ -74,11 +74,9 @@ void LibUsb::close()
 
 qint32 LibUsb::read(QByteArray *buf, const quint32 bytes)
 {
-
     // check it isn't closed already
     if (!device) return -1;
 
-//    char buffer[bytes];
     char *buffer = (char*)malloc(bytes);
     qint32 rc = usb_bulk_read(this->device, this->readEndpoint, buffer, bytes, USB_TIMEOUT_MSEC);
     qDebug() << "Bytes read: " << rc;
@@ -88,7 +86,7 @@ qint32 LibUsb::read(QByteArray *buf, const quint32 bytes)
     QString data, s;
 
     if (rc > 0) {
-        for (quint32 i = 0; i < sizeof(buffer); i++) {
+        for (quint32 i = 0; i < bytes; i++) {
             buf->append(buffer[i]);
             data.append(s.sprintf("%02X",(uchar)buf->at(i))+":");
         }

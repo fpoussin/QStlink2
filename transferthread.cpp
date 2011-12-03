@@ -109,6 +109,7 @@ void transferThread::send(const QString &filename)
         memset(buf2, 0, step_size);
         if ((read = file.read(buf2, step_size)) <= 0)
             break;
+        qDebug() << "Read" << read << "Bytes from disk";
         buf.append(buf2, read);
 
         addr = this->stlink->device->flash_base+i;
@@ -152,21 +153,21 @@ void transferThread::receive(const QString &filename)
     emit sendLock(true);
     this->stop = false;
     this->stlink->resetMCU(); // We stop the MCU
-    quint32 program_size = this->stlink->device->flash_pgsize*4;
+    quint32 buf_size = this->stlink->device->flash_pgsize*4;
     quint32 from = this->stlink->device->flash_base;
     quint32 to = this->stlink->device->flash_base+from;
     qInformal() << "Reading from" << QString::number(from, 16) << "to" << QString::number(to, 16);
     quint32 addr, progress, oldprogress;
 
     progress = 0;
-    for (quint32 i=0; i<this->stlink->device->flash_size; i+=program_size)
+    for (quint32 i=0; i<this->stlink->device->flash_size; i+=buf_size)
     {
         if (this->stop)
             break;
         addr = this->stlink->device->flash_base+i;
-        if (this->stlink->readMem32(addr, program_size) < 0)
+        if (this->stlink->readMem32(addr, buf_size) < 0)
             break;
-        file.write(this->stlink->recv_buf);
+        qDebug() << "Wrote" << file.write(this->stlink->recv_buf) << "Bytes to disk";
         oldprogress = progress;
         progress = (i*100)/this->stlink->device->flash_size;
         if (progress > oldprogress) { // Push only if number has increased
