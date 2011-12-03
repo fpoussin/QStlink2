@@ -90,16 +90,11 @@ int main(int argc, char *argv[])
         w->show();
 
     else {
-#ifndef WIN32
-        if (QString(getenv("USER")) != "root") {
-            qFatal("You need to run the program as root in order to access USB subsystems. Use sudo.");
-            return 1;
-        }
-#endif
         if (flash && !path.isEmpty()) {
 
             qDebug() << "File Path:" << path;
-            w->Connect();
+            if (!w->Connect())
+                return 1;
             if (wr)
                 w->Send(path, erase);
             else

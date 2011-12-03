@@ -43,7 +43,7 @@ public:
     transferThread *tfThread;
 
 public slots:
-    void Connect();
+    bool Connect();
     void Disconnect();
     void updateProgress(const quint32 &p);
     void updateStatus(const QString &s);

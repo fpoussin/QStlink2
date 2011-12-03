@@ -27,25 +27,12 @@ MainWindow::MainWindow(QWidget *parent) :
     this->ui->b_disconnect->setEnabled(false);
     this->ui->b_send->setEnabled(false);
     this->ui->b_receive->setEnabled(false);
-#ifndef WIN32
-    this->username = getenv("USER");
-    if (this->username != "root") {
-        this->log("You need to run the program as root in order to access USB subsystems. Use sudo.");
-    }
-    else {
-        this->log("Running as root, good.");
-        this->isroot = true;
-    }
-#endif
     this->stlink = new stlinkv2();
     this->devices = new DeviceList(this);
-
     this->tfThread = new transferThread();
-#ifndef WIN32
-    if (this->devices->IsLoaded() && this->isroot) {
-#else
+
     if (this->devices->IsLoaded()) {
-#endif
+
         this->ui->gb_top->setEnabled(true);
         this->log(QString::number(this->devices->getDevicesCount())+" Device descriptions loaded.");
         QObject::connect(this->ui->b_quit,SIGNAL(clicked()),qApp,SLOT(quit()));
@@ -101,14 +88,14 @@ void MainWindow::showHelp()
     this->dialog.show();
 }
 
-void MainWindow::Connect()
+bool MainWindow::Connect()
 {
     this->log("Searching Device...");
 
     switch (this->stlink->connect()) {
     case -1:
         this->log("ST Link V2 not found.");
-        return;
+        return false;
     default:
         this->log("ST Link V2 found!");
         this->getVersion();
@@ -121,7 +108,7 @@ void MainWindow::Connect()
         this->ui->gb_bottom->setEnabled(true);
         this->ui->b_send->setEnabled(true);
         this->ui->b_receive->setEnabled(true);
-        break;
+        return true;
     }
 }
 
