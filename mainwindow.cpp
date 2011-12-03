@@ -94,7 +94,7 @@ bool MainWindow::Connect()
 
     switch (this->stlink->connect()) {
     case -1:
-        this->log("ST Link V2 not found.");
+        this->log("ST Link V2 not found or unable to access it.\nCheck the logs.");
         return false;
     default:
         this->log("ST Link V2 found!");

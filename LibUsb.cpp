@@ -180,6 +180,7 @@ struct usb_dev_handle* LibUsb::OpenAntStick()
                                 qCritical()<<"Check permissions on:"<<QString("/dev/bus/usb/%1/%2").arg(bus->dirname).arg(dev->filename);
                                 qCritical()<<"Did you remember to setup a udev rule for this device?";
                                 qCritical()<<"Copy file 49-stlinkv2.rules to /etc/udev/rules.d/ to enable access.";
+                                return NULL;
 #endif
                             }
 
