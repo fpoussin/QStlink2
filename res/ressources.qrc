@@ -4,5 +4,6 @@
         <file>images/question_mark_icon.png</file>
         <file>help.html</file>
         <file>devices.xml</file>
+        <file>images/icon.ico</file>
     </qresource>
 </RCC>

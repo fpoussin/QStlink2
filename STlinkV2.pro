@@ -48,6 +48,8 @@ win32:LIBS += -L"$$_PRO_FILE_PWD_/libs/" -llibusb
 RESOURCES += \
     res/ressources.qrc
 
+win32:RC_FILE = qstlink2.rc
+
 
 
 

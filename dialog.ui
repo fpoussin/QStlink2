@@ -28,6 +28,10 @@
   <property name="windowTitle">
    <string>QSTLink2</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="res/ressources.qrc">
+    <normaloff>:/images/icon.ico</normaloff>:/images/icon.ico</iconset>
+  </property>
   <property name="modal">
    <bool>true</bool>
   </property>
@@ -82,7 +86,9 @@
    </property>
   </widget>
  </widget>
- <resources/>
+ <resources>
+  <include location="res/ressources.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>buttonBox</sender>

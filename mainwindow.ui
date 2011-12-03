@@ -31,6 +31,10 @@
   <property name="windowTitle">
    <string>QSTLink2</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="res/ressources.qrc">
+    <normaloff>:/images/icon.ico</normaloff>:/images/icon.ico</iconset>
+  </property>
   <widget class="QWidget" name="centralWidget">
    <widget class="QGroupBox" name="gb_top">
     <property name="enabled">
