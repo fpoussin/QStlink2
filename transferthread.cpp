@@ -137,6 +137,7 @@ void transferThread::send(const QString &filename)
     // Lock flash
     this->stlink->lockFlash();
 
+    this->stlink->hardResetMCU();
     this->stlink->resetMCU();
     this->stlink->runMCU();
 

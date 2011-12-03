@@ -69,10 +69,11 @@ const quint8 STLinkDFUCommand = 0xF3;
 const quint8 STLinkDFUExit = 0x07;
 const quint8 STLinkDFUEnter = 0x08; // Unsure...
 const quint8 STLinkGetCurrentMode = 0xF5;
+const quint8 STLinkReset = 0xF7;
+
 const quint8 STLinkDebugReadMem32bit = 0x07;
 const quint8 STLinkDebugWriteMem32bit = 0x08;
 const quint8 STLinkDebugWriteMem8bit = 0x0d;
-
 const quint8 STLinkDebugEnterMode = 0x20;
 const quint8 STLinkDebugEnterSWD = 0xA3;
 const quint8 STLinkDebugEnterJTAG = 0x00;
@@ -84,8 +85,8 @@ const quint8 STLinkDebugResetSys = 0x03;
 const quint8 STLinkDebugReadAllRegs = 0x04;
 const quint8 STLinkDebugRunCore = 0x09;
 const quint8 STLinkDebugStepCore = 0x0A;
-const quint8 STLinkDebugResetCore = 0x3B; // Unsure, seems like it runs the core directly afterwards
-const quint8 STLinkDebugReadCoreRegs = 0x3A; // All regs fetched at once every 4 bytes
+const quint8 STLinkDebugHardReset = 0x3C; // Unsure
+const quint8 STLinkDebugReadCoreRegs = 0x3A; // All regs fetched at once
 
 /* stm32f FPEC flash controller interface, pm0063 manual */
 // TODO - all of this needs to be abstracted out....
@@ -167,6 +168,7 @@ public slots:
     qint32 connect();
     void disconnect();
     void resetMCU();
+    void hardResetMCU();
     void haltMCU();
     void runMCU();
     void setModeJTAG();
