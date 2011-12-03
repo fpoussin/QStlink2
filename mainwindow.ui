@@ -10,6 +10,24 @@
     <height>480</height>
    </rect>
   </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>600</width>
+    <height>480</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>600</width>
+    <height>480</height>
+   </size>
+  </property>
   <property name="windowTitle">
    <string>QSTLink2</string>
   </property>
@@ -587,7 +605,7 @@
      <string/>
     </property>
     <property name="icon">
-     <iconset resource="ressources.qrc">
+     <iconset resource="res/ressources.qrc">
       <normaloff>:/images/icon-questionmark.png</normaloff>:/images/icon-questionmark.png</iconset>
     </property>
    </widget>
@@ -604,7 +622,7 @@
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources>
-  <include location="ressources.qrc"/>
+  <include location="res/ressources.qrc"/>
  </resources>
  <connections>
   <connection>
