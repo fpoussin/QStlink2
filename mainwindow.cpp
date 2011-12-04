@@ -35,6 +35,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
         this->ui->gb_top->setEnabled(true);
         this->log(QString::number(this->devices->getDevicesCount())+" Device descriptions loaded.");
+        QObject::connect(this->ui->b_quit,SIGNAL(clicked()), this, SLOT(Disconnect()));
         QObject::connect(this->ui->b_quit,SIGNAL(clicked()),qApp,SLOT(quit()));
         QObject::connect(this->ui->b_connect, SIGNAL(clicked()), this, SLOT(Connect()));
         QObject::connect(this->ui->b_disconnect, SIGNAL(clicked()), this, SLOT(Disconnect()));
@@ -45,7 +46,7 @@ MainWindow::MainWindow(QWidget *parent) :
         QObject::connect(this->ui->b_reset, SIGNAL(clicked()), this, SLOT(ResetMCU()));
         QObject::connect(this->ui->r_jtag, SIGNAL(clicked()), this, SLOT(setModeJTAG()));
         QObject::connect(this->ui->r_swd, SIGNAL(clicked()), this, SLOT(setModeSWD()));
-        QObject::connect(this->ui->b_getMCU, SIGNAL(clicked()), this, SLOT(getMCU()));
+        QObject::connect(this->ui->b_hardReset, SIGNAL(clicked()), this, SLOT(HardReset()));
 
         // Thread
         QObject::connect(this->tfThread, SIGNAL(sendProgress(quint32)), this, SLOT(updateProgress(quint32)));
@@ -235,6 +236,13 @@ void MainWindow::ResetMCU()
 {
     this->log("Reseting MCU...");
     this->stlink->resetMCU();
+    this->getStatus();
+}
+
+void MainWindow::HardReset()
+{
+    this->log("Hard Reset...");
+    this->stlink->hardResetMCU();
     this->getStatus();
 }
 

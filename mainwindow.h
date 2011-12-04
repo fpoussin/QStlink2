@@ -70,6 +70,7 @@ private slots:
     void Send();
     void Receive();
     void ResetMCU();
+    void HardReset();
     void RunMCU();
     void HaltMCU();
     void setModeJTAG();

@@ -224,7 +224,7 @@
       <bool>true</bool>
      </property>
     </widget>
-    <widget class="QPushButton" name="b_getMCU">
+    <widget class="QPushButton" name="b_hardReset">
      <property name="geometry">
       <rect>
        <x>340</x>
@@ -234,7 +234,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>Get Flash Info</string>
+      <string>Hard Reset</string>
      </property>
     </widget>
    </widget>
@@ -629,22 +629,6 @@
   <include location="res/ressources.qrc"/>
  </resources>
  <connections>
-  <connection>
-   <sender>b_quit</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>close()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>529</x>
-     <y>53</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>299</x>
-     <y>239</y>
-    </hint>
-   </hints>
-  </connection>
   <connection>
    <sender>b_quit</sender>
    <signal>clicked()</signal>

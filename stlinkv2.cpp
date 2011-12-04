@@ -46,7 +46,7 @@ qint32 stlinkv2::connect()
 
 void stlinkv2::disconnect()
 {
-//    this->Command(STLinkDFUCommand, STLinkDFUEnter, 0);
+    this->DebugCommand(STLinkDebugExit, 0, 2);
     this->libusb->close();
 }
 
@@ -150,7 +150,8 @@ void stlinkv2::setModeJTAG()
     qDebug() << "***[setModeJTAG]***";
     this->getMode();
 //    if (this->mode_id != STLINK_DEV_DEBUG_MODE)
-        this->DebugCommand(STLinkDebugEnterMode, STLinkDebugEnterJTAG, 0);
+    this->setExitModeDFU();
+    this->DebugCommand(STLinkDebugEnterMode, STLinkDebugEnterJTAG, 0);
 }
 
 void stlinkv2::setModeSWD()
@@ -158,7 +159,8 @@ void stlinkv2::setModeSWD()
     qDebug() << "***[setModeSWD]***";
     this->getMode();
 //    if (this->mode_id != STLINK_DEV_DEBUG_MODE)
-        this->DebugCommand(STLinkDebugEnterMode, STLinkDebugEnterSWD, 0);
+    this->setExitModeDFU();
+    this->DebugCommand(STLinkDebugEnterMode, STLinkDebugEnterSWD, 0);
 }
 
 void stlinkv2::setExitModeDFU()
@@ -176,8 +178,10 @@ void stlinkv2::resetMCU()
 void stlinkv2::hardResetMCU()
 {
     qDebug() << "***[hardResetMCU]***";
+//    this->DebugCommand(STLinkDebugExit, 0, 2);
+//    this->setExitModeDFU();
     this->Command(STLinkReset, 0, 8);
-    this->DebugCommand(STLinkDebugHardReset, 0, 2);
+    this->DebugCommand(STLinkDebugHardReset, 0x02, 2);
 }
 
 void stlinkv2::runMCU()
@@ -489,8 +493,12 @@ qint32 stlinkv2::readMem32(const quint32 &addr, const quint16 &len)
 qint32 stlinkv2::Command(const quint8 &st_cmd0, const quint8 &st_cmd1, const quint32 &resp_len)
 {
     this->cmd_buf.append(st_cmd0);
-    if (st_cmd1 != 0)
-        this->cmd_buf.append(st_cmd1);
+    this->cmd_buf.append(st_cmd1);
+    quint8 len = 16 - this->cmd_buf.size();
+    // We fill the remaining space to have 16 bytes
+    for (quint8 i = 0; i < len; i++){
+        this->cmd_buf.append((char)0);
+    }
     this->SendCommand();
     if (resp_len > 0)
         return this->libusb->read(&this->recv_buf, resp_len);
@@ -501,8 +509,12 @@ qint32 stlinkv2::DebugCommand(const quint8 &st_cmd1, const quint8 &st_cmd2, cons
 {
     this->cmd_buf.append(STLinkDebugCommand);
     this->cmd_buf.append(st_cmd1);
-    if (st_cmd2)
-        this->cmd_buf.append(st_cmd2);
+    this->cmd_buf.append(st_cmd2);
+    quint8 len = 16 - this->cmd_buf.size();
+    // We fill the remaining space to have 16 bytes
+    for (quint8 i = 0; i < len; i++){
+        this->cmd_buf.append((char)0);
+    }
     qint32 res = this->SendCommand();
     if (res > 0)
         qDebug() << res << " Bytes sent";
