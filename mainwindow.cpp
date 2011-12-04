@@ -150,7 +150,7 @@ void MainWindow::updateStatus(const QString &s)
 void MainWindow::Send()
 {
     this->filename.clear();
-    this->filename = QFileDialog::getOpenFileName(this, "Open file", "/", "Binary Files (*.bin)");
+    this->filename = QFileDialog::getOpenFileName(this, "Open file", "", "Binary Files (*.bin)");
     if (!this->filename.isNull()) {
         this->log("Sending from "+this->filename);
         QFile file(this->filename);
@@ -195,7 +195,7 @@ void MainWindow::Receive()
 {
     qDebug("Reading flash");
     this->filename.clear();
-    this->filename = QFileDialog::getSaveFileName(this, "Save File", "/", "Binary Files (*.bin)");
+    this->filename = QFileDialog::getSaveFileName(this, "Save File", "", "Binary Files (*.bin)");
     if (!this->filename.isNull()) {
         this->log("Saving to "+this->filename);
         QFile file(this->filename);
