@@ -54,7 +54,7 @@ void transferThread::send(const QString &filename)
     }
     emit sendLock(true);
     this->stop = false;
-    this->stlink->resetMCU(); // We stop the MCU
+    this->stlink->hardResetMCU(); // We stop the MCU
     quint32 program_size = 4; // WORD (4 bytes)
     // The MCU will write program_size 32 times to empty the MCU buffer.
     // We don't have to write to USB only a few bytes at a time, the MCU handles flash programming for us.
@@ -153,7 +153,7 @@ void transferThread::receive(const QString &filename)
     }
     emit sendLock(true);
     this->stop = false;
-    this->stlink->resetMCU(); // We stop the MCU
+    this->stlink->hardResetMCU(); // We stop the MCU
     quint32 buf_size = this->stlink->device->flash_pgsize*4;
     quint32 from = this->stlink->device->flash_base;
     quint32 to = this->stlink->device->flash_base+from;
