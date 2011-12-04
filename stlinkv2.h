@@ -67,7 +67,7 @@ const quint8 STLinkGetVersion = 0xF1;
 const quint8 STLinkDebugCommand = 0xF2;
 const quint8 STLinkDFUCommand = 0xF3;
 const quint8 STLinkDFUExit = 0x07;
-const quint8 STLinkDFUEnter = 0x08; // Unsure...
+const quint8 STLinkDFUGetVersion = 0x08;
 const quint8 STLinkGetCurrentMode = 0xF5;
 const quint8 STLinkReset = 0xF7;
 
