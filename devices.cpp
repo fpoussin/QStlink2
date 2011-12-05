@@ -39,7 +39,7 @@ DeviceList::DeviceList(QObject *parent) :
     this->loaded = false;
     qDebug("Loading device list.");
     this->doc = new QDomDocument("stlink");
-    QFile file("devices.xml");
+    QFile file("/urs/share/qstlink2/devices.xml");
     if (!file.open(QIODevice::ReadOnly)) {
         qInformal() << "Could not open the devices.xml file. Using internal file.";
     }
@@ -90,7 +90,6 @@ DeviceList::DeviceList(QObject *parent) :
                 }
             }
             else if (e.tagName() == "devices") {
-//                e = e.toElement();
                 QDomNodeList devices = e.childNodes();
                 for (int a = 0;a < devices.count(); a++) {
                     this->devices.append(new Device(this));
@@ -155,8 +154,6 @@ bool DeviceList::IsLoaded() {
 bool DeviceList::search(const quint32 chip_id) {
     qDebug() << "Looking for:" << chip_id;
     for (int i=0; i < this->devices.count(); i++) {
-
-//        qDebug() << "Current ChipID:" << this->devices.at(i)->chip_id;
         if (this->devices.at(i)->chip_id == chip_id) {
             this->cur_device = this->devices.at(i);
             qDebug() << "Found chipID";

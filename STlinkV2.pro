@@ -52,22 +52,15 @@ win32:RC_FILE = qstlink2.rc
 # OSX
 ICON = res/images/icon.icns
 
+TARGET = qstlink2
+target.path = /usr/bin
+INSTALLS += target
 
+data.path = /etc/udev/rules.d
+data.files = 49-stlinkv2.rules
+INSTALLS += data
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+xml.path = /usr/share/qstlink2
+xml.files = res/devices.xml
+INSTALLS += xml
 
