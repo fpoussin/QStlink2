@@ -42,8 +42,8 @@ DeviceList::DeviceList(QObject *parent) :
     QFile file("/usr/share/qstlink2/devices.xml");
     if (!file.open(QIODevice::ReadOnly)) {
         qInformal() << "Could not open the devices.xml file. Using internal file.";
+        file.setFileName(":/devices.xml");
     }
-    file.setFileName(":/devices.xml");
     if (!doc->setContent(&file)) {
         file.close();
         qCritical() << "Devices list failed to load.";
