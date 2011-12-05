@@ -39,7 +39,7 @@ DeviceList::DeviceList(QObject *parent) :
     this->loaded = false;
     qDebug("Loading device list.");
     this->doc = new QDomDocument("stlink");
-    QFile file("/urs/share/qstlink2/devices.xml");
+    QFile file("/usr/share/qstlink2/devices.xml");
     if (!file.open(QIODevice::ReadOnly)) {
         qInformal() << "Could not open the devices.xml file. Using internal file.";
     }
