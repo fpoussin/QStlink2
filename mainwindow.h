@@ -65,7 +65,7 @@ private slots:
     void log(const QString &s);
     void getVersion();
     void getMode();
-    void getMCU();
+    bool getMCU();
     void getStatus();
     void Send();
     void Receive();

@@ -101,16 +101,23 @@ bool MainWindow::Connect()
         this->log("ST Link V2 found!");
         this->getVersion();
         this->stlink->setExitModeDFU();
-        this->setModeSWD();
+        if (this->ui->r_jtag->isChecked())
+            this->setModeJTAG();
+        else
+            this->setModeSWD();
         this->getStatus();
-        this->getMCU();
         this->ui->b_connect->setEnabled(false);
         this->ui->b_disconnect->setEnabled(true);
-        this->ui->gb_bottom->setEnabled(true);
-        this->ui->b_send->setEnabled(true);
-        this->ui->b_receive->setEnabled(true);
-        return true;
+        if (this->getMCU()) {
+            this->ui->gb_bottom->setEnabled(true);
+            this->ui->b_send->setEnabled(true);
+            this->ui->b_receive->setEnabled(true);
+            return true;
+        }
+        else
+            return false;
     }
+    return false;
 }
 
 void MainWindow::Disconnect()
@@ -248,6 +255,8 @@ void MainWindow::HardReset()
 
 void MainWindow::setModeJTAG()
 {
+    if (!this->stlink->isConnected())
+        return;
     this->log("Changing mode to JTAG...");
     this->stlink->setModeJTAG();
     this->getMode();
@@ -255,6 +264,8 @@ void MainWindow::setModeJTAG()
 
 void MainWindow::setModeSWD()
 {
+    if (!this->stlink->isConnected())
+        return;
     this->log("Changing mode to SWD...");
     this->stlink->setModeSWD();
     this->getMode();
@@ -278,7 +289,7 @@ void MainWindow::getStatus()
     this->log(this->stlink->getStatus());
 }
 
-void MainWindow::getMCU()
+bool MainWindow::getMCU()
 {
     this->log("Fetching MCU Info...");
     this->stlink->getCoreID();
@@ -304,8 +315,9 @@ void MainWindow::getMCU()
         if(!this->stlink->SWIM_ver)
             this->ui->le_swimver->setToolTip("Not supported");
 
-        return;
+        return true;
     }
     this->log("Device not found!");
     qCritical() << "Device not found!";
+return false;
 }

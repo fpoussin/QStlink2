@@ -149,7 +149,7 @@
      <rect>
       <x>10</x>
       <y>410</y>
-      <width>581</width>
+      <width>451</width>
       <height>41</height>
      </rect>
     </property>
@@ -193,35 +193,6 @@
      </property>
      <property name="text">
       <string>Reset MCU</string>
-     </property>
-    </widget>
-    <widget class="QRadioButton" name="r_jtag">
-     <property name="geometry">
-      <rect>
-       <x>460</x>
-       <y>10</y>
-       <width>60</width>
-       <height>30</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>JTAG</string>
-     </property>
-    </widget>
-    <widget class="QRadioButton" name="r_swd">
-     <property name="geometry">
-      <rect>
-       <x>520</x>
-       <y>10</y>
-       <width>60</width>
-       <height>30</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>SWD</string>
-     </property>
-     <property name="checked">
-      <bool>true</bool>
      </property>
     </widget>
     <widget class="QPushButton" name="b_hardReset">
@@ -611,6 +582,35 @@
     <property name="icon">
      <iconset resource="res/ressources.qrc">
       <normaloff>:/images/icon-questionmark.png</normaloff>:/images/icon-questionmark.png</iconset>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="r_swd">
+    <property name="geometry">
+     <rect>
+      <x>530</x>
+      <y>420</y>
+      <width>60</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>SWD</string>
+    </property>
+    <property name="checked">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="r_jtag">
+    <property name="geometry">
+     <rect>
+      <x>470</x>
+      <y>420</y>
+      <width>60</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>JTAG</string>
     </property>
    </widget>
   </widget>

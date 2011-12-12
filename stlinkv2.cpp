@@ -27,6 +27,7 @@ stlinkv2::stlinkv2(QObject *parent) :
     this->core_id = 0;
     this->chip_id = 0;
     this->STLink_ver = 0;
+    this->connected = false;
 }
 
 stlinkv2::~stlinkv2()
@@ -41,6 +42,7 @@ qint32 stlinkv2::connect()
     qint32 open;
     if ((open = this->libusb->open()))
         this->libusb->read(&this->recv_buf, 6192); // We clean the usb buffer
+    this->connected = true;
     return open;
 }
 
@@ -48,6 +50,12 @@ void stlinkv2::disconnect()
 {
     this->DebugCommand(STLinkDebugExit, 0, 2);
     this->libusb->close();
+    this->connected = false;
+}
+
+bool stlinkv2::isConnected()
+{
+    return this->connected;
 }
 
 QString stlinkv2::getVersion() {
@@ -116,6 +124,10 @@ QString stlinkv2::getCoreID() {
 QString stlinkv2::getChipID()
 {
     qDebug() << "***[getChipID]***";
+
+    if (this->core_id == 0xFFFFFFFF || this->core_id == 0x00000000)
+        return "Unknown";
+
     this->readMem32(CM3_REG_CHIPID);
     this->chip_id = this->recv_buf.at(0) | (this->recv_buf.at(1) << 8) | (this->recv_buf.at(2) << 16) | (this->recv_buf.at(3) << 24);
     this->chip_id = this->chip_id & 0xFFF;
@@ -138,7 +150,7 @@ QString stlinkv2::getChipID()
 
 quint32 stlinkv2::readFlashSize()
 {
-    qDebug() << "***[getChipID]***";
+    qDebug() << "***[readFlashSize]***";
     this->readMem32(this->device->flash_size_reg);
     quint32 _flash_size = this->recv_buf.at(0) | (this->recv_buf.at(1) << 8);
     this->flash_size = _flash_size * 1024;

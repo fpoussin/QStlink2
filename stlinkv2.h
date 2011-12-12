@@ -161,6 +161,7 @@ public:
     QByteArray cmd_buf;
     QByteArray recv_buf;
     QByteArray send_buf;
+    bool isConnected();
 
 signals:
 
@@ -206,6 +207,7 @@ private:
     QString version;
     QString mode;
     qint8 mode_id;
+    bool connected;
 };
 
 #endif // STLINKV2_H
