@@ -64,7 +64,7 @@ void transferThread::send(const QString &filename)
     qInformal() << "Writing from" << QString::number(from, 16) << "to" << QString::number(to, 16);
     QByteArray buf;
     quint32 addr, progress, oldprogress, read;
-    char *buf2 = (char*)malloc(step_size);
+    char *buf2 = new char[step_size];
 
     // Unlock flash
     if (!this->stlink->unlockFlash())
@@ -123,7 +123,7 @@ void transferThread::send(const QString &filename)
         emit sendStatus("Transfered "+QString::number(i/1024)+" kilobytes out of "+QString::number(file.size()/1024));
     }
     file.close();
-    free(buf2);
+    delete buf2;
 
     emit sendProgress(100);
     emit sendStatus("Transfer done");
