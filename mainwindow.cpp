@@ -223,6 +223,11 @@ void MainWindow::Receive(const QString &path)
     this->tfThread->start();
 }
 
+void MainWindow::eraseFlash()
+{
+    this->stlink->eraseFlash();
+}
+
 void MainWindow::HaltMCU()
 {
     this->log("Halting MCU...");

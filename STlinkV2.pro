@@ -56,11 +56,11 @@ TARGET = qstlink2
 target.path = /usr/bin
 INSTALLS += target
 
-data.path = /etc/udev/rules.d
-data.files = 49-stlinkv2.rules
-INSTALLS += data
+conf.path = /etc/udev/rules.d
+conf.files = 49-stlinkv2.rules
+INSTALLS += conf
 
-xml.path = /usr/share/qstlink2
-xml.files = res/devices.xml
-INSTALLS += xml
+misc.path = /usr/share/qstlink2
+misc.files = res/devices.xml res/help.html
+INSTALLS += misc
 

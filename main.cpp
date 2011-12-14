@@ -18,6 +18,7 @@ This file is part of QSTLink2.
 #include "mainwindow.h"
 #include <QStringList>
 #include <QDebug>
+#include <QFile>
 
 #ifdef WIN32
 #define usleep(num) Sleep(num/1000)
@@ -26,11 +27,8 @@ This file is part of QSTLink2.
 #define QtInfoMsg QtWarningMsg // Little hack to have an "info" level of output.
 
 quint8 verbose_level = 2; // Level = info by default
-QStringList args;
 bool show = true;
-bool flash = false;
-bool wr = false;
-bool erase = true;
+bool write_flash, read_flash, erase, verify = false;
 QString path;
 
 void myMessageOutput(QtMsgType type, const char *msg)
@@ -48,76 +46,117 @@ void myMessageOutput(QtMsgType type, const char *msg)
             fprintf(stdout, "Info: %s\n", msg);
         break;
     case QtDebugMsg:
-        if (verbose_level >= 10)
+        if (verbose_level >= 5)
             fprintf(stdout, "Debug: %s\n", msg);
         break;
     }
 }
 
+void showHelp()
+{
+    qCritical() << "Missing parameters, help below:";
+    QFile help_file(":/help.html");
+    if (!help_file.open(QIODevice::ReadOnly))
+        return;
+    QString help = help_file.readAll();
+    help_file.close();
+    qInformal() << help.remove(QRegExp("(<[^>]+>)|\t\b")); // Clearing HTML tags.
+}
+
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-
-    args = QCoreApplication::arguments();
+    quint8 i = 0;
+    QStringList args = QCoreApplication::arguments();
+    QRegExp path_reg("[\\/]"); // Checks for a Unix or Windows path.
     foreach (const QString &str, args) {
-             if (str.contains("quiet"))
-                 verbose_level = 0;
-             else if (str.contains("error"))
-                 verbose_level = 2;
-             else if (str.contains("warn"))
-                 verbose_level = 3;
-             else if (str.contains("debug"))
-                 verbose_level = 10;
-             if (str.contains("cli"))
-                 show = false;
-             if (str.contains("flash")) {
-                 if (str.contains("noerase"))
-                     erase = false;
-                 if (str.contains("write")) {
-                    wr = true;
+
+            if (!i++) // Skip first one
+                continue;
+
+//            if (i >= args.size()) // Skip last one (Path)
+//                break;
+            if (!str.contains(path_reg)) {
+                 if (str.contains('h') || str == "--help") {
+                    showHelp();
+                    return 0;
                  }
-                 else
-                     wr = false;
-                 flash = true;
-                 path = str.split(":").last();
-             }
+                 if (str.contains('q') || str == "--quiet")
+                    verbose_level = 0;
+                 if (str.contains('v') || str == "--verbose")
+                    verbose_level = 5;
+                 if (str.contains('c') || str == "--cli")
+                    show = false;
+                 if (str.contains('e') || str == "--erase")
+                    erase = true;
+                 if (str.contains('w') || str == "--write")
+                    write_flash = true;
+                 if (str.contains('r') || str == "--read")
+                    read_flash = true;
+                 if (str.contains('V') || str == "--verify")
+                    verify = true;
+            }
          }
+
+    if ((!erase) && (args.size() <= 2) && (!args.last().contains(path_reg))) {
+        qCritical() << "Invalid options";
+        showHelp();
+        return 1;
+    }
+    else if ((!erase) && (args.size() >= 2) && (!args.last().contains(path_reg))) {
+        qCritical() << "Invalid path:" << args.last();
+        showHelp();
+        return 1;
+    }
+    if (args.last().contains(path_reg))
+        path = args.last(); // Path is always the last argument.
 
     qDebug() << "Verbose level:" << verbose_level;
     qInstallMsgHandler(myMessageOutput);
     MainWindow *w = new MainWindow;
-    if (show)
+    if (show) {
         w->show();
+    }
 
     else {
-        if (flash && !path.isEmpty()) {
+        if (!path.isEmpty()) {
 
-            qDebug() << "File Path:" << path;
+            qInformal() << "File Path:" << path;
+            qInformal() << "Erasing:" << erase;
+            qInformal() << "Writing:" << write_flash;
             if (!w->Connect())
                 return 1;
-            if (wr)
-                w->Send(path, erase);
-            else
-                w->Receive(path);
 
-            usleep(1000000); //1 sec
+            if (verify)
+                qInformal() << "Verify not yet implemented.";
+
+            if (write_flash)
+                w->Send(path, erase);
+            else if (read_flash)
+                w->Receive(path);
+            else
+                 qInformal() << "Not doing anything";
+
+            usleep(300000); //300 msec
             while (w->tfThread->isRunning())
                 usleep(100000);
             w->Disconnect();
             w->close();
-            delete w;
             return 0;
             }
-            else {
-                qCritical() << endl << "Missing parameters" << endl
-                << "Command line usage:" << endl
-                         << "cli: Enable command line mode" << endl
-                         << "flash:[read|write]:PATH = Manual dumping/flashing of the device" << endl
-                        << "debug: Enable debug output" << endl;
-                w->close();
-                delete w;
-                return 0;
-            }
+        else if (erase) {
+            if (!w->Connect())
+                return 1;
+            w->eraseFlash();
+            w->Disconnect();
+            return 0;
+        }
+        else if (!show) {
+            showHelp();
+            w->close();
+            return 0;
+        }
+        return 1;
     }
     return a.exec();
 }

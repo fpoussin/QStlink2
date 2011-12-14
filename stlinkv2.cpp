@@ -214,6 +214,7 @@ void stlinkv2::eraseFlash()
         return;
 
     // We set the STRT flag in order to start the mass erase
+    qInformal() << "Erasing flash... This might take some time.";
     this->setSTRT();
     while(this->isBusy()) { // then we wait for completion
         usleep(500000); // 500ms

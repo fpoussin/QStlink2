@@ -1,17 +1,25 @@
 <html>
-	<body>
-		This application can be used through the GUI or via the command line. (cli) <br/>
-		<br/>
-		The GUI is pretty intuitive, you should no be able to do anything wrong. <br/>
-		<br/>
-		Command line usage: <br/>
-		cli: Enable command line mode <br/>
-		flash:[read|write]:[noerase]:PATH = Manual dumping/flashing of the device. You can choose not to erase the flash prior writing.<br/>
-		debug: Enable debug output <br/>
-		<br/>
-		Example to flash the device: <br/>
-		qstlink2 flash:write:noerase:/home/me/myfile.bin<br/>
-		<br/>
-		<a href="http://code.google.com/p/qstlink2/">More info here</a>
-	</body>
+<body>
+This application can be used through the GUI or via the command line. (CLI) <br/>
+<br/>
+Command line usage: <br/>
+qstlink2 [-hqvcwreV] [path]<br/>
+<br/>
+-h, --help: shows this help<br/>
+-q, --quiet: Quiet output (Nothing) <br/>
+-v, --verbose: Verbose output (Debug) <br/>
+-c,--cli: Enable command line mode <br/>
+-w,--write: Enable write mode - Needs Path <br/>
+-r,--read: Enable read mode - Needs Path <br/>
+-e,--erase: Flash will be completely erased <br/>
+-V, --verify: When used with write, the file will be verified against flash <br/>
+-R, --reset: will reset the MCU <br/>
+<br/>
+Example to write and verify the device: <br/>
+qstlink2 -cwV /home/me/myfile.bin (you can also use relative paths like ./test.bin)<br/>
+or <br/>
+qstlink2 --cli --write --verify /home/me/myfile.bin <br/>
+<br/>
+<a href="http://code.google.com/p/qstlink2/">More info here</a>
+</body>
 </html>
