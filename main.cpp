@@ -98,19 +98,20 @@ int main(int argc, char *argv[])
             }
          }
 
-    if ((!erase) && (args.size() <= 2) && (!args.last().contains(path_reg))) {
-        qCritical() << "Invalid options";
-        showHelp();
-        return 1;
+    if (!show) {
+        if ((!erase) && (args.size() <= 2) && (!args.last().contains(path_reg))) {
+            qCritical() << "Invalid options";
+            showHelp();
+            return 1;
+        }
+        else if ((!erase) && (args.size() >= 2) && (!args.last().contains(path_reg))) {
+            qCritical() << "Invalid path:" << args.last();
+            showHelp();
+            return 1;
+        }
+        if (args.last().contains(path_reg))
+            path = args.last(); // Path is always the last argument.
     }
-    else if ((!erase) && (args.size() >= 2) && (!args.last().contains(path_reg))) {
-        qCritical() << "Invalid path:" << args.last();
-        showHelp();
-        return 1;
-    }
-    if (args.last().contains(path_reg))
-        path = args.last(); // Path is always the last argument.
-
     qDebug() << "Verbose level:" << verbose_level;
     qInstallMsgHandler(myMessageOutput);
     MainWindow *w = new MainWindow;
