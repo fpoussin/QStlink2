@@ -20,6 +20,7 @@
 #   along with QSTLink2.  If not, see <http://www.gnu.org/licenses/>.
 
 QT       += core gui xml
+win32:CONFIG += console
 
 TARGET = qstlink2
 TEMPLATE = app
