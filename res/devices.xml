@@ -47,15 +47,15 @@
 			<sysflash_pgsize>0x2000</sysflash_pgsize>
 			<sram_size>0x2000</sram_size>
 		</device>
-		<device type="STM32F103 (XL Density)">
+		<device type="STM32F105 (Connectivity)">
 			<core_id>0x1ba01477</core_id>
-                        <chip_id>0x430</chip_id>
+                        <chip_id>0x418</chip_id>
 			<flash_size>0x100000</flash_size>
-                        <flash_pgsize>0x400</flash_pgsize>
-			<sysflash_base>0x1ffff000</sysflash_base>
-                        <sysflash_size>0x800</sysflash_size>
+                        <flash_pgsize>0x800</flash_pgsize>
+			<sysflash_base>0x1fffb000</sysflash_base>
+                        <sysflash_size>0x4800</sysflash_size>
 			<sysflash_pgsize>0x2000</sysflash_pgsize>
-			<sram_size>0x2000</sram_size>
+			<sram_size>0x10000</sram_size>
 		</device>
 		<device type="STM32F4**">
 			<core_id>0x2ba01477</core_id>

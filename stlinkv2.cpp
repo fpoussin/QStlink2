@@ -136,14 +136,6 @@ QString stlinkv2::getChipID()
       this->chip_id = STM32_CHIPID_F4;
     }
 
-    if ((this->chip_id) == STM32_CHIPID_F2) {
-            this->flash_size = 0; // FIXME - need to work this out some other way, just set to max possible?
-        } else if ((this->chip_id) == STM32_CHIPID_F4) {
-                    this->flash_size = 0x100000; //todo: RM0090 error; size register same address as unique ID
-        } else { // We try to read the flash size from the device
-            this->readFlashSize();
-        }
-
     qInformal() << "ChipID:" << QString::number(this->chip_id, 16);
     return QString::number(this->chip_id, 16);
 }

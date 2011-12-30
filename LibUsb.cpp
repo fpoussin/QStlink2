@@ -122,9 +122,7 @@ qint32 LibUsb::write(QByteArray *buf, const quint32 bytes)
     // we use a non-interrupted write on Linux/Mac since the interrupt
     // write block size is incorectly implemented in the version of
     // libusb we build with. It is no less efficent.
-#ifdef Q_OS_MAC
-    qint32 rc = usb_bulk_write(this->device, this->writeEndpoint, buf->data(), bytes, USB_TIMEOUT_MSEC);
-#elif WIN32
+#if defined Q_OS_MAC || WIN32 || __linux__
     qint32 rc = usb_bulk_write(this->device, this->writeEndpoint, buf->data(), bytes, USB_TIMEOUT_MSEC);
 #else // Workaround for OSX with the brew libusb package...
     qint32 rc = usb_bulk_write(this->device, this->writeEndpoint, buf->constData(), bytes, USB_TIMEOUT_MSEC);
