@@ -76,7 +76,6 @@ void transferThread::send(const QString &filename)
 
         emit sendStatus("Erasing flash... This might take some time.");
         this->stlink->eraseFlash();
-
     }
 
     qDebug() << "\n";

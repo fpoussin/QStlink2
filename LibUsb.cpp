@@ -135,7 +135,7 @@ qint32 LibUsb::write(QByteArray *buf, const quint32 bytes)
         else if (rc == -2)
             qCritical() << "EndPoint not found";
         else
-            qCritical() << "usb_interrupt_write Error writing: "<< usb_strerror();
+            qCritical() << "usb_bulk_write Error writing: "<< usb_strerror();
     }
 
     return rc;

@@ -61,7 +61,6 @@ MainWindow::MainWindow(QWidget *parent) :
     else {
         this->log("Could not load the devices list");
     }
-
 }
 
 MainWindow::~MainWindow()
@@ -232,6 +231,7 @@ void MainWindow::HaltMCU()
 {
     this->log("Halting MCU...");
     this->stlink->haltMCU();
+    usleep(100000);
     this->getStatus();
 }
 
@@ -239,6 +239,7 @@ void MainWindow::RunMCU()
 {
     this->log("Resuming MCU...");
     this->stlink->runMCU();
+    usleep(100000);
     this->getStatus();
 }
 
@@ -246,6 +247,7 @@ void MainWindow::ResetMCU()
 {
     this->log("Reseting MCU...");
     this->stlink->resetMCU();
+    usleep(100000);
     this->getStatus();
 }
 
@@ -253,6 +255,7 @@ void MainWindow::HardReset()
 {
     this->log("Hard Reset...");
     this->stlink->hardResetMCU();
+    usleep(100000);
     this->getStatus();
 }
 
@@ -262,6 +265,7 @@ void MainWindow::setModeJTAG()
         return;
     this->log("Changing mode to JTAG...");
     this->stlink->setModeJTAG();
+    usleep(100000);
     this->getMode();
 }
 
@@ -271,6 +275,7 @@ void MainWindow::setModeSWD()
         return;
     this->log("Changing mode to SWD...");
     this->stlink->setModeSWD();
+    usleep(100000);
     this->getMode();
 }
 
@@ -306,7 +311,7 @@ bool MainWindow::getMCU()
         this->ui->le_type->setText(this->stlink->device->type);
         this->ui->le_chipid->setText("0x"+QString::number(this->stlink->device->chip_id, 16));
         this->ui->le_flashbase->setText("0x"+QString::number(this->stlink->device->flash_base, 16));
-        this->ui->le_flashsize->setText(QString::number(this->stlink->device->flash_size/1024)+"KB");
+        //this->ui->le_flashsize->setText(QString::number(this->stlink->device->flash_size/1024)+"KB");
         this->ui->le_ramsize->setText(QString::number(this->stlink->device->sram_size/1024)+"KB");
         this->ui->le_rambase->setText("0x"+QString::number(this->stlink->device->sram_base, 16));
 
@@ -318,18 +323,19 @@ bool MainWindow::getMCU()
             this->ui->le_jtagver->setToolTip("Not supported");
         if(!this->stlink->SWIM_ver)
             this->ui->le_swimver->setToolTip("Not supported");
-    if ((this->stlink->chip_id) == STM32_CHIPID_F2) {
-            this->stlink->flash_size = 0; // FIXME - need to work this out some other way, just set to max possible?
-        } else if ((this->stlink->chip_id) == STM32_CHIPID_F4) {
-                    this->stlink->flash_size = 0x100000; //todo: RM0090 error; size register same address as unique ID
-        } else { // We try to read the flash size from the device
-            this->stlink->readFlashSize();
-        }
-
+//    if ((this->stlink->chip_id) == STM32_CHIPID_F2) {
+//            this->stlink->flash_size = 0; // FIXME - need to work this out some other way, just set to max possible?
+//        } else if ((this->stlink->chip_id) == STM32_CHIPID_F4) {
+//                    this->stlink->flash_size = 0x100000; //todo: RM0090 error; size register same address as unique ID
+//        } else { // We try to read the flash size from the device
+            this->stlink->flash_size = this->stlink->readFlashSize()*1024;
+            this->stlink->device->flash_size = this->stlink->flash_size;
+            this->ui->le_flashsize->setText(QString::number(this->stlink->device->flash_size/1024)+"KB");
+//        }
 
         return true;
     }
     this->log("Device not found!");
     qCritical() << "Device not found!";
-return false;
+    return false;
 }

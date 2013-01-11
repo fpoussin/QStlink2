@@ -22,9 +22,11 @@ Device::Device(QObject *parent) :
     this->type = "UNKNOWN";
     this->core_id = 0;
     this->chip_id = 0;
+    this->rev_id = 0;
     this->flash_base = 0;
     this->flash_size = 0;
     this->flash_size_reg = 0;
+    this->flash_int_reg = 0;
     this->flash_pgsize = 0;
     this->sysflash_base = 0;
     this->sysflash_size = 0;
@@ -75,6 +77,8 @@ DeviceList::DeviceList(QObject *parent) :
                         this->default_device->flash_size = el.text().toInt(0, 16);
                     else if (el.tagName() == "flash_size_reg")
                         this->default_device->flash_size_reg = el.text().toInt(0, 16);
+                    else if (el.tagName() == "flash_int_reg")
+                        this->default_device->flash_int_reg = el.text().toInt(0, 16);
                     else if (el.tagName() == "flash_pgsize")
                         this->default_device->flash_pgsize = el.text().toInt(0, 16);
                     else if (el.tagName() == "sysflash_base")
@@ -100,6 +104,7 @@ DeviceList::DeviceList(QObject *parent) :
                     this->devices.last()->flash_base = this->default_device->flash_base;
                     this->devices.last()->flash_size = this->default_device->flash_size;
                     this->devices.last()->flash_size_reg = this->default_device->flash_size_reg;
+                    this->devices.last()->flash_int_reg = this->default_device->flash_int_reg;
                     this->devices.last()->flash_pgsize = this->default_device->flash_pgsize;
                     this->devices.last()->sysflash_base = this->default_device->sysflash_base;
                     this->devices.last()->sysflash_size = this->default_device->sysflash_size;
@@ -124,6 +129,8 @@ DeviceList::DeviceList(QObject *parent) :
                             this->devices.last()->flash_size = el.text().toInt(0, 16);
                         else if (el.tagName() == "flash_size_reg")
                             this->devices.last()->flash_size_reg = el.text().toInt(0, 16);
+                        else if (el.tagName() == "flash_int_reg")
+                            this->devices.last()->flash_int_reg = el.text().toInt(0, 16);
                         else if (el.tagName() == "flash_pgsize")
                             this->devices.last()->flash_pgsize = el.text().toInt(0, 16);
                         else if (el.tagName() == "sysflash_base")
@@ -152,7 +159,7 @@ bool DeviceList::IsLoaded() {
 }
 
 bool DeviceList::search(const quint32 chip_id) {
-    qDebug() << "Looking for:" << chip_id;
+    qDebug() << "Looking for:" << QString::number(chip_id, 16);
     for (int i=0; i < this->devices.count(); i++) {
         if (this->devices.at(i)->chip_id == chip_id) {
             this->cur_device = this->devices.at(i);

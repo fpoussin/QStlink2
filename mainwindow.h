@@ -27,6 +27,10 @@ This file is part of QSTLink2.
 #include "dialog.h"
 #include "transferthread.h"
 
+#ifdef __GNUC__
+#include <unistd.h> //for usleep starting with GCC 4.7
+#endif
+
 #define qInformal() qWarning()
 
 namespace Ui {

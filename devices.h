@@ -34,8 +34,10 @@ public:
     QString type;
     quint32 core_id;
     quint32 chip_id;
+    quint32 rev_id;
     quint32 flash_base;
     quint32 flash_size_reg;
+    quint32 flash_int_reg;
     quint32 flash_size;
     quint32 flash_pgsize;
     quint32 sysflash_base;

@@ -36,7 +36,6 @@ stlinkv2::~stlinkv2()
     delete libusb;
 }
 
-
 qint32 stlinkv2::connect()
 {
     qint32 open;
@@ -118,6 +117,7 @@ QString stlinkv2::getCoreID() {
     qDebug() << "***[getCoreID]***";
     this->DebugCommand(STLinkDebugReadCoreID, 0, 4);
     this->core_id = qFromLittleEndian<quint32>((uchar*)this->recv_buf.constData());
+    qInformal() << "CoreID:" << QString::number(this->core_id, 16);
     return QString::number(this->core_id, 16);
 }
 
@@ -128,24 +128,53 @@ QString stlinkv2::getChipID()
     if (this->core_id == 0xFFFFFFFF || this->core_id == 0x00000000)
         return "Unknown";
 
-    this->readMem32(CM3_REG_CHIPID);
-    this->chip_id = this->recv_buf.at(0) | (this->recv_buf.at(1) << 8) | (this->recv_buf.at(2) << 16) | (this->recv_buf.at(3) << 24);
-    this->chip_id = this->chip_id & 0xFFF;
-    // CM4 rev0 fix
-    if (((this->chip_id & 0xFFF) == 0x411) && (this->core_id == CORE_M4_R0)) {
-      this->chip_id = STM32_CHIPID_F4;
+    if (this->core_id == 0x0bb11477) {
+        this->readMem32(CM0_REG_CHIPID);
+        qInformal() << "CM0 Searching at" << QString::number(CM0_REG_CHIPID, 16);
     }
+    else {
+        this->readMem32(CM3_REG_CHIPID);
+        qInformal() << "CM3/4 Searching at" << QString::number(CM3_REG_CHIPID, 16);
+    }
+//    this->chip_id = (this->recv_buf.at(0) << 0) | (this->recv_buf.at(1) << 8);
+//    qInformal() << "DBGMCU_IDCODE:" <<
+//      QString::number(this->recv_buf.at(0)
+//      | this->recv_buf.at(1) << 8
+//      | this->recv_buf.at(2) << 16
+//      | this->recv_buf.at(3) << 24
+//      , 2);
+    this->chip_id = qFromLittleEndian<quint32>((uchar*)this->recv_buf.constData());
+    this->chip_id &= 0xFFF;
+    // CM4 rev0 fix
+//    if (((this->chip_id & 0xFFF) == 0x411) && (this->core_id == CORE_M4_R0)) {
+//      this->chip_id = STM32_CHIPID_F4;
+//    }
 
+    qInformal() << "IDCODE:" << QString::number(qFromLittleEndian<quint32>((uchar*)this->recv_buf.constData()) & 0xFFF, 16);
     qInformal() << "ChipID:" << QString::number(this->chip_id, 16);
+
+//    this->rev_id = this->recv_buf.at(2) | (this->recv_buf.at(3) << 8);
+//    qInformal() << "RevID:" << QString::number(this->rev_id, 16);
+
     return QString::number(this->chip_id, 16);
 }
 
+QString stlinkv2::getRevID()
+{
+    qDebug() << "***[getRevID]***";
+
+    this->readMem32(CM3_REG_CHIPID);
+    this->rev_id = this->recv_buf.at(2) | (this->recv_buf.at(3) << 8);
+
+    qInformal() << "RevID:" << QString::number(this->rev_id, 16);
+    return QString::number(this->rev_id, 16);
+}
 quint32 stlinkv2::readFlashSize()
 {
     qDebug() << "***[readFlashSize]***";
     this->readMem32(this->device->flash_size_reg);
-    quint32 _flash_size = this->recv_buf.at(0) | (this->recv_buf.at(1) << 8);
-    this->flash_size = _flash_size * 1024;
+    this->flash_size = this->recv_buf.at(0) | (this->recv_buf.at(1) << 8);
+    qDebug() << "Flash size:" << this->flash_size << "KB";
     return this->flash_size;
 }
 
@@ -222,13 +251,8 @@ bool stlinkv2::unlockFlash()
     if (this->isLocked()) {
         qDebug() << "***[unlockFlash]***";
         uchar buf[4];
-        quint32 addr;
-        if (this->chip_id == STM32_CHIPID_F4) {
-            addr = FLASH_F4_KEYR;
-        }
-        else {
-            addr = FLASH_KEYR;
-        }
+
+        const quint32 addr = this->device->flash_int_reg + FLASH_KEYR_OFFSET;
 
         qToLittleEndian(FLASH_KEY1, buf);
          this->send_buf.append((const char*)buf, sizeof(buf));
@@ -255,11 +279,11 @@ bool stlinkv2::lockFlash()
         quint32 addr, lock;
         quint32 fcr = this->readFlashCR();
         if (this->chip_id == STM32_CHIPID_F4) {
-            addr = FLASH_F4_CR;
+            addr = this->device->flash_int_reg + FLASH_CR_OFFSET;
             lock = fcr | (1 << FLASH_F4_CR_LOCK);
         }
         else {
-            addr = FLASH_F4_CR;
+            addr = this->device->flash_int_reg + FLASH_CR_OFFSET;
             lock = fcr | (1 << FLASH_CR_LOCK);
         }
 
@@ -321,20 +345,10 @@ quint32 stlinkv2::readFlashCR()
     qDebug() << "***[readFlashCR]***";
     quint32 res;
 
-    if(this->chip_id == STM32_CHIPID_F4) {
-
-        readMem32(FLASH_F4_CR, sizeof(quint32));
-        res =  qFromLittleEndian<quint32>((const uchar*)this->recv_buf.constData());
-        qDebug() << "(F4) Flash control register:" << QString::number(res, 16);
-        return res;
-    }
-    else {
-
-        readMem32(FLASH_CR, sizeof(quint32));
-        res =  qFromLittleEndian<quint32>((const uchar*)this->recv_buf.constData());
-        qDebug() << "Flash control register:" << QString::number(res, 16);
-        return res;
-    }
+    readMem32(this->device->flash_int_reg + FLASH_CR_OFFSET, sizeof(quint32));
+    res =  qFromLittleEndian<quint32>((const uchar*)this->recv_buf.constData());
+    qDebug() << "Flash control register:" << QString::number(res, 16);
+    return res;
 }
 
 quint32 stlinkv2::writeFlashCR(const quint32 &mask, const bool &value)
@@ -352,12 +366,8 @@ quint32 stlinkv2::writeFlashCR(const quint32 &mask, const bool &value)
         val = mask ^ fcr; // We remove bits (XOR)
     qDebug() << "Flash control register new value:" << "0x"+QString::number(val, 16);
 
-    if (this->chip_id == STM32_CHIPID_F4) {
-        addr = FLASH_F4_CR;
-    }
-    else {
-        addr = FLASH_CR;
-    }
+    addr = this->device->flash_int_reg + FLASH_CR_OFFSET;
+
     qToLittleEndian(val, buf);
     this->send_buf.append((const char*)buf, sizeof(buf));
     this->writeMem32(addr,  this->send_buf);
@@ -440,14 +450,14 @@ bool stlinkv2::isBusy()
     quint32 res;
 
     if(this->chip_id == STM32_CHIPID_F4) {
-        readMem32(FLASH_F4_SR, sizeof(quint32));
-        res =  qFromLittleEndian<quint32>((const uchar*)this->recv_buf.constData()) & (1 << FLASH_F4_SR_BSY);
+        readMem32(this->device->flash_int_reg + FLASH_SR_OFFSET, sizeof(quint32));
+        res = qFromLittleEndian<quint32>((const uchar*)this->recv_buf.constData()) & (1 << FLASH_F4_SR_BSY);
         qDebug() << "(F4) Flash busy:" << res;
         return res;
     }
     else {
-        readMem32(FLASH_SR, sizeof(quint32));
-        res =  qFromLittleEndian<quint32>((const uchar*)this->recv_buf.constData()) & (1 << FLASH_SR_BSY);
+        readMem32(this->device->flash_int_reg + FLASH_SR_OFFSET, sizeof(quint32));
+        res = qFromLittleEndian<quint32>((const uchar*)this->recv_buf.constData()) & (1 << FLASH_SR_BSY);
         qDebug() << "Flash busy:" << res;
         return res;
     }

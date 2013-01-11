@@ -26,7 +26,7 @@ This file is part of QSTLink2.
 
 #define QtInfoMsg QtWarningMsg // Little hack to have an "info" level of output.
 
-quint8 verbose_level = 2; // Level = info by default
+quint8 verbose_level = 5; // Level = info by default
 bool show = true;
 bool write_flash, read_flash, erase, verify = false;
 QString path;

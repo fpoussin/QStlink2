@@ -39,6 +39,7 @@ const quint8 STLINK_DEV_DEBUG_MODE = 0x02;
 const quint8 STLINK_DEV_UNKNOWN_MODE = -1;
 
 const quint32 CM3_REG_CHIPID = 0xE0042000;
+const quint32 CM0_REG_CHIPID = 0x40015800;
 const quint32 CM3_REG_CPUID = 0xE000ED00;
 const quint32 CM3_REG_FP_CTRL = 0xE0002000;
 const quint32 CM3_REG_FP_COMP0 = 0xE0002008;
@@ -88,19 +89,14 @@ const quint8 STLinkDebugStepCore = 0x0A;
 const quint8 STLinkDebugHardReset = 0x3C; // Unsure
 const quint8 STLinkDebugReadCoreRegs = 0x3A; // All regs fetched at once
 
-/* stm32f FPEC flash controller interface, pm0063 manual */
-// TODO - all of this needs to be abstracted out....
-const quint32 FLASH_REGS_ADDR = 0x40022000;
-const quint8 FLASH_REGS_SIZE = 0x28;
-
-const quint32 FLASH_ACR = FLASH_REGS_ADDR + 0x00;
-const quint32 FLASH_KEYR = FLASH_REGS_ADDR + 0x04;
-const quint32 FLASH_OPT_KEYR = FLASH_REGS_ADDR + 0x08;
-const quint32 FLASH_SR = FLASH_REGS_ADDR + 0x0c;
-const quint32 FLASH_CR = FLASH_REGS_ADDR + 0x10;
-const quint32 FLASH_AR = FLASH_REGS_ADDR + 0x14;
-const quint32 FLASH_OBR = FLASH_REGS_ADDR + 0x1c;
-const quint32 FLASH_WRPR = FLASH_REGS_ADDR + 0x20;
+const quint8 FLASH_ACR_OFFSET = 0x00;
+const quint8 FLASH_KEYR_OFFSET = 0x04;
+const quint8 FLASH_OPT_KEYR_OFFSET = 0x08;
+const quint8 FLASH_SR_OFFSET = 0x0c;
+const quint8 FLASH_CR_OFFSET = 0x10;
+const quint8 FLASH_AR_OFFSET = 0x14;
+const quint8 FLASH_OBR_OFFSET = 0x1c;
+const quint8 FLASH_WRPR_OFFSET = 0x20;
 
 // Needed to unlock the flash before erase/writing
 const quint32 FLASH_RDPTR_KEY = 0x00a5;
@@ -119,25 +115,7 @@ const quint8 FLASH_CR_STRT = 6;
 const quint8 FLASH_CR_LOCK = 7;
 const quint8 FLASH_CR_PGSIZE = 8;
 
-//32L = 32F1 same CoreID as 32F4!
-const quint32 STM32L_FLASH_REGS_ADDR = 0x40023c00;
-const quint32 STM32L_FLASH_ACR = STM32L_FLASH_REGS_ADDR + 0x00;
-const quint32 STM32L_FLASH_PECR = STM32L_FLASH_REGS_ADDR + 0x04;
-const quint32 STM32L_FLASH_PDKEYR = STM32L_FLASH_REGS_ADDR + 0x08;
-const quint32 STM32L_FLASH_PEKEYR = STM32L_FLASH_REGS_ADDR + 0x0c;
-const quint32 STM32L_FLASH_PRGKEYR = STM32L_FLASH_REGS_ADDR + 0x10;
-const quint32 STM32L_FLASH_OPTKEYR = STM32L_FLASH_REGS_ADDR + 0x14;
-const quint32 STM32L_FLASH_SR = STM32L_FLASH_REGS_ADDR + 0x18;
-const quint32 STM32L_FLASH_OBR = STM32L_FLASH_REGS_ADDR + 0x0c;
-const quint32 STM32L_FLASH_WRPR = STM32L_FLASH_REGS_ADDR + 0x20;
-
 //STM32F4
-const quint32 FLASH_F4_REGS_ADDR = 0x40023c00;
-const quint32 FLASH_F4_KEYR = FLASH_F4_REGS_ADDR + 0x04;
-const quint32 FLASH_F4_OPT_KEYR = FLASH_F4_REGS_ADDR + 0x08;
-const quint32 FLASH_F4_SR = FLASH_F4_REGS_ADDR + 0x0c;
-const quint32 FLASH_F4_CR = FLASH_F4_REGS_ADDR + 0x10;
-const quint32 FLASH_F4_OPT_CR = FLASH_F4_REGS_ADDR + 0x14;
 const quint8 FLASH_F4_CR_STRT = 16;
 const quint8 FLASH_F4_CR_LOCK = 31;
 const quint8 FLASH_F4_CR_SER = 1;
@@ -157,7 +135,9 @@ public:
     quint32 SWIM_ver;
     quint32 core_id;
     quint32 chip_id;
+    quint32 rev_id;
     quint32 flash_size;
+    quint32 flash_int_reg;
     QByteArray cmd_buf;
     QByteArray recv_buf;
     QByteArray send_buf;
@@ -193,6 +173,7 @@ public slots:
     QString getMode();
     QString getCoreID();
     QString getChipID();
+    QString getRevID();
 
 private:
     LibUsb *libusb;
