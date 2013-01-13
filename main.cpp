@@ -19,6 +19,7 @@ This file is part of QSTLink2.
 #include <QStringList>
 #include <QDebug>
 #include <QFile>
+#include <QElapsedTimer>
 
 #ifdef WIN32
 #define usleep(num) Sleep(num/1000)
@@ -30,24 +31,25 @@ quint8 verbose_level = 5; // Level = info by default
 bool show = true;
 bool write_flash, read_flash, erase, verify = false;
 QString path;
+QElapsedTimer timer;
 
 void myMessageOutput(QtMsgType type, const char *msg)
 {
     switch (type) {
     case QtFatalMsg: // Always print!
-            fprintf(stderr, "Fatal: %s\n", msg);
+            fprintf(stderr, "%d - Fatal: %s\n", (int)timer.elapsed(), msg);
             abort();
     case QtCriticalMsg:
         if (verbose_level >= 1)
-            fprintf(stderr, "Error: %s\n", msg);
+            fprintf(stderr, "%d - Error: %s\n", (int)timer.elapsed(), msg);
         break;
     case QtInfoMsg: // Since there is no "Info" level, we use qWarning which we alias with #define...
         if (verbose_level >= 2)
-            fprintf(stdout, "Info: %s\n", msg);
+            fprintf(stdout, "%d - Info: %s\n", (int)timer.elapsed(), msg);
         break;
     case QtDebugMsg:
         if (verbose_level >= 5)
-            fprintf(stdout, "Debug: %s\n", msg);
+            fprintf(stdout, "%d - Debug: %s\n", (int)timer.elapsed(), msg);
         break;
     }
 }
@@ -65,6 +67,7 @@ void showHelp()
 
 int main(int argc, char *argv[])
 {
+    timer.start();
     QApplication a(argc, argv);
     quint8 i = 0;
     QStringList args = QCoreApplication::arguments();

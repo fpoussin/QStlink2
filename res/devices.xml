@@ -6,9 +6,6 @@
 		<sram_size>0x4000</sram_size>
 		<flash_size>0x100000</flash_size>
 		<flash_pgsize>0x400</flash_pgsize>
-		<sysflash_base>0x1ffff000</sysflash_base>
-		<sysflash_size>0x7800</sysflash_size>
-		<sysflash_pgsize>0x2000</sysflash_pgsize>
 	</default>
 	<cores>
 		<core type="CM0" name="ARM Cortex-M0" id="0x0BB11477" idcode-addr="0x40015800" />
@@ -18,9 +15,9 @@
 	</cores>
 	<devices>
 		<device type="STM32F05x">
-			<core_id>0x0bb11477</core_id>
+                        <core_id>0x0bb11477</core_id>
 			<chip_id>0x440</chip_id>
-			<flash_size_reg>0x1FFFF7CC</flash_size_reg>
+                        <flash_size_reg>0x1FFFF7CC</flash_size_reg>
 			<flash_int_reg>0x40022000</flash_int_reg>
 		</device>
 		<device type="STM32F100">
@@ -74,13 +71,13 @@
 		<device type="STM32F4[01]*">
 			<core_id>0x2ba01477</core_id>
 			<chip_id>0x413</chip_id>
-			<flash_size_reg>0x1FFF7A22</flash_size_reg>
+                        <flash_size_reg>0x1FFF7A22</flash_size_reg>
 			<flash_int_reg>0x40023c00</flash_int_reg>
 		</device>
 		<device type="STM32F4[23]*">
 			<core_id>0x2ba01477</core_id>
 			<chip_id>0x419</chip_id>
-			<flash_size_reg>0x1FFF7A22</flash_size_reg>
+                        <flash_size_reg>0x1FFF7A22</flash_size_reg>
 			<flash_int_reg>0x40023c00</flash_int_reg>
 		</device>
 	</devices>

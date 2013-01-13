@@ -28,7 +28,10 @@ This file is part of QSTLink2.
 #include "transferthread.h"
 
 #ifdef __GNUC__
-#include <unistd.h> //for usleep starting with GCC 4.7
+    #include <unistd.h> //for usleep starting with GCC 4.7
+#endif
+#ifdef WIN32
+    #define usleep(num) Sleep(num/1000)
 #endif
 
 #define qInformal() qWarning()

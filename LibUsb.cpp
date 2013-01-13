@@ -79,7 +79,7 @@ qint32 LibUsb::read(QByteArray *buf, const quint32 bytes)
 
     char *buffer = (char*)malloc(bytes);
     qint32 rc = usb_bulk_read(this->device, this->readEndpoint, buffer, bytes, USB_TIMEOUT_MSEC);
-    qDebug() << "Bytes read: " << rc;
+//    qDebug() << "Bytes read: " << rc;
 
     // we clear the buffer.
     buf->clear();
@@ -91,7 +91,7 @@ qint32 LibUsb::read(QByteArray *buf, const quint32 bytes)
             data.append(s.sprintf("%02X",(uchar)buf->at(i))+":");
         }
         data.remove(data.size()-1, 1); //remove last colon
-        qDebug() << "Received: " << data;
+//        qDebug() << "Received: " << data;
     }
 
     if (rc < 0)
@@ -117,7 +117,7 @@ qint32 LibUsb::write(QByteArray *buf, const quint32 bytes)
             cmd.append(s.sprintf("%02X",(uchar)buf->at(i))+":");
         }
         cmd.remove(cmd.size()-1, 1); //remove last colon
-        qDebug() << "Sending" << buf->size() << "bytes:" << cmd;
+//        qDebug() << "Sending" << buf->size() << "bytes:" << cmd;
 
     // we use a non-interrupted write on Linux/Mac since the interrupt
     // write block size is incorectly implemented in the version of
@@ -135,7 +135,7 @@ qint32 LibUsb::write(QByteArray *buf, const quint32 bytes)
         else if (rc == -2)
             qCritical() << "EndPoint not found";
         else
-            qCritical() << "usb_bulk_write Error writing: "<< usb_strerror();
+            qCritical() << "usb_bulk_write Error: "<< usb_strerror();
     }
 
     return rc;

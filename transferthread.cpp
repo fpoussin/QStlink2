@@ -70,18 +70,18 @@ void transferThread::send(const QString &filename)
     if (!this->stlink->unlockFlash())
         return;
 
-    this->stlink->setProgramSize(program_size);
+//    this->stlink->setProgramSize(program_size);
 
     if (this->erase) {
-
         emit sendStatus("Erasing flash... This might take some time.");
         this->stlink->eraseFlash();
     }
 
-    qDebug() << "\n";
     // We finally enable flash programming
-    if (!this->stlink->setFlashProgramming(true))
+    if (!this->stlink->setFlashProgramming(true)) {
+        qCritical() << "setFlashProgramming Failed!";
         return;
+    }
 
     while(this->stlink->isBusy()) {
         usleep(100000); // 100ms

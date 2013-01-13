@@ -28,9 +28,6 @@ Device::Device(QObject *parent) :
     this->flash_size_reg = 0;
     this->flash_int_reg = 0;
     this->flash_pgsize = 0;
-    this->sysflash_base = 0;
-    this->sysflash_size = 0;
-    this->sysflash_pgsize = 0;
     this->sram_base = 0;
     this->sram_size = 0;
 }
@@ -81,12 +78,6 @@ DeviceList::DeviceList(QObject *parent) :
                         this->default_device->flash_int_reg = el.text().toInt(0, 16);
                     else if (el.tagName() == "flash_pgsize")
                         this->default_device->flash_pgsize = el.text().toInt(0, 16);
-                    else if (el.tagName() == "sysflash_base")
-                        this->default_device->sysflash_base = el.text().toInt(0, 16);
-                    else if (el.tagName() == "sysflash_size")
-                        this->default_device->sysflash_size = el.text().toInt(0, 16);
-                    else if (el.tagName() == "sysflash_pgsize")
-                        this->default_device->sysflash_pgsize = el.text().toInt(0, 16);
                     else if (el.tagName() == "sram_base")
                         this->default_device->sram_base = el.text().toInt(0, 16);
                     else if (el.tagName() == "sram_size")
@@ -106,9 +97,6 @@ DeviceList::DeviceList(QObject *parent) :
                     this->devices.last()->flash_size_reg = this->default_device->flash_size_reg;
                     this->devices.last()->flash_int_reg = this->default_device->flash_int_reg;
                     this->devices.last()->flash_pgsize = this->default_device->flash_pgsize;
-                    this->devices.last()->sysflash_base = this->default_device->sysflash_base;
-                    this->devices.last()->sysflash_size = this->default_device->sysflash_size;
-                    this->devices.last()->sysflash_pgsize = this->default_device->sysflash_pgsize;
                     this->devices.last()->sram_base = this->default_device->sram_base;
                     this->devices.last()->sram_size = this->default_device->sram_size;
 
@@ -133,12 +121,6 @@ DeviceList::DeviceList(QObject *parent) :
                             this->devices.last()->flash_int_reg = el.text().toInt(0, 16);
                         else if (el.tagName() == "flash_pgsize")
                             this->devices.last()->flash_pgsize = el.text().toInt(0, 16);
-                        else if (el.tagName() == "sysflash_base")
-                            this->devices.last()->sysflash_base = el.text().toInt(0, 16);
-                        else if (el.tagName() == "sysflash_size")
-                            this->devices.last()->sysflash_size = el.text().toInt(0, 16);
-                        else if (el.tagName() == "sysflash_pgsize")
-                            this->devices.last()->sysflash_pgsize = el.text().toInt(0, 16);
                         else if (el.tagName() == "sram_base")
                             this->devices.last()->sram_base = el.text().toInt(0, 16);
                         else if (el.tagName() == "sram_size")
@@ -167,7 +149,7 @@ bool DeviceList::search(const quint32 chip_id) {
             return true;
         }
     }
-    qDebug() << "Did not find chipID!";
+    qCritical() << "Did not find chipID!";
     return false;
 }
 
