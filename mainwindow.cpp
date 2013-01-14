@@ -164,8 +164,8 @@ void MainWindow::Send()
         }
         this->log("Size: "+QString::number(file.size()/1024)+"KB");
 
-        if (file.size() > this->stlink->flash_size) {
-            this->dialog.setText("Warning", "The file is biggen then the flash size!\nThe flash memory will be erased and the new file programmed, continue?");
+        if (file.size() > this->stlink->device->flash_size) {
+            this->dialog.setText("Warning", "The file is bigger than the flash size!\nThe flash memory will be erased and the new file programmed, continue?");
             if(dialog.exec() != QDialog::Accepted){
                 return;
             }
