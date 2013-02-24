@@ -27,9 +27,9 @@ This file is part of QSTLink2.
 
 #define QtInfoMsg QtWarningMsg // Little hack to have an "info" level of output.
 
-quint8 verbose_level = 5; // Level = info by default
+quint8 verbose_level = 3; // Level = info by default
 bool show = true;
-bool write_flash, read_flash, erase, verify = false;
+bool write_flash = false, read_flash = false, erase = false, verify = false;
 QString path;
 QElapsedTimer timer;
 
@@ -66,6 +66,15 @@ void showHelp()
     qInformal() << help.remove(QRegExp("(<[^>]+>)|\t\b")); // Clearing HTML tags.
 }
 
+bool shortParam(const QString &str, char p)
+{
+    // We check is does not start with '--' and contains the letter we look for.
+    if (str.startsWith('-') && str.at(1) != '-' && str.contains(p))
+        return true;
+
+    return false;
+}
+
 int main(int argc, char *argv[])
 {
     timer.start();
@@ -85,19 +94,19 @@ int main(int argc, char *argv[])
                     showHelp();
                     return 0;
                  }
-                 if (str.contains('q') || str == "--quiet")
+                 if (shortParam(str, 'q') || str == "--quiet")
                     verbose_level = 0;
-                 if (str.contains('v') || str == "--verbose")
+                 if (shortParam(str, 'v') || str == "--verbose")
                     verbose_level = 5;
-                 if (str.contains('c') || str == "--cli")
+                 if (shortParam(str, 'c') || str == "--cli")
                     show = false;
-                 if (str.contains('e') || str == "--erase")
+                 if (shortParam(str, 'e') || str == "--erase")
                     erase = true;
-                 if (str.contains('w') || str == "--write")
+                 if (shortParam(str, 'e') || str == "--write")
                     write_flash = true;
-                 if (str.contains('r') || str == "--read")
+                 if (shortParam(str, 'r') || str == "--read")
                     read_flash = true;
-                 if (str.contains('V') || str == "--verify")
+                 if (shortParam(str, 'V') || str == "--verify")
                     verify = true;
             }
          }
@@ -127,8 +136,9 @@ int main(int argc, char *argv[])
         if (!path.isEmpty()) {
 
             qInformal() << "File Path:" << path;
-            qInformal() << "Erasing:" << erase;
-            qInformal() << "Writing:" << write_flash;
+            qInformal() << "Erase:" << erase;
+            qInformal() << "Write:" << write_flash;
+            qInformal() << "Verify:" << verify;
             if (!w->Connect())
                 return 1;
 
