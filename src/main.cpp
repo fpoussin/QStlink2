@@ -14,8 +14,8 @@ This file is part of QSTLink2.
     You should have received a copy of the GNU General Public License
     along with QSTLink2.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <QtGui/QApplication>
-#include "mainwindow.h"
+#include <QApplication>
+#include <mainwindow.h>
 #include <QStringList>
 #include <QDebug>
 #include <QFile>
@@ -27,29 +27,30 @@ This file is part of QSTLink2.
 
 #define QtInfoMsg QtWarningMsg // Little hack to have an "info" level of output.
 
-quint8 verbose_level = 3; // Level = info by default
+quint8 verbose_level = 5; // Level = info by default
 bool show = true;
-bool write_flash = false, read_flash = false, erase = false, verify = false;
+bool write_flash, read_flash, erase, verify = false;
 QString path;
 QElapsedTimer timer;
 
-void myMessageOutput(QtMsgType type, const char *msg)
+void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
+    QByteArray localMsg = msg.toLocal8Bit();
     switch (type) {
     case QtFatalMsg: // Always print!
-            fprintf(stderr, "%u - Fatal: %s\n", (quint32)timer.elapsed(), msg);
+            fprintf(stderr, "%d - Fatal: %s\n", (int)timer.elapsed(), localMsg.constData());
             abort();
     case QtCriticalMsg:
         if (verbose_level >= 1)
-            fprintf(stderr, "%u - Error: %s\n", (quint32)timer.elapsed(), msg);
+            fprintf(stderr, "%d - Error: %s\n", (int)timer.elapsed(), localMsg.constData());
         break;
     case QtInfoMsg: // Since there is no "Info" level, we use qWarning which we alias with #define...
         if (verbose_level >= 2)
-            fprintf(stdout, "%u - Info: %s\n", (quint32)timer.elapsed(), msg);
+            fprintf(stdout, "%d - Info: %s\n", (int)timer.elapsed(), localMsg.constData());
         break;
     case QtDebugMsg:
         if (verbose_level >= 5)
-            fprintf(stdout, "%u - Debug: %s\n", (quint32)timer.elapsed(), msg);
+            fprintf(stdout, "%d - Debug: %s\n", (int)timer.elapsed(), localMsg.constData());
         break;
     }
 }
@@ -63,15 +64,6 @@ void showHelp()
     QString help = help_file.readAll();
     help_file.close();
     qInformal() << help.remove(QRegExp("(<[^>]+>)|\t\b")); // Clearing HTML tags.
-}
-
-bool shortParam(const QString &str, char p)
-{
-    // We check is does not start with '--' and contains the letter we look for.
-    if (str.startsWith('-') && str.at(1) != '-' && str.contains(p))
-        return true;
-
-    return false;
 }
 
 int main(int argc, char *argv[])
@@ -93,19 +85,19 @@ int main(int argc, char *argv[])
                     showHelp();
                     return 0;
                  }
-                 if (shortParam(str, 'q') || str == "--quiet")
+                 if (str.contains('q') || str == "--quiet")
                     verbose_level = 0;
-                 if (shortParam(str, 'v') || str == "--verbose")
+                 if (str.contains('v') || str == "--verbose")
                     verbose_level = 5;
-                 if (shortParam(str, 'c') || str == "--cli")
+                 if (str.contains('c') || str == "--cli")
                     show = false;
-                 if (shortParam(str, 'e') || str == "--erase")
+                 if (str.contains('e') || str == "--erase")
                     erase = true;
-                 if (shortParam(str, 'e') || str == "--write")
+                 if (str.contains('w') || str == "--write")
                     write_flash = true;
-                 if (shortParam(str, 'r') || str == "--read")
+                 if (str.contains('r') || str == "--read")
                     read_flash = true;
-                 if (shortParam(str, 'V') || str == "--verify")
+                 if (str.contains('V') || str == "--verify")
                     verify = true;
             }
          }
@@ -125,7 +117,7 @@ int main(int argc, char *argv[])
             path = args.last(); // Path is always the last argument.
     }
     qDebug() << "Verbose level:" << verbose_level;
-    qInstallMsgHandler(myMessageOutput);
+    qInstallMessageHandler(myMessageOutput);
     MainWindow *w = new MainWindow;
     if (show) {
         w->show();
@@ -135,9 +127,8 @@ int main(int argc, char *argv[])
         if (!path.isEmpty()) {
 
             qInformal() << "File Path:" << path;
-            qInformal() << "Erase:" << erase;
-            qInformal() << "Write:" << write_flash;
-            qInformal() << "Verify:" << verify;
+            qInformal() << "Erasing:" << erase;
+            qInformal() << "Writing:" << write_flash;
             if (!w->Connect())
                 return 1;
 

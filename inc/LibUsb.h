@@ -26,7 +26,7 @@
 #include <QtEndian>
 
 #ifdef WIN32
-#include <libs/lusb0_usb.h> // for the constants etc
+#include <lusb0_usb.h> // for the constants etc
 #else
 #include <usb.h> // for the constants etc
 #endif

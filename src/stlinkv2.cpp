@@ -168,7 +168,7 @@ quint32 stlinkv2::readFlashSize()
     else {
         this->flash_size &= 0xFFFF;
     }
-    qInformal() << "Flash size:" << this->flash_size << "KB";
+    qDebug() << "Flash size:" << this->flash_size << "KB";
     return this->flash_size;
 }
 
@@ -221,12 +221,12 @@ void stlinkv2::haltMCU()
     this->DebugCommand(STLinkDebugStepCore, 0, 2);
 }
 
-bool stlinkv2::eraseFlash()
+void stlinkv2::eraseFlash()
 {
     qDebug() << "***[eraseFlash]***";
     // We set the mass erase flag
     if (!this->setMassErase(true))
-        return false;
+        return;
 
     // We set the STRT flag in order to start the mass erase
     qInformal() << "Erasing flash... This might take some time.";
@@ -237,32 +237,30 @@ bool stlinkv2::eraseFlash()
 
     // We remove the mass erase flag
     if (this->setMassErase(false))
-        return false;
-
-    return true;
+        return;
 }
 
 bool stlinkv2::unlockFlash()
 {
-//    if (this->isLocked()) {
+    if (this->isLocked()) {
         qDebug() << "***[unlockFlash]***";
         uchar buf[4];
 
         const quint32 addr = this->device->flash_int_reg + FLASH_KEYR_OFFSET;
 
         qToLittleEndian(FLASH_KEY1, buf);
-        this->send_buf.append((const char*)buf, sizeof(buf));
+         this->send_buf.append((const char*)buf, sizeof(buf));
         this->writeMem32(addr,  this->send_buf);
 
-        this->send_buf.clear();
+         this->send_buf.clear();
         qToLittleEndian(FLASH_KEY2, buf);
-        this->send_buf.append((const char*)buf, sizeof(buf));
+         this->send_buf.append((const char*)buf, sizeof(buf));
         this->writeMem32(addr,  this->send_buf);
 
         if (this->isLocked()) {
             qCritical() << "Failed to unlock flash!" ;
             return false;
-//        }
+        }
     }
     return true;
 }
@@ -345,7 +343,7 @@ quint32 stlinkv2::readFlashCR()
 
     readMem32(this->device->flash_int_reg + FLASH_CR_OFFSET, sizeof(quint32));
     res =  qFromLittleEndian<quint32>((const uchar*)this->recv_buf.constData());
-    qDebug() << "Flash control register:" << "0x"+QString::number(res, 16) << "0b"+QString::number(res, 2);
+    qDebug() << "Flash control register:" << "0b"+QString::number(res, 2);
     return res;
 }
 
@@ -362,7 +360,7 @@ quint32 stlinkv2::writeFlashCR(const quint32 &mask, const bool &value)
         val = mask | fcr; // We append bits (AND)
     else
         val = mask ^ fcr; // We remove bits (XOR)
-    qDebug() << "Flash control register new value:" << "0x"+QString::number(val, 16) << "0b"+QString::number(val, 2);
+    qDebug() << "Flash control register new value:" << "0b"+QString::number(val, 2);
 
     addr = this->device->flash_int_reg + FLASH_CR_OFFSET;
 
@@ -374,20 +372,26 @@ quint32 stlinkv2::writeFlashCR(const quint32 &mask, const bool &value)
 
 bool stlinkv2::setFlashProgramming(const bool &val)
 {
+    quint32 mask = 0;
     qDebug() << "***[setFlashProgramming]***";
-    const quint32 mask = (1 << FLASH_CR_PG);
-    const bool res = (this->writeFlashCR(mask, val) & mask) == mask;
+    mask |= (1 << FLASH_CR_PG);
 
-    qDebug() << "Flash programming enabled:" << res;
-    return res;
+    if ((this->writeFlashCR(mask, val) & mask) == mask)
+        return true;
+
+    return false;
 }
 
 bool stlinkv2::setMassErase(const bool &val)
 {
+    quint32 mask = 0;
     qDebug() << "***[setMassErase]***";
-    const quint32 mask = (1 << FLASH_CR_MER);
+    mask |= (1 << FLASH_CR_MER);
 
-    return (this->writeFlashCR(mask, val) & mask) == mask;
+    if ((this->writeFlashCR(mask, val) & mask) == mask)
+        return true;
+
+    return false;
 }
 
 void stlinkv2::setSTRT()
@@ -455,11 +459,9 @@ bool stlinkv2::isBusy()
 
 void stlinkv2::writeMem32(const quint32 &addr, QByteArray &buf)
 {
-    qDebug() << "+++++[writeMem32] Writing" << buf.size() << "bytes to" << "0x"+QString::number(addr, 16).toUpper();
-    if (buf.size() % 4 != 0) {
-        qCritical() << "Data is not 32 bit aligned!";
+    qDebug() << "***[writeMem32] Writing" << buf.size() << "bytes to" << "0x"+QString::number(addr, 16).toUpper();
+    if (buf.size() % 4 != 0)
         return;
-    }
 
     // Any writing to flash while busy = ART processor hangs
     if (addr >= this->device->flash_base && addr <= this->device->flash_base+this->device->flash_size)
@@ -482,7 +484,7 @@ void stlinkv2::writeMem32(const quint32 &addr, QByteArray &buf)
 
 qint32 stlinkv2::readMem32(const quint32 &addr, const quint16 &len)
 {
-    qDebug() << "+++++[readMem32] Reading at" << "0x"+QString::number(addr, 16).toUpper();
+    qDebug() << "***[readMem32] Reading at" << "0x"+QString::number(addr, 16).toUpper();
     if (len % 4 != 0)
         return 0;
     this->cmd_buf.append(STLinkDebugCommand);
@@ -515,10 +517,9 @@ qint32 stlinkv2::DebugCommand(const quint8 &st_cmd1, const quint8 &st_cmd2, cons
     this->cmd_buf.append(st_cmd2);
 
     qint32 res = this->SendCommand();
-//    if (res > 0)
-//        qDebug() << res << " Bytes sent";
-//    else
-//        qCritical() << "Error: " << res;
+    if (res > 0)
+        qDebug() << res << " Bytes sent";
+    else qCritical() << "Error: " << res;
 
     if (resp_len > 0)
         return this->libusb->read(&this->recv_buf, resp_len);

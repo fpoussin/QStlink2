@@ -20,7 +20,7 @@
    <string>QSTLink2</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="res/ressources.qrc">
+   <iconset resource="../res/ressources.qrc">
     <normaloff>:/images/icon.ico</normaloff>:/images/icon.ico</iconset>
   </property>
   <widget class="QWidget" name="centralWidget">
@@ -80,8 +80,19 @@
            <string/>
           </property>
           <property name="icon">
-           <iconset resource="res/ressources.qrc">
+           <iconset resource="../res/ressources.qrc">
             <normaloff>:/images/icon-questionmark.png</normaloff>:/images/icon-questionmark.png</iconset>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="b_qt">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="../res/ressources.qrc">
+            <normaloff>:/images/Qt-logo.png</normaloff>:/images/Qt-logo.png</iconset>
           </property>
          </widget>
         </item>
@@ -457,7 +468,7 @@
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources>
-  <include location="res/ressources.qrc"/>
+  <include location="../res/ressources.qrc"/>
  </resources>
  <connections>
   <connection>

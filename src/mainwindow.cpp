@@ -14,8 +14,8 @@ This file is part of QSTLink2.
     You should have received a copy of the GNU General Public License
     along with QSTLink2.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "mainwindow.h"
-#include "ui_mainwindow.h"
+#include <mainwindow.h>
+#include <ui_mainwindow.h>
 #include <stdlib.h>
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -36,6 +36,7 @@ MainWindow::MainWindow(QWidget *parent) :
         this->ui->gb_top->setEnabled(true);
         this->log(QString::number(this->devices->getDevicesCount())+" Device descriptions loaded.");
         QObject::connect(this->ui->b_quit,SIGNAL(clicked()),qApp,SLOT(quit()));
+        QObject::connect(this->ui->b_qt,SIGNAL(clicked()),qApp,SLOT(aboutQt()));
         QObject::connect(this->ui->b_connect, SIGNAL(clicked()), this, SLOT(Connect()));
         QObject::connect(this->ui->b_disconnect, SIGNAL(clicked()), this, SLOT(Disconnect()));
         QObject::connect(this->ui->b_send, SIGNAL(clicked()), this, SLOT(Send()));
@@ -164,8 +165,8 @@ void MainWindow::Send()
         }
         this->log("Size: "+QString::number(file.size()/1024)+"KB");
 
-        if (file.size() > this->stlink->device->flash_size) {
-            this->dialog.setText("Warning", "The file is bigger than the flash size!\nThe flash memory will be erased and the new file programmed, continue?");
+        if (file.size() > this->stlink->flash_size) {
+            this->dialog.setText("Warning", "The file is biggen then the flash size!\nThe flash memory will be erased and the new file programmed, continue?");
             if(dialog.exec() != QDialog::Accepted){
                 return;
             }

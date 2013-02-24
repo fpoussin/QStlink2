@@ -55,13 +55,13 @@ void transferThread::send(const QString &filename)
     emit sendLock(true);
     this->stop = false;
     this->stlink->hardResetMCU(); // We stop the MCU
-    const quint8 program_size = 4; // WORD (4 bytes)
+    quint32 program_size = 4; // WORD (4 bytes)
     // The MCU will write program_size 32 times to empty the MCU buffer.
     // We don't have to write to USB only a few bytes at a time, the MCU handles flash programming for us.
     quint32 step_size = program_size*32;
     quint32 from = this->stlink->device->flash_base;
     quint32 to = this->stlink->device->flash_base+file.size();
-    qInformal() << "Writing from" << "0x"+QString::number(from, 16) << "to" << "0x"+QString::number(to, 16);
+    qInformal() << "Writing from" << QString::number(from, 16) << "to" << QString::number(to, 16);
     QByteArray buf;
     quint32 addr, progress, oldprogress, read;
     char *buf2 = new char[step_size];
@@ -70,19 +70,12 @@ void transferThread::send(const QString &filename)
     if (!this->stlink->unlockFlash())
         return;
 
-    // Does not work on F0
 //    this->stlink->setProgramSize(program_size);
 
     if (this->erase) {
         emit sendStatus("Erasing flash... This might take some time.");
-
-        if (!this->stlink->eraseFlash()) {
-            qCritical() << "eraseFlash Failed!";
-            return;
-        }
+        this->stlink->eraseFlash();
     }
-
-    this->stlink->resetMCU();
 
     // We finally enable flash programming
     if (!this->stlink->setFlashProgramming(true)) {
@@ -107,7 +100,7 @@ void transferThread::send(const QString &filename)
             break;
 
         if (file.atEnd()) {
-            qDebug() << "End Of File";
+            qDebug() << "EOF";
             break;
         }
 
@@ -135,12 +128,12 @@ void transferThread::send(const QString &filename)
     emit sendLog("Transfer done");
     qInformal() << "Transfer done";
 
-//    // We disable flash programming
-//    if (this->stlink->setFlashProgramming(false))
-//        return;
+    // We disable flash programming
+    if (this->stlink->setFlashProgramming(false))
+        return;
 
-//    // Lock flash
-//    this->stlink->lockFlash();
+    // Lock flash
+    this->stlink->lockFlash();
 
     this->stlink->hardResetMCU();
     this->stlink->resetMCU();

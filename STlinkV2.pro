@@ -19,37 +19,38 @@
 #   You should have received a copy of the GNU General Public License
 #   along with QSTLink2.  If not, see <http://www.gnu.org/licenses/>.
 
-QT       += core gui xml
+QT       += core gui widgets xml
 win32:CONFIG += console
 
 TARGET = qstlink2
 TEMPLATE = app
 
-SOURCES += main.cpp\
-        mainwindow.cpp \
-    stlinkv2.cpp \
-    LibUsb.cpp \
-    devices.cpp \
-    dialog.cpp \
-    transferthread.cpp
+SOURCES += src/main.cpp\
+        src/mainwindow.cpp \
+    src/stlinkv2.cpp \
+    src/LibUsb.cpp \
+    src/devices.cpp \
+    src/dialog.cpp \
+   src/transferthread.cpp
 
-HEADERS  += mainwindow.h \
-    stlinkv2.h \
-    LibUsb.h \
-    devices.h \
-    dialog.h \
-    transferthread.h
+HEADERS  += inc/mainwindow.h \
+    inc/stlinkv2.h \
+    inc/LibUsb.h \
+    inc/devices.h \
+    inc/dialog.h \
+    inc/transferthread.h
 
-FORMS    += mainwindow.ui \
-    dialog.ui
+FORMS    += ui/mainwindow.ui \
+    ui/dialog.ui
 
+INCLUDEPATH += inc
 unix:LIBS += -L/usr/lib -lusb
 win32:LIBS += -L"$$_PRO_FILE_PWD_/libs/" -llibusb
 
 RESOURCES += res/ressources.qrc
 
 # Icon for windows
-win32:RC_FILE = qstlink2.rc
+win32:RC_FILE = res/qstlink2.rc
 # OSX
 ICON = res/images/icon.icns
 

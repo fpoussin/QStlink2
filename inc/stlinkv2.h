@@ -158,7 +158,7 @@ public slots:
     qint32 readMem32(const quint32 &addr, const quint16 &len = 4);
     void writeMem32(const quint32 &addr, QByteArray &buf);
     bool isLocked();
-    bool eraseFlash();
+    void eraseFlash();
     bool unlockFlash();
     bool lockFlash();
     bool unlockFlashOpt();
