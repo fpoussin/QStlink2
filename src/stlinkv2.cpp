@@ -232,7 +232,7 @@ bool stlinkv2::eraseFlash()
     qInformal() << "Erasing flash... This might take some time.";
     this->setSTRT();
     while(this->isBusy()) { // then we wait for completion
-        usleep(500000); // 500ms
+        usleep(1000000); // 500ms
     }
 
     // We remove the mass erase flag
@@ -345,7 +345,7 @@ quint32 stlinkv2::readFlashCR()
 
     readMem32(this->device->flash_int_reg + FLASH_CR_OFFSET, sizeof(quint32));
     res =  qFromLittleEndian<quint32>((const uchar*)this->recv_buf.constData());
-    qDebug() << "Flash control register:" << "0x"+QString::number(res, 16) << "0b"+QString::number(res, 2);
+    qDebug() << "Flash control register:" << "0x"+QString::number(res, 16) << regPrint(res);
     return res;
 }
 
@@ -362,7 +362,7 @@ quint32 stlinkv2::writeFlashCR(const quint32 &mask, const bool &value)
         val = mask | fcr; // We append bits (AND)
     else
         val = mask ^ fcr; // We remove bits (XOR)
-    qDebug() << "Flash control register new value:" << "0x"+QString::number(val, 16) << "0b"+QString::number(val, 2);
+    qDebug() << "Flash control register new value:" << "0x"+QString::number(val, 16) << regPrint(val);
 
     addr = this->device->flash_int_reg + FLASH_CR_OFFSET;
 
@@ -538,4 +538,20 @@ qint32 stlinkv2::SendCommand()
         qCritical() << "Error!";
     }
     return ret;
+}
+
+QString stlinkv2::regPrint(const quint32 reg)
+{
+    const QString regstr(QString::number(reg, 2));
+    QString top("\r\n");
+    QString bottom("\r\n");
+    for (quint32 i=0;i<regstr.length();i++) {
+        const quint8 pos = regstr.length()-(i+1);
+        top.append(QString::number(pos)+" ");
+        if (pos >= 10)
+            bottom.append(QString(regstr.at(i))+"  ");
+        else
+            bottom.append(QString(regstr.at(i))+" ");
+    }
+    return top+bottom;
 }

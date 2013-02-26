@@ -72,6 +72,11 @@ void transferThread::send(const QString &filename)
 
     // Does not work on F0
 //    this->stlink->setProgramSize(program_size);
+    this->stlink->setProgramSize(2);
+
+    while(this->stlink->isBusy()) {
+        usleep(10000); // 100ms
+    }
 
     if (this->erase) {
         emit sendStatus("Erasing flash... This might take some time.");
@@ -91,7 +96,7 @@ void transferThread::send(const QString &filename)
     }
 
     while(this->stlink->isBusy()) {
-        usleep(100000); // 100ms
+        usleep(100000); // 1000ms
     }
 
     // Unlock flash again. Seems like this is mandatory.

@@ -189,6 +189,7 @@ private:
     QString mode;
     qint8 mode_id;
     bool connected;
+    QString regPrint(const quint32 reg);
 };
 
 #endif // STLINKV2_H

@@ -33,7 +33,7 @@ This file is part of QSTLink2.
 
 #define QtInfoMsg QtWarningMsg // Little hack to have an "info" level of output.
 
-quint8 verbose_level = 3; // Level = info by default
+quint8 verbose_level = 5; // Level = info by default
 #if QT_VERSION >= 0x050000
 void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
