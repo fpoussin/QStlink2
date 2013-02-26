@@ -19,41 +19,11 @@ This file is part of QSTLink2.
 #include <QStringList>
 #include <QDebug>
 #include <QFile>
-#include <QElapsedTimer>
+#include <compat.h>
 
-#ifdef WIN32
-#define usleep(num) Sleep(num/1000)
-#endif
-
-#define QtInfoMsg QtWarningMsg // Little hack to have an "info" level of output.
-
-quint8 verbose_level = 3; // Level = info by default
 bool show = true;
 bool write_flash = false, read_flash = false, erase = false, verify = false;
 QString path;
-QElapsedTimer timer;
-
-void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
-{
-    QByteArray localMsg = msg.toLocal8Bit();
-    switch (type) {
-    case QtFatalMsg: // Always print!
-            fprintf(stderr, "%d - Fatal: %s\n", (int)timer.elapsed(), localMsg.constData());
-            abort();
-    case QtCriticalMsg:
-        if (verbose_level >= 1)
-            fprintf(stderr, "%d - Error: %s\n", (int)timer.elapsed(), localMsg.constData());
-        break;
-    case QtInfoMsg: // Since there is no "Info" level, we use qWarning which we alias with #define...
-        if (verbose_level >= 2)
-            fprintf(stdout, "%d - Info: %s\n", (int)timer.elapsed(), localMsg.constData());
-        break;
-    case QtDebugMsg:
-        if (verbose_level >= 5)
-            fprintf(stdout, "%d - Debug: %s\n", (int)timer.elapsed(), localMsg.constData());
-        break;
-    }
-}
 
 void showHelp()
 {
@@ -87,8 +57,6 @@ int main(int argc, char *argv[])
             if (!i++) // Skip first one
                 continue;
 
-//            if (i >= args.size()) // Skip last one (Path)
-//                break;
             if (!str.contains(path_reg)) {
                  if (str.contains('h') || str == "--help") {
                     showHelp();

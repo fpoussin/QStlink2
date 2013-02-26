@@ -38,7 +38,8 @@ HEADERS  += inc/mainwindow.h \
     inc/LibUsb.h \
     inc/devices.h \
     inc/dialog.h \
-    inc/transferthread.h
+    inc/transferthread.h \
+    inc/compat.h
 
 FORMS    += ui/mainwindow.ui \
     ui/dialog.ui
