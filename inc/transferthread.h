@@ -20,9 +20,8 @@ This file is part of QSTLink2.
 #include <QThread>
 #include <QDebug>
 #include <QString>
-#include "stlinkv2.h"
-
-#define qInformal() qWarning()
+#include <stlinkv2.h>
+#include <compat.h>
 
 class transferThread : public QThread
 {

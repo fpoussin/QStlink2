@@ -24,14 +24,8 @@
 #include <QDebug>
 #include <QByteArray>
 #include <QtEndian>
-
-#ifdef WIN32
-#include <lusb0_usb.h> // for the constants etc
-#else
-#include <usb.h> // for the constants etc
-#endif
-
-#define qInformal() qWarning()
+#include <compat.h>
+#include <usb.h>
 
 const quint16 USB_ST_VID = 0x0483;
 const quint16 USB_STLINK_PID = 0x3744;

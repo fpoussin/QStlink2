@@ -23,8 +23,7 @@ This file is part of QSTLink2.
 #include <QDebug>
 #include <QString>
 #include <QVector>
-
-#define qInformal() qWarning()
+#include <compat.h>
 
 class Device : public QObject
 {

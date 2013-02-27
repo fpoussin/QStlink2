@@ -24,104 +24,119 @@ This file is part of QSTLink2.
 #include <QByteArray>
 #include <QtEndian>
 #include <devices.h>
+#include <compat.h>
 
-#define qInformal() qWarning()
+namespace STLink {
+    namespace Status {
+             const quint8 OK = 0x80;
+             const quint8 FALSE = 0x81;
+             const quint8 CORE_RUNNING = 0x80;
+             const quint8 CORE_HALTED = 0x81;
+             const quint8 CORE_UNKNOWN_STATE = 2; /* Not reported, internal use. */
+    }
+    namespace Mode {
+            const quint8 DFU = 0x00;
+            const quint8 MASS = 0x01;
+            const quint8 DEBUG = 0x02;
+            const quint8 UNKNOWN = -1;
+    }
+    namespace Cmd {
+            const quint8 GetVersion = 0xF1;
+            const quint8 DebugCommand = 0xF2;
+            const quint8 DFUCommand = 0xF3;
+            const quint8 DFUExit = 0x07;
+            const quint8 DFUGetVersion = 0x08;
+            const quint8 GetCurrentMode = 0xF5;
+            const quint8 Reset = 0xF7;
+        namespace Dbg {
+                const quint8 ReadMem32bit = 0x07;
+                const quint8 WriteMem32bit = 0x08;
+                const quint8 WriteMem8bit = 0x0d;
+                const quint8 EnterMode = 0x20;
+                const quint8 EnterSWD = 0xA3;
+                const quint8 EnterJTAG = 0x00;
+                const quint8 Exit = 0x21;
+                const quint8 ReadCoreID = 0x22;
+                const quint8 GetStatus = 0x01;
+                const quint8 ForceDebug = 0x02;
+                const quint8 ResetSys = 0x03;
+                const quint8 ReadAllRegs = 0x04;
+                const quint8 RunCore = 0x09;
+                const quint8 StepCore = 0x0A;
+                const quint8 HardReset = 0x3C; // Unsure
+                const quint8 ReadCoreRegs = 0x3A; // All regs fetched at once
+        }
+    }
+}
 
-const quint8 STLINK_OK = 0x80;
-const quint8 STLINK_FALSE = 0x81;
-const quint8 STLINK_CORE_RUNNING = 0x80;
-const quint8 STLINK_CORE_HALTED = 0x81;
-const quint8 STLINK_CORE_UNKNOWN_STATE = 2; /* Not reported, internal use. */
+namespace STM32 {
 
-const quint8 STLINK_DEV_DFU_MODE = 0x00;
-const quint8 STLINK_DEV_MASS_MODE = 0x01;
-const quint8 STLINK_DEV_DEBUG_MODE = 0x02;
-const quint8 STLINK_DEV_UNKNOWN_MODE = -1;
+    namespace ChipID {
+        // stm32 chipids, only lower 12 bits...
+        const quint32 F1_MEDIUM = 0x410;
+        const quint32 F2 = 0x411;
+        const quint32 F1_LOW = 0x412;
+        const quint32 F4 = 0x413;
+        const quint32 F1_HIGH = 0x414;
+        const quint32 L1_MEDIUM = 0x416;
+        const quint32 F1_CONN = 0x418;
+        const quint32 F1_VL_MEDIUM = 0x420;
+        const quint32 F1_VL_HIGH = 0x428;
+        const quint32 F1_XL = 0x430;
+    }
+    namespace Flash {
+        const quint32 RDPTR_KEY = 0x00a5;
+        const quint32 KEY1 = 0x45670123;
+        const quint32 KEY2 = 0xcdef89ab;
+        const quint32 OPTKEY1 = 0x08192A3B;
+        const quint32 OPTKEY2 = 0x4C5D6E7F;
 
-const quint32 CM3_REG_CHIPID = 0xE0042000;
-const quint32 CM0_REG_CHIPID = 0x40015800;
-const quint32 CM3_REG_CPUID = 0xE000ED00;
-const quint32 CM3_REG_FP_CTRL = 0xE0002000;
-const quint32 CM3_REG_FP_COMP0 = 0xE0002008;
+        const quint8 SR_BSY = 0;
+        const quint8 SR_EOP = 5;
 
-// Constant STM32 memory map figures
-const quint32 STM32_FLASH_BASE = 0x08000000;
-const quint32 STM32_SRAM_BASE = 0x20000000;
+        const quint8 CR_PG = 0;
+        const quint8 CR_PER = 1;
+        const quint8 CR_MER = 2;
+        const quint8 CR_STRT = 6;
+        const quint8 CR_LOCK = 7;
+        const quint8 CR_PGSIZE = 8;
 
-// stm32 chipids, only lower 12 bits...
-const quint32 STM32_CHIPID_F1_MEDIUM = 0x410;
-const quint32 STM32_CHIPID_F2 = 0x411;
-const quint32 STM32_CHIPID_F1_LOW = 0x412;
-const quint32 STM32_CHIPID_F4 = 0x413;
-const quint32 STM32_CHIPID_F1_HIGH = 0x414;
-const quint32 STM32_CHIPID_L1_MEDIUM = 0x416;
-const quint32 STM32_CHIPID_F1_CONN = 0x418;
-const quint32 STM32_CHIPID_F1_VL_MEDIUM = 0x420;
-const quint32 STM32_CHIPID_F1_VL_HIGH = 0x428;
-const quint32 STM32_CHIPID_F1_XL = 0x430;
+        //STM32F4
+        const quint8 F4_CR_STRT = 16;
+        const quint8 F4_CR_LOCK = 31;
+        const quint8 F4_CR_SER = 1;
+        const quint8 F4_CR_SNB = 3;
+        const quint8 F4_CR_SNB_MASK = 0x38;
+        const quint8 F4_SR_BSY = 16;
 
-const quint32 CORE_M3_R1 = 0x1BA00477;
-const quint32 CORE_M3_R2 = 0x4BA00477;
-const quint32 CORE_M4_R0 = 0x2BA01477;
+        const quint8 ACR_OFFSET = 0x00;
+        const quint8 KEYR_OFFSET = 0x04;
+        const quint8 OPT_KEYR_OFFSET = 0x08;
+        const quint8 SR_OFFSET = 0x0c;
+        const quint8 CR_OFFSET = 0x10;
+        const quint8 AR_OFFSET = 0x14;
+        const quint8 OBR_OFFSET = 0x1c;
+        const quint8 WRPR_OFFSET = 0x20;
+    }
+}
 
-const quint8 STLinkGetVersion = 0xF1;
-const quint8 STLinkDebugCommand = 0xF2;
-const quint8 STLinkDFUCommand = 0xF3;
-const quint8 STLinkDFUExit = 0x07;
-const quint8 STLinkDFUGetVersion = 0x08;
-const quint8 STLinkGetCurrentMode = 0xF5;
-const quint8 STLinkReset = 0xF7;
+namespace Cortex {
 
-const quint8 STLinkDebugReadMem32bit = 0x07;
-const quint8 STLinkDebugWriteMem32bit = 0x08;
-const quint8 STLinkDebugWriteMem8bit = 0x0d;
-const quint8 STLinkDebugEnterMode = 0x20;
-const quint8 STLinkDebugEnterSWD = 0xA3;
-const quint8 STLinkDebugEnterJTAG = 0x00;
-const quint8 STLinkDebugExit = 0x21;
-const quint8 STLinkDebugReadCoreID = 0x22;
-const quint8 STLinkDebugGetStatus = 0x01;
-const quint8 STLinkDebugForceDebug = 0x02;
-const quint8 STLinkDebugResetSys = 0x03;
-const quint8 STLinkDebugReadAllRegs = 0x04;
-const quint8 STLinkDebugRunCore = 0x09;
-const quint8 STLinkDebugStepCore = 0x0A;
-const quint8 STLinkDebugHardReset = 0x3C; // Unsure
-const quint8 STLinkDebugReadCoreRegs = 0x3A; // All regs fetched at once
+    namespace CoreID {
+        const quint32 M0_R0 = 0x0BB11477;
+        const quint32 M3_R1 = 0x1BA00477;
+        const quint32 M3_R2 = 0x4BA00477;
+        const quint32 M4_R0 = 0x2BA01477;
+    }
 
-const quint8 FLASH_ACR_OFFSET = 0x00;
-const quint8 FLASH_KEYR_OFFSET = 0x04;
-const quint8 FLASH_OPT_KEYR_OFFSET = 0x08;
-const quint8 FLASH_SR_OFFSET = 0x0c;
-const quint8 FLASH_CR_OFFSET = 0x10;
-const quint8 FLASH_AR_OFFSET = 0x14;
-const quint8 FLASH_OBR_OFFSET = 0x1c;
-const quint8 FLASH_WRPR_OFFSET = 0x20;
-
-// Needed to unlock the flash before erase/writing
-const quint32 FLASH_RDPTR_KEY = 0x00a5;
-const quint32 FLASH_KEY1 = 0x45670123;
-const quint32 FLASH_KEY2 = 0xcdef89ab;
-const quint32 FLASH_OPTKEY1 = 0x08192A3B;
-const quint32 FLASH_OPTKEY2 = 0x4C5D6E7F;
-
-const quint8 FLASH_SR_BSY = 0;
-const quint8 FLASH_SR_EOP = 5;
-
-const quint8 FLASH_CR_PG = 0;
-const quint8 FLASH_CR_PER = 1;
-const quint8 FLASH_CR_MER = 2;
-const quint8 FLASH_CR_STRT = 6;
-const quint8 FLASH_CR_LOCK = 7;
-const quint8 FLASH_CR_PGSIZE = 8;
-
-//STM32F4
-const quint8 FLASH_F4_CR_STRT = 16;
-const quint8 FLASH_F4_CR_LOCK = 31;
-const quint8 FLASH_F4_CR_SER = 1;
-const quint8 FLASH_F4_CR_SNB = 3;
-const quint8 FLASH_F4_CR_SNB_MASK = 0x38;
-const quint8 FLASH_F4_SR_BSY = 16;
+    namespace Reg {
+        const quint32 CM3_CHIPID = 0xE0042000;
+        const quint32 CM0_CHIPID = 0x40015800;
+        const quint32 CM3_CPUID = 0xE000ED00;
+        const quint32 CM3_FP_CTRL = 0xE0002000;
+        const quint32 CM3_FP_COMP0 = 0xE0002008;
+    }
+}
 
 class stlinkv2 : public QThread
 {
@@ -165,7 +180,7 @@ public slots:
     bool isBusy();
     bool setFlashProgramming(const bool &val);
     bool setMassErase(const bool &val);
-    void setSTRT();
+    bool setSTRT();
     void setProgramSize(const quint8 &size);
     quint32 readFlashSize();
     QString getStatus();
