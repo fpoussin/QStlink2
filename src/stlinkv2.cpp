@@ -319,7 +319,7 @@ bool stlinkv2::isLocked()
     qDebug() << "***[isLocked]***";
     bool res = false;
     const quint32 cr = this->readFlashCR();
-
+    qDebug() << "Lock bit" << (*this->device)["CR_LOCK"];
     res = cr & (1 << (*this->device)["CR_LOCK"]);
 
     qDebug() << "Flash locked:" << res;
@@ -431,12 +431,9 @@ bool stlinkv2::isBusy()
 
     readMem32((*this->device)["flash_int_reg"] + (*this->device)["SR_OFFSET"], sizeof(quint32));
     const quint32 sr = qFromLittleEndian<quint32>((const uchar*)this->recv_buf.constData());
-    if(this->chip_id == STM32::ChipID::F4) {
-        res = sr & (1 << STM32::Flash::F4_SR_BSY);
-    }
-    else {
-        res = sr & (1 << STM32::Flash::SR_BSY);;
-    }
+
+    res = sr & (1 << (*this->device)["SR_BSY"]);
+
     qDebug() << "Flash busy:" << res;
     return res;
 }
@@ -531,15 +528,24 @@ qint32 stlinkv2::SendCommand()
 QString stlinkv2::regPrint(const quint32 reg)
 {
     const QString regstr(QString::number(reg, 2));
-    QString top("\r\n");
-    QString bottom("\r\n");
-    for (qint32 i=0;i<regstr.length();i++) {
-        const quint8 pos = regstr.length()-(i+1);
+//    qDebug() << regstr;
+    QString top("\r\n| ");
+    QString bottom("\r\n| ");
+    QString tmp;
+    int pos = 0;
+    //TODO: reverse loop
+    for (int i=0;i<32;i++) {
+        pos = 31-i;
         top.append(QString::number(pos)+" ");
-        if (pos >= 10)
-            bottom.append(QString(regstr.at(i))+"  ");
+        if (i > regstr.length())
+            tmp = QString::number(0); // Does not work but should ????
         else
-            bottom.append(QString(regstr.at(i))+" ");
+            tmp = QString(regstr.at(i));
+
+        if (pos >= 10)
+            bottom.append(tmp+"  ");
+        else
+            bottom.append(tmp+" ");
     }
-    return top+bottom;
+    return top+"| "+bottom+"| ";
 }

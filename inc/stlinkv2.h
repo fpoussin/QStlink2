@@ -29,7 +29,7 @@ This file is part of QSTLink2.
 namespace STLink {
     namespace Status {
              const quint8 OK = 0x80;
-             const quint8 FALSE = 0x81;
+             const quint8 NOK = 0x81;
              const quint8 CORE_RUNNING = 0x80;
              const quint8 CORE_HALTED = 0x81;
              const quint8 CORE_UNKNOWN_STATE = 2; /* Not reported, internal use. */

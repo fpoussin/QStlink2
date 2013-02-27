@@ -70,9 +70,7 @@ DeviceList::DeviceList(QObject *parent) :
             else if (e.tagName() == "devices") {
                 QDomNodeList devices = e.childNodes();
                 for (int a = 0;a < devices.count(); a++) {
-                    this->devices.append(new Device(this));
-
-                    this->devices.last() = this->default_device;
+                    this->devices.append(new Device(this->default_device));
 
                     QDomElement device = devices.at(a).toElement();
                     this->devices.last()->type = device.attribute("type");
@@ -85,7 +83,7 @@ DeviceList::DeviceList(QObject *parent) :
                     }
                 }
             }
-
+/*
             else if (e.tagName() == "regs_default") {
                 QDomNodeList regs = e.childNodes();
                 for (int a = 0;a < regs.count(); a++) {
@@ -94,7 +92,7 @@ DeviceList::DeviceList(QObject *parent) :
 
                     (*this->default_device)[el.tagName()] = (quint32)el.text().toInt(0, 16);
                 }
-            }
+            } */
         }
         n = n.nextSibling();
     }
@@ -110,7 +108,7 @@ bool DeviceList::IsLoaded() {
 bool DeviceList::search(const quint32 chip_id) {
     qDebug() << "Looking for:" << QString::number(chip_id, 16);
     for (int i=0; i < this->devices.count(); i++) {
-        if (this->devices.at(i)->chip_id == chip_id) {
+        if ((*this->devices.at(i))["chip_id"] == chip_id) {
             this->cur_device = this->devices.at(i);
             qDebug() << "Found chipID";
             return true;

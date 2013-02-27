@@ -336,7 +336,7 @@ bool MainWindow::getMCU()
 
         return true;
     }
-    this->log("Device not found!");
-    qCritical() << "Device not found!";
+    this->log("Device not found in database!");
+    qCritical() << "Device not found in database!";
     return false;
 }

@@ -66,6 +66,8 @@ void transferThread::send(const QString &filename)
     quint32 addr, progress, oldprogress, read;
     char *buf2 = new char[step_size];
 
+    this->stlink->isLocked();
+
     // Unlock flash
     if (!this->stlink->unlockFlash())
         return;

@@ -25,7 +25,12 @@
 #include <QByteArray>
 #include <QtEndian>
 #include <compat.h>
-#include <usb.h>
+
+#ifdef WIN32
+    #include <lusb0_usb.h>
+#else
+    #include <usb.h>
+#endif
 
 const quint16 USB_ST_VID = 0x0483;
 const quint16 USB_STLINK_PID = 0x3744;
