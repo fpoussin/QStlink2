@@ -160,7 +160,7 @@ QString stlinkv2::getRevID()
 quint32 stlinkv2::readFlashSize()
 {
     qDebug() << "***[readFlashSize]***";
-    this->readMem32(this->device->flash_size_reg);
+    this->readMem32((*this->device)["flash_size_reg"]);
     this->flash_size = qFromLittleEndian<quint32>((uchar*)this->recv_buf.constData());
     if (this->chip_id == STM32::ChipID::F4) {
         this->flash_size = this->flash_size >> 16;
@@ -248,7 +248,7 @@ bool stlinkv2::unlockFlash()
         qDebug() << "***[unlockFlash]***";
         uchar buf[4];
 
-        const quint32 addr = this->device->flash_int_reg + STM32::Flash::KEYR_OFFSET;
+        const quint32 addr = (*this->device)["flash_int_reg"] + (*this->device)["KEYR_OFFSET"];
 
         qToLittleEndian(STM32::Flash::KEY1, buf);
         this->send_buf.append((const char*)buf, sizeof(buf));
@@ -274,13 +274,8 @@ bool stlinkv2::lockFlash()
         uchar buf[4];
         quint32 addr, lock;
         quint32 fcr = this->readFlashCR();
-        if (this->chip_id == STM32::ChipID::F4) {
-            lock = fcr | (1 << STM32::Flash::F4_CR_LOCK);
-        }
-        else {
-            lock = fcr | (1 << STM32::Flash::CR_LOCK);
-        }
-        addr = this->device->flash_int_reg + STM32::Flash::CR_OFFSET;
+        lock = fcr | (1 << (*this->device)["CR_LOCK"]);
+        addr = (*this->device)["flash_int_reg"] + (*this->device)["CR_OFFSET"];
         qToLittleEndian(lock, buf);
         this->send_buf.append((const char*)buf, sizeof(buf));
         this->writeMem32(addr,  this->send_buf);
@@ -299,12 +294,8 @@ bool stlinkv2::unlockFlashOpt()
 //        qDebug() << "***[unlockFlashOpt]***";
 //        uchar buf[4];
 //        quint32 addr;
-//        if (this->chip_id == STM32_CHIPID_F4) {
-//            addr = FLASH_F4_OPT_KEYR;
-//        }
-//        else {
-//            addr = FLASH_OPT_KEYR;
-//        }
+
+//        addr = (*this->device)["OPT_KEYR_OFFSET"]
 
 //        qToLittleEndian(FLASH_OPTKEY1, buf);
 //         this->send_buf.append((const char*)buf, sizeof(buf));
@@ -328,12 +319,9 @@ bool stlinkv2::isLocked()
     qDebug() << "***[isLocked]***";
     bool res = false;
     const quint32 cr = this->readFlashCR();
-    if(this->chip_id == STM32::ChipID::F4) {
-        res = cr & (1 << STM32::Flash::F4_CR_LOCK);
-    }
-    else {
-        res = cr & (1 << STM32::Flash::CR_LOCK);
-    }
+
+    res = cr & (1 << (*this->device)["CR_LOCK"]);
+
     qDebug() << "Flash locked:" << res;
     return res;
 }
@@ -343,7 +331,7 @@ quint32 stlinkv2::readFlashCR()
     qDebug() << "***[readFlashCR]***";
     quint32 res;
 
-    readMem32(this->device->flash_int_reg + STM32::Flash::CR_OFFSET, sizeof(quint32));
+    readMem32((*this->device)["flash_int_reg"] + (*this->device)["CR_OFFSET"], sizeof(quint32));
     res =  qFromLittleEndian<quint32>((const uchar*)this->recv_buf.constData());
     qDebug() << "Flash control register:" << "0x"+QString::number(res, 16) << regPrint(res);
     return res;
@@ -364,7 +352,7 @@ quint32 stlinkv2::writeFlashCR(const quint32 &mask, const bool &value)
         val = mask ^ fcr; // We remove bits (XOR)
     qDebug() << "Flash control register new value:" << "0x"+QString::number(val, 16) << regPrint(val);
 
-    addr = this->device->flash_int_reg + STM32::Flash::CR_OFFSET;
+    addr = (*this->device)["flash_int_reg"] + (*this->device)["CR_OFFSET"];
 
     qToLittleEndian(val, buf);
     this->send_buf.append((const char*)buf, sizeof(buf));
@@ -441,7 +429,7 @@ bool stlinkv2::isBusy()
     qDebug() << "***[isBusy]***";
     bool res;
 
-    readMem32(this->device->flash_int_reg + STM32::Flash::SR_OFFSET, sizeof(quint32));
+    readMem32((*this->device)["flash_int_reg"] + (*this->device)["SR_OFFSET"], sizeof(quint32));
     const quint32 sr = qFromLittleEndian<quint32>((const uchar*)this->recv_buf.constData());
     if(this->chip_id == STM32::ChipID::F4) {
         res = sr & (1 << STM32::Flash::F4_SR_BSY);
@@ -462,7 +450,7 @@ void stlinkv2::writeMem32(const quint32 &addr, QByteArray &buf)
     }
 
     // Any writing to flash while busy = ART processor hangs
-    if (addr >= this->device->flash_base && addr <= this->device->flash_base+this->device->flash_size)
+    if (addr >= (*this->device)["flash_base"] && addr <= (*this->device)["flash_base"]+(*this->device)["flash_size"])
         while(this->isBusy())
             usleep(100000); // 100ms
 

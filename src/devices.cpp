@@ -51,6 +51,7 @@ DeviceList::DeviceList(QObject *parent) :
     file.close();
     qInformal() << "Devices list loaded.";
 
+    this->default_device = new Device(this);
     QDomElement docElem = doc->documentElement();
     QDomNode n = docElem.firstChild();
     while(!n.isNull()) {
@@ -58,30 +59,12 @@ DeviceList::DeviceList(QObject *parent) :
         if(!e.isNull()) {
             qDebug() << e.tagName();
 
-            if (e.tagName() == "default") {
+            if (e.tagName() == "devices_default") {
                 QDomNodeList childs = e.childNodes();
-                this->default_device = new Device(this);
                 for (int i = 0;i < childs.count();i++) {
                     QDomElement el = childs.at(i).toElement();
                     qDebug() << e.tagName() << "->" << el.tagName();
-                    if (el.tagName() == "core_id")
-                        this->default_device->core_id = el.text().toInt(0, 16);
-                    else if (el.tagName() == "chip_id")
-                        this->default_device->chip_id = el.text().toInt(0, 16);
-                    else if (el.tagName() == "flash_base")
-                        this->default_device->flash_base = el.text().toInt(0, 16);
-                    else if (el.tagName() == "flash_size")
-                        this->default_device->flash_size = el.text().toInt(0, 16);
-                    else if (el.tagName() == "flash_size_reg")
-                        this->default_device->flash_size_reg = el.text().toInt(0, 16);
-                    else if (el.tagName() == "flash_int_reg")
-                        this->default_device->flash_int_reg = el.text().toInt(0, 16);
-                    else if (el.tagName() == "flash_pgsize")
-                        this->default_device->flash_pgsize = el.text().toInt(0, 16);
-                    else if (el.tagName() == "sram_base")
-                        this->default_device->sram_base = el.text().toInt(0, 16);
-                    else if (el.tagName() == "sram_size")
-                        this->default_device->sram_size = el.text().toInt(0, 16);
+                    (*this->default_device)[el.tagName()] = (quint32)el.text().toInt(0, 16);
                 }
             }
             else if (e.tagName() == "devices") {
@@ -89,16 +72,7 @@ DeviceList::DeviceList(QObject *parent) :
                 for (int a = 0;a < devices.count(); a++) {
                     this->devices.append(new Device(this));
 
-                    // appending default values from the xml <default> to all devices.
-                    this->devices.last()->core_id = this->default_device->core_id;
-                    this->devices.last()->chip_id = this->default_device->chip_id;
-                    this->devices.last()->flash_base = this->default_device->flash_base;
-                    this->devices.last()->flash_size = this->default_device->flash_size;
-                    this->devices.last()->flash_size_reg = this->default_device->flash_size_reg;
-                    this->devices.last()->flash_int_reg = this->default_device->flash_int_reg;
-                    this->devices.last()->flash_pgsize = this->default_device->flash_pgsize;
-                    this->devices.last()->sram_base = this->default_device->sram_base;
-                    this->devices.last()->sram_size = this->default_device->sram_size;
+                    this->devices.last() = this->default_device;
 
                     QDomElement device = devices.at(a).toElement();
                     this->devices.last()->type = device.attribute("type");
@@ -107,25 +81,18 @@ DeviceList::DeviceList(QObject *parent) :
                     for (int i = 0;i < childs.count();i++) {
                         QDomElement el = childs.at(i).toElement();
                         qDebug() << device.tagName() << "->" << device.attribute("type") << "->" << el.tagName() ;
-                        if (el.tagName() == "core_id")
-                            this->devices.last()->core_id = el.text().toInt(0, 16);
-                        else if (el.tagName() == "chip_id")
-                            this->devices.last()->chip_id = el.text().toInt(0, 16);
-                        else if (el.tagName() == "flash_base")
-                            this->devices.last()->flash_base = el.text().toInt(0, 16);
-                        else if (el.tagName() == "flash_size")
-                            this->devices.last()->flash_size = el.text().toInt(0, 16);
-                        else if (el.tagName() == "flash_size_reg")
-                            this->devices.last()->flash_size_reg = el.text().toInt(0, 16);
-                        else if (el.tagName() == "flash_int_reg")
-                            this->devices.last()->flash_int_reg = el.text().toInt(0, 16);
-                        else if (el.tagName() == "flash_pgsize")
-                            this->devices.last()->flash_pgsize = el.text().toInt(0, 16);
-                        else if (el.tagName() == "sram_base")
-                            this->devices.last()->sram_base = el.text().toInt(0, 16);
-                        else if (el.tagName() == "sram_size")
-                            this->devices.last()->sram_size = el.text().toInt(0, 16);
+                        (*this->devices.last())[el.tagName()] = (quint32)el.text().toInt(0, 16);
                     }
+                }
+            }
+
+            else if (e.tagName() == "regs_default") {
+                QDomNodeList regs = e.childNodes();
+                for (int a = 0;a < regs.count(); a++) {
+                    QDomElement el = regs.at(a).toElement();
+                    qDebug() << el.tagName() << "->" << el.text().toInt(0, 16);
+
+                    (*this->default_device)[el.tagName()] = (quint32)el.text().toInt(0, 16);
                 }
             }
         }

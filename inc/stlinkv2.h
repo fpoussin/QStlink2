@@ -70,7 +70,6 @@ namespace STLink {
 }
 
 namespace STM32 {
-
     namespace ChipID {
         // stm32 chipids, only lower 12 bits...
         const quint32 F1_MEDIUM = 0x410;
@@ -121,14 +120,12 @@ namespace STM32 {
 }
 
 namespace Cortex {
-
     namespace CoreID {
         const quint32 M0_R0 = 0x0BB11477;
         const quint32 M3_R1 = 0x1BA00477;
         const quint32 M3_R2 = 0x4BA00477;
         const quint32 M4_R0 = 0x2BA01477;
     }
-
     namespace Reg {
         const quint32 CM3_CHIPID = 0xE0042000;
         const quint32 CM0_CHIPID = 0x40015800;

@@ -23,6 +23,7 @@ This file is part of QSTLink2.
 #include <QDebug>
 #include <QString>
 #include <QVector>
+#include <QHash>
 #include <compat.h>
 
 class Device : public QObject
@@ -30,6 +31,9 @@ class Device : public QObject
     Q_OBJECT
 public:
     explicit Device(QObject *parent = 0);
+    quint32 operator[] (QString x) const { return m_map[x]; }
+    quint32& operator[] (QString x) { return m_map[x]; }
+    QHash<QString, quint32> m_map;
     QString type;
     quint32 core_id;
     quint32 chip_id;
@@ -44,6 +48,8 @@ public:
     quint32 sysflash_pgsize;
     quint32 sram_base;
     quint32 sram_size;
+private:
+
 };
 
 class DeviceList : public QObject
