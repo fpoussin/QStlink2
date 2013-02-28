@@ -20,16 +20,6 @@ Device::Device(QObject *parent) :
     QObject(parent)
 {
     this->type = "UNKNOWN";
-    this->core_id = 0;
-    this->chip_id = 0;
-    this->rev_id = 0;
-    this->flash_base = 0;
-    this->flash_size = 0;
-    this->flash_size_reg = 0;
-    this->flash_int_reg = 0;
-    this->flash_pgsize = 0;
-    this->sram_base = 0;
-    this->sram_size = 0;
 }
 
 DeviceList::DeviceList(QObject *parent) :

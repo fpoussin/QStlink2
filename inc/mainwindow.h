@@ -48,6 +48,7 @@ public slots:
     void updateStatus(const QString &s);
     void Send(const QString &path, const bool &erase);
     void Receive(const QString &path);
+    void Verify(const QString &path);
     void eraseFlash();
     void showHelp();
 
@@ -69,6 +70,7 @@ private slots:
     void getStatus();
     void Send();
     void Receive();
+    void Verify();
     void ResetMCU();
     void HardReset();
     void RunMCU();

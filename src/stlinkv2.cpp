@@ -161,15 +161,15 @@ quint32 stlinkv2::readFlashSize()
 {
     qDebug() << "***[readFlashSize]***";
     this->readMem32((*this->device)["flash_size_reg"]);
-    this->flash_size = qFromLittleEndian<quint32>((uchar*)this->recv_buf.constData());
+    (*this->device)["flash_size"] = qFromLittleEndian<quint32>((uchar*)this->recv_buf.constData());
     if (this->chip_id == STM32::ChipID::F4) {
-        this->flash_size = this->flash_size >> 16;
+        (*this->device)["flash_size"] = (*this->device)["flash_size"] >> 16;
     }
     else {
-        this->flash_size &= 0xFFFF;
+        (*this->device)["flash_size"] &= 0xFFFF;
     }
-    qInformal() << "Flash size:" << this->flash_size << "KB";
-    return this->flash_size;
+    qInformal() << "Flash size:" << (*this->device)["flash_size"] << "KB";
+    return (*this->device)["flash_size"];
 }
 
 void stlinkv2::setModeJTAG()
@@ -531,7 +531,6 @@ QString stlinkv2::regPrint(const quint32 reg)
     QString bottom("\r\nVal | ");
     QString tmp;
     int pos = 0;
-    //TODO: reverse loop
     for (int i=0;i<32;i++) {
         pos = 31-i;
         top.append(QString::number(pos)+" ");

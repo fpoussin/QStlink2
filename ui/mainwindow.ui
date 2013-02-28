@@ -44,6 +44,13 @@
          </widget>
         </item>
         <item>
+         <widget class="Line" name="line">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QPushButton" name="b_send">
           <property name="text">
            <string>Send...</string>
@@ -54,6 +61,13 @@
          <widget class="QPushButton" name="b_receive">
           <property name="text">
            <string>Receive...</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="b_verify">
+          <property name="text">
+           <string>Verify...</string>
           </property>
          </widget>
         </item>

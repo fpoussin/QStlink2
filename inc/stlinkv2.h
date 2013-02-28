@@ -148,8 +148,6 @@ public:
     quint32 core_id;
     quint32 chip_id;
     quint32 rev_id;
-    quint32 flash_size;
-    quint32 flash_int_reg;
     QByteArray cmd_buf;
     QByteArray recv_buf;
     QByteArray send_buf;

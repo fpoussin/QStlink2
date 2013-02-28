@@ -27,6 +27,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->ui->b_disconnect->setEnabled(false);
     this->ui->b_send->setEnabled(false);
     this->ui->b_receive->setEnabled(false);
+    this->ui->b_verify->setEnabled(false);
     this->stlink = new stlinkv2();
     this->devices = new DeviceList(this);
     this->tfThread = new transferThread();
@@ -41,6 +42,7 @@ MainWindow::MainWindow(QWidget *parent) :
         QObject::connect(this->ui->b_disconnect, SIGNAL(clicked()), this, SLOT(Disconnect()));
         QObject::connect(this->ui->b_send, SIGNAL(clicked()), this, SLOT(Send()));
         QObject::connect(this->ui->b_receive, SIGNAL(clicked()), this, SLOT(Receive()));
+        QObject::connect(this->ui->b_verify, SIGNAL(clicked()), this, SLOT(Verify()));
         QObject::connect(this->ui->b_halt, SIGNAL(clicked()), this, SLOT(HaltMCU()));
         QObject::connect(this->ui->b_run, SIGNAL(clicked()), this, SLOT(RunMCU()));
         QObject::connect(this->ui->b_reset, SIGNAL(clicked()), this, SLOT(ResetMCU()));
@@ -110,6 +112,7 @@ bool MainWindow::Connect()
             this->ui->gb_bottom->setEnabled(true);
             this->ui->b_send->setEnabled(true);
             this->ui->b_receive->setEnabled(true);
+            this->ui->b_verify->setEnabled(true);
             return true;
         }
         else
@@ -129,6 +132,7 @@ void MainWindow::Disconnect()
     this->ui->gb_bottom->setEnabled(false);
     this->ui->b_send->setEnabled(false);
     this->ui->b_receive->setEnabled(false);
+    this->ui->b_verify->setEnabled(false);
 }
 
 void MainWindow::log(const QString &s)
@@ -165,7 +169,7 @@ void MainWindow::Send()
         }
         this->log("Size: "+QString::number(file.size()/1024)+"KB");
 
-        if (file.size() > this->stlink->device->flash_size) {
+        if (file.size() > (*this->stlink->device)["flash_size"]) {
             this->dialog.setText("Warning", "The file is bigger than the flash size!\nThe flash memory will be erased and the new file programmed, continue?");
             if(dialog.exec() != QDialog::Accepted){
                 return;
@@ -192,7 +196,7 @@ void MainWindow::Send(const QString &path, const bool &erase)
     this->ui->l_progress->setText("Starting transfer...");
 
     // Transfer thread
-    this->tfThread->setParams(this->stlink, path, true, erase);
+    this->tfThread->setParams(this->stlink, path, true, erase, false);
     this->tfThread->start();
 }
 
@@ -208,6 +212,7 @@ void MainWindow::Receive()
             qCritical("Could not save the file.");
             return;
         }
+        file.close();
         this->Receive(this->filename);
     }
 }
@@ -219,7 +224,35 @@ void MainWindow::Receive(const QString &path)
     this->ui->l_progress->setText("Starting transfer...");
 
     // Transfer thread
-    this->tfThread->setParams(this->stlink, path, false, false);
+    this->tfThread->setParams(this->stlink, path, false, false, false);
+    this->tfThread->start();
+}
+
+void MainWindow::Verify()
+{
+    qDebug("Reading flash");
+    this->filename.clear();
+    this->filename = QFileDialog::getOpenFileName(this, "Open file", "", "Binary Files (*.bin)");
+    if (!this->filename.isNull()) {
+        this->log("Verifying"+this->filename);
+        QFile file(this->filename);
+        if (!file.open(QIODevice::ReadOnly)) {
+            qCritical("Could not open the file.");
+            return;
+        }
+        file.close();
+        this->Verify(this->filename);
+    }
+}
+
+void MainWindow::Verify(const QString &path)
+{
+    this->ui->tabw_info->setCurrentIndex(3);
+    this->ui->pgb_transfer->setValue(0);
+    this->ui->l_progress->setText("Starting Verification...");
+
+    // Transfer thread
+    this->tfThread->setParams(this->stlink, path, false, false, true);
     this->tfThread->start();
 }
 
@@ -306,15 +339,15 @@ bool MainWindow::getMCU()
     this->stlink->getChipID();
 
     if (this->devices->search(this->stlink->chip_id)) {
-        qInformal() << "Device type: " << this->devices->cur_device->type;
         this->stlink->device = this->devices->cur_device;
+        qInformal() << "Device type: " << this->stlink->device;
 
         this->ui->le_type->setText(this->stlink->device->type);
-        this->ui->le_chipid->setText("0x"+QString::number(this->stlink->device->chip_id, 16));
-        this->ui->le_flashbase->setText("0x"+QString::number(this->stlink->device->flash_base, 16));
-        //this->ui->le_flashsize->setText(QString::number(this->stlink->device->flash_size/1024)+"KB");
-        this->ui->le_ramsize->setText(QString::number(this->stlink->device->sram_size/1024)+"KB");
-        this->ui->le_rambase->setText("0x"+QString::number(this->stlink->device->sram_base, 16));
+        this->ui->le_chipid->setText("0x"+QString::number((*this->stlink->device)["chip_id"], 16));
+        this->ui->le_flashbase->setText("0x"+QString::number((*this->stlink->device)["flash_base"], 16));
+        //this->ui->le_flashsize->setText(QString::number((*this->stlink->device)["flash_size"]/1024)+"KB");
+        this->ui->le_ramsize->setText(QString::number((*this->stlink->device)["sram_size"]/1024)+"KB");
+        this->ui->le_rambase->setText("0x"+QString::number((*this->stlink->device)["sram_base"], 16));
 
         this->ui->le_stlver->setText(QString::number(this->stlink->STLink_ver));
         this->ui->le_jtagver->setText(QString::number(this->stlink->JTAG_ver));
@@ -324,15 +357,9 @@ bool MainWindow::getMCU()
             this->ui->le_jtagver->setToolTip("Not supported");
         if(!this->stlink->SWIM_ver)
             this->ui->le_swimver->setToolTip("Not supported");
-//    if ((this->stlink->chip_id) == STM32_CHIPID_F2) {
-//            this->stlink->flash_size = 0; // FIXME - need to work this out some other way, just set to max possible?
-//        } else if ((this->stlink->chip_id) == STM32_CHIPID_F4) {
-//                    this->stlink->flash_size = 0x100000; //todo: RM0090 error; size register same address as unique ID
-//        } else { // We try to read the flash size from the device
-            this->stlink->flash_size = this->stlink->readFlashSize()*1024;
-            this->stlink->device->flash_size = this->stlink->flash_size;
-            this->ui->le_flashsize->setText(QString::number(this->stlink->device->flash_size/1024)+"KB");
-//        }
+
+        (*this->stlink->device)["flash_size"] = this->stlink->readFlashSize();
+        this->ui->le_flashsize->setText(QString::number((*this->stlink->device)["flash_size"])+"KB");
 
         return true;
     }

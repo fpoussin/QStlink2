@@ -167,8 +167,8 @@ int main(int argc, char *argv[])
                 w->Send(path, erase);
             else if (read_flash)
                 w->Receive(path);
-            else
-                 qInformal() << "Not doing anything";
+            if (verify)
+                w->Verify(path);
 
             usleep(300000); //300 msec
             while (w->tfThread->isRunning())
