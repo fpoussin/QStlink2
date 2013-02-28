@@ -189,6 +189,7 @@ private:
     LibUsb *libusb;
     qint32 Command(const quint8 &st_cmd0, const quint8 &st_cmd1, const quint32 &resp_len);
     qint32 DebugCommand(const quint8 &st_cmd1, const quint8 &st_cmd2, const quint32 &resp_len);
+    quint32 readFlashSR();
     quint32 readFlashCR();
     quint32 writeFlashCR(const quint32 &mask, const bool &value);
     qint32 SendCommand();

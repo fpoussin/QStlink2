@@ -22,14 +22,14 @@
             <KEY2>0xCDEF89AB</KEY2>
             <OPTKEY1>0x08192A3B</OPTKEY1>
             <OPTKEY2>0x4C5D6E7F</OPTKEY2>
-            <SR_BSY>0</SR_BSY>
-            <SR_EOP>5</SR_EOP>
-            <CR_PG>0</CR_PG>
-            <CR_PER>1</CR_PER>
-            <CR_MER>2</CR_MER>
-            <CR_STRT>6</CR_STRT>
-            <CR_LOCK>7</CR_LOCK>
-            <CR_PGSIZE>8</CR_PGSIZE>
+            <SR_BSY>0x0</SR_BSY>
+            <SR_EOP>0x5</SR_EOP>
+            <CR_PG>0x0</CR_PG>
+            <CR_PER>0x1</CR_PER>
+            <CR_MER>0x2</CR_MER>
+            <CR_STRT>0x6</CR_STRT>
+            <CR_LOCK>0x7</CR_LOCK>
+            <CR_PGSIZE>0x8</CR_PGSIZE>
             <ACR_OFFSET>0x00</ACR_OFFSET>
             <KEYR_OFFSET>0x04</KEYR_OFFSET>
             <OPT_KEYR_OFFSET>0x08</OPT_KEYR_OFFSET>
@@ -108,20 +108,20 @@
 			<chip_id>0x413</chip_id>
                         <flash_size_reg>0x1FFF7A22</flash_size_reg>
 			<flash_int_reg>0x40023c00</flash_int_reg>
-			<SR_BSY>16</SR_BSY>
-			<CR_STRT>16</CR_STRT>
-			<CR_LOCK>31</CR_LOCK>
-			<CR_SER>1</CR_SER>
+                        <SR_BSY>0x10</SR_BSY>
+                        <CR_STRT>0x10</CR_STRT>
+                        <CR_LOCK>0x1F</CR_LOCK>
+                        <CR_SER>0x1</CR_SER>
 		</device>
                 <device type="STM32F4[23]*" regtype="STM32F4" coretype="CM4F">
 			<core_id>0x2ba01477</core_id>
 			<chip_id>0x419</chip_id>
                         <flash_size_reg>0x1FFF7A22</flash_size_reg>
 			<flash_int_reg>0x40023c00</flash_int_reg>
-			<SR_BSY>16</SR_BSY>
-			<CR_STRT>16</CR_STRT>
-			<CR_LOCK>31</CR_LOCK>
-			<CR_SER>1</CR_SER>
+                        <SR_BSY>0x10</SR_BSY>
+                        <CR_STRT>0x10</CR_STRT>
+                        <CR_LOCK>0x1F</CR_LOCK>
+                        <CR_SER>0x1</CR_SER>
 		</device>
 	</devices>
 </stlink>

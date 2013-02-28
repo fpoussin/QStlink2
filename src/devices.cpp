@@ -22,6 +22,12 @@ Device::Device(QObject *parent) :
     this->type = "UNKNOWN";
 }
 
+Device::Device(Device *device)
+{
+    this->type = device->type;
+    this->m_map = device->m_map;
+}
+
 DeviceList::DeviceList(QObject *parent) :
     QObject(parent)
 {
@@ -57,10 +63,30 @@ DeviceList::DeviceList(QObject *parent) :
                     (*this->default_device)[el.tagName()] = (quint32)el.text().toInt(0, 16);
                 }
             }
-            else if (e.tagName() == "devices") {
+            else if (e.tagName() == "regs_default") {
+                QDomNodeList regs = e.childNodes();
+                for (int a = 0;a < regs.count(); a++) {
+                    QDomElement el = regs.at(a).toElement();
+                    qDebug() << el.tagName() << "->" << el.text().toInt(0, 16);
+
+                    (*this->default_device)[el.tagName()] = (quint32)el.text().toInt(0, 16);
+                }
+            }
+        }
+        n = n.nextSibling();
+    }
+
+    n = docElem.firstChild();
+    while(!n.isNull()) {
+        QDomElement e = n.toElement(); // try to convert the node to an element.
+        if(!e.isNull()) {
+            qDebug() << e.tagName();
+
+            if (e.tagName() == "devices") {
                 QDomNodeList devices = e.childNodes();
                 for (int a = 0;a < devices.count(); a++) {
-                    this->devices.append(new Device(this->default_device));
+                    this->devices.append(new Device(this->default_device)); // Copy from the default device.
+
 
                     QDomElement device = devices.at(a).toElement();
                     this->devices.last()->type = device.attribute("type");
@@ -73,16 +99,7 @@ DeviceList::DeviceList(QObject *parent) :
                     }
                 }
             }
-/*
-            else if (e.tagName() == "regs_default") {
-                QDomNodeList regs = e.childNodes();
-                for (int a = 0;a < regs.count(); a++) {
-                    QDomElement el = regs.at(a).toElement();
-                    qDebug() << el.tagName() << "->" << el.text().toInt(0, 16);
 
-                    (*this->default_device)[el.tagName()] = (quint32)el.text().toInt(0, 16);
-                }
-            } */
         }
         n = n.nextSibling();
     }
@@ -90,7 +107,7 @@ DeviceList::DeviceList(QObject *parent) :
     return;
 }
 
-bool DeviceList::IsLoaded() {
+bool DeviceList::IsLoaded() const {
 
     return this->loaded;
 }
@@ -101,6 +118,7 @@ bool DeviceList::search(const quint32 chip_id) {
         if ((*this->devices.at(i))["chip_id"] == chip_id) {
             this->cur_device = this->devices.at(i);
             qDebug() << "Found chipID";
+            qDebug() << cur_device->repr();
             return true;
         }
     }
@@ -108,7 +126,19 @@ bool DeviceList::search(const quint32 chip_id) {
     return false;
 }
 
-quint16 DeviceList::getDevicesCount()
-{
+quint16 DeviceList::getDevicesCount() const {
+
     return this->devices.count();
 }
+
+QString Device::repr(void) const {
+
+    QMapIterator<QString, quint32> i(m_map);
+    QString tmp("");
+    while (i.hasNext()) {
+        i.next();
+        tmp.append("\r\n" + QString(i.key()) + ": 0x" + QString::number(i.value(), 16));
+    }
+    return tmp;
+}
+

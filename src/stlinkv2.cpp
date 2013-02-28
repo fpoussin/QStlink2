@@ -319,10 +319,21 @@ bool stlinkv2::isLocked()
     qDebug() << "***[isLocked]***";
     bool res = false;
     const quint32 cr = this->readFlashCR();
-    qDebug() << "Lock bit" << (*this->device)["CR_LOCK"];
+//    qDebug() << "Lock bit" << (*this->device)["CR_LOCK"];
     res = cr & (1 << (*this->device)["CR_LOCK"]);
 
     qDebug() << "Flash locked:" << res;
+    return res;
+}
+
+quint32 stlinkv2::readFlashSR()
+{
+    qDebug() << "***[readFlashSR]***";
+    quint32 res;
+
+    readMem32((*this->device)["flash_int_reg"] + (*this->device)["SR_OFFSET"], sizeof(quint32));
+    res =  qFromLittleEndian<quint32>((const uchar*)this->recv_buf.constData());
+    qDebug() << "Flash status register:" << "0x"+QString::number(res, 16) << regPrint(res);
     return res;
 }
 
@@ -429,9 +440,7 @@ bool stlinkv2::isBusy()
     qDebug() << "***[isBusy]***";
     bool res;
 
-    readMem32((*this->device)["flash_int_reg"] + (*this->device)["SR_OFFSET"], sizeof(quint32));
-    const quint32 sr = qFromLittleEndian<quint32>((const uchar*)this->recv_buf.constData());
-
+    const quint32 sr = this->readFlashSR();
     res = sr & (1 << (*this->device)["SR_BSY"]);
 
     qDebug() << "Flash busy:" << res;
@@ -447,10 +456,14 @@ void stlinkv2::writeMem32(const quint32 &addr, QByteArray &buf)
     }
 
     // Any writing to flash while busy = ART processor hangs
-    if (addr >= (*this->device)["flash_base"] && addr <= (*this->device)["flash_base"]+(*this->device)["flash_size"])
-        while(this->isBusy())
+    if (addr >= (*this->device)["flash_base"] && addr <= (*this->device)["flash_base"]+((*this->device)["flash_size"]*1024)) {
+        while(this->isBusy()) {
             usleep(100000); // 100ms
-
+        }
+        // Check if write succeeded
+        if (this->readFlashSR() & 242)
+            qCritical() << "Flash write failed!";
+    }
     this->cmd_buf.append(STLink::Cmd::DebugCommand);
     this->cmd_buf.append(STLink::Cmd::Dbg::WriteMem32bit);
     uchar _addr[4];

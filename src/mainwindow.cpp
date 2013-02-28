@@ -340,7 +340,7 @@ bool MainWindow::getMCU()
 
     if (this->devices->search(this->stlink->chip_id)) {
         this->stlink->device = this->devices->cur_device;
-        qInformal() << "Device type: " << this->stlink->device;
+        qInformal() << "Device type: " << this->stlink->device->type;
 
         this->ui->le_type->setText(this->stlink->device->type);
         this->ui->le_chipid->setText("0x"+QString::number((*this->stlink->device)["chip_id"], 16));

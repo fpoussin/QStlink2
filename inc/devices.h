@@ -23,7 +23,7 @@ This file is part of QSTLink2.
 #include <QDebug>
 #include <QString>
 #include <QVector>
-#include <QHash>
+#include <QMap>
 #include <compat.h>
 
 class Device : public QObject
@@ -31,12 +31,14 @@ class Device : public QObject
     Q_OBJECT
 public:
     explicit Device(QObject *parent = 0);
+    explicit Device(Device *device); // Copy contructor
     quint32 operator[] (QString x) const { return m_map[x]; }
     quint32& operator[] (QString x) { return m_map[x]; }
     bool contains(QString x) { return m_map.contains(x); }
+    QString repr(void) const;
     QString type;
 private:
-    QHash<QString, quint32> m_map;
+    QMap<QString, quint32> m_map;
 };
 
 class DeviceList : public QObject
@@ -44,8 +46,8 @@ class DeviceList : public QObject
     Q_OBJECT
 public:
     explicit DeviceList(QObject *parent = 0);
-    bool IsLoaded();
-    quint16 getDevicesCount();
+    bool IsLoaded() const;
+    quint16 getDevicesCount() const;
     bool search(const quint32 chip_id); // returns the location of the device in the QVector.
     Device *cur_device;
 
