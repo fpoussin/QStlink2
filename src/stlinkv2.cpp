@@ -527,25 +527,19 @@ qint32 stlinkv2::SendCommand()
 
 QString stlinkv2::regPrint(const quint32 reg)
 {
-    const QString regstr(QString::number(reg, 2));
-//    qDebug() << regstr;
-    QString top("\r\n| ");
-    QString bottom("\r\n| ");
+    QString top("Register dump:\r\nBit | ");
+    QString bottom("\r\nVal | ");
     QString tmp;
     int pos = 0;
     //TODO: reverse loop
     for (int i=0;i<32;i++) {
         pos = 31-i;
         top.append(QString::number(pos)+" ");
-        if (i > regstr.length())
-            tmp = QString::number(0); // Does not work but should ????
-        else
-            tmp = QString(regstr.at(i));
-
+        tmp = QString::number((bool)(reg & 1 << pos), 2);
         if (pos >= 10)
             bottom.append(tmp+"  ");
         else
             bottom.append(tmp+" ");
     }
-    return top+"| "+bottom+"| ";
+    return top+"|"+bottom+"|";
 }
