@@ -23,6 +23,7 @@
             <OPTKEY1>0x08192A3B</OPTKEY1>
             <OPTKEY2>0x4C5D6E7F</OPTKEY2>
             <SR_BSY>0x0</SR_BSY>
+            <SR_PER>0x2</SR_PER>
             <SR_EOP>0x5</SR_EOP>
             <CR_PG>0x0</CR_PG>
             <CR_PER>0x1</CR_PER>
@@ -112,6 +113,7 @@
                         <CR_STRT>0x10</CR_STRT>
                         <CR_LOCK>0x1F</CR_LOCK>
                         <CR_SER>0x1</CR_SER>
+			<SR_PER>0x1</SR_PER>
 		</device>
                 <device type="STM32F4[23]*" regtype="STM32F4" coretype="CM4F">
 			<core_id>0x2ba01477</core_id>

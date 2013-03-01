@@ -32,7 +32,8 @@ SOURCES += src/main.cpp\
     src/devices.cpp \
     src/dialog.cpp \
    src/transferthread.cpp \
-    src/version.cpp
+    src/version.cpp \
+    src/loader.cpp
 
 HEADERS  += inc/mainwindow.h \
     inc/stlinkv2.h \
@@ -41,7 +42,8 @@ HEADERS  += inc/mainwindow.h \
     inc/dialog.h \
     inc/transferthread.h \
     inc/compat.h \
-    inc/version.h
+    inc/version.h \
+    inc/loader.h
 
 FORMS    += ui/mainwindow.ui \
     ui/dialog.ui
@@ -50,7 +52,8 @@ INCLUDEPATH += inc
 unix:LIBS += -L/usr/lib -lusb
 win32:LIBS += -L"$$_PRO_FILE_PWD_/libs/" -llibusb
 
-RESOURCES += res/ressources.qrc
+RESOURCES += res/ressources.qrc \
+    loaders/loaders.qrc
 
 # Icon for windows
 win32:RC_FILE = res/qstlink2.rc

@@ -234,7 +234,7 @@ void MainWindow::Verify()
     this->filename.clear();
     this->filename = QFileDialog::getOpenFileName(this, "Open file", "", "Binary Files (*.bin)");
     if (!this->filename.isNull()) {
-        this->log("Verifying"+this->filename);
+        this->log("Verifying "+this->filename);
         QFile file(this->filename);
         if (!file.open(QIODevice::ReadOnly)) {
             qCritical("Could not open the file.");

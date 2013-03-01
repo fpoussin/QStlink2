@@ -41,6 +41,14 @@
 	#error "No valid device specified"
 #endif
 
+#ifndef FLASH_SR_PGERR
+	#ifdef FLASH_SR_SOP
+		#define FLASH_SR_PGERR FLASH_SR_SOP
+	#else
+		#define FLASH_SR_PGERR FLASH_SR_PGAERR
+	#endif
+#endif
+
 #define mmio32(x)   (*(volatile uint32_t *)(x))
 #define mmio16(x)   (*(volatile uint16_t *)(x))
 
@@ -52,15 +60,20 @@
 #define FLASH_OPTCR_OFFSET 0x14
 
 #define PARAMS_ADDR 0x200003E8 // Parameters address in the ram.
-#define PARAM_DEST 0x00 // Destination in the flash.  Set by debugger.
-#define PARAM_LEN 0x04 // How many times we copy data from sram to flash. Set by debugger.
-#define PARAM_BUSY 0x08 // If the program is busy writing. Set by program.
-#define PARAM_RDY 0x0C // Ready to transfer. Set by debugger.
-#define PARAM_PGSIZE 0x10 // Half word or word. Set by debugger.
+#define OFFSET_DEST 0x00 // Destination in the flash.  Set by debugger.
+#define OFFSET_LEN 0x04 // How many times we copy data from sram to flash. Set by debugger.
+#define OFFSET_STATUS 0x08 // Status. Set by program and debugger.
+#define OFFSET_PGSIZE 0x0C // Half word or word. Set by debugger.
+
+#define MASK_RDY (1<<0)
+#define MASK_BUSY (1<<1)
+
+#define MASK_VERR (1<<14)
+#define MASK_ERR (1<<15)
 
 static inline uint32_t flashBusy(void) {
 	
-	return mmio32(FLASH_REG_ADDR + FLASH_SR_OFFSET) & FLASH_SR_BSY;
+	return !!(mmio32(FLASH_REG_ADDR + FLASH_SR_OFFSET) & FLASH_SR_BSY);
 }
 
 int main(void) {
@@ -68,29 +81,44 @@ int main(void) {
 	uint32_t len = 0;
 	uint32_t dest = 0;
 	uint32_t pgsize = 0;
-	mmio32(PARAMS_ADDR+PARAM_RDY) = 0;
-	mmio32(PARAMS_ADDR+PARAM_BUSY) = 0;
+	mmio32(PARAMS_ADDR+OFFSET_STATUS) =0 ; // Clear status.
 	while (1) {
 		
-		if (!mmio32(PARAMS_ADDR+PARAM_RDY))
+		if (mmio32(PARAMS_ADDR+OFFSET_STATUS) & MASK_RDY) // Skip if not ready
 				continue;
 		
-		dest = mmio32(PARAMS_ADDR+PARAM_DEST);
-		len = mmio32(PARAMS_ADDR+PARAM_LEN);
-		pgsize = mmio32(PARAMS_ADDR+PARAM_PGSIZE);
-		mmio32(PARAMS_ADDR+PARAM_BUSY) = 1;
+		dest = mmio32(PARAMS_ADDR+OFFSET_DEST);
+		len = mmio32(PARAMS_ADDR+OFFSET_LEN);
+		pgsize = mmio32(PARAMS_ADDR+OFFSET_PGSIZE);
+		mmio32(PARAMS_ADDR+OFFSET_STATUS) &= ~MASK_RDY; // Clear ready bit
+		mmio32(PARAMS_ADDR+OFFSET_STATUS) &= ~MASK_ERR; // Clear error bit
+		mmio32(PARAMS_ADDR+OFFSET_STATUS) |= MASK_BUSY; // Set busy bit
 		
 		uint32_t i=0;
 		for (i=0; i<len ;i++) {
-			
-			while (flashBusy()) {}; // Wait for the flash controller to finish writing.
 			
 			if (pgsize == 2)
 				mmio16(dest+i) = mmio16(SRAM_BASE+i);
 			else
 				mmio32(dest+i) = mmio32(SRAM_BASE+i);
+			
+			while (flashBusy()) {}; // Wait for the flash controller to finish writing.
+			
+			if (mmio32(FLASH_REG_ADDR + FLASH_SR_OFFSET) & FLASH_SR_PGERR) {
+				
+				mmio32(PARAMS_ADDR+OFFSET_STATUS) |= MASK_ERR; // Set error bit
+				break;
+			}
 		}
-		mmio32(PARAMS_ADDR+PARAM_BUSY) = 0;
+		/*
+		for (i=0; i<len ;i++) {
+
+			if (pgsize == 2)
+				mmio16(dest+i) == mmio16(SRAM_BASE+i);
+			else
+				mmio32(dest+i) == mmio32(SRAM_BASE+i);
+		} */
+		mmio32(PARAMS_ADDR+OFFSET_STATUS) &= ~MASK_BUSY; // Clear busy bit
 		//~ asm("bkpt");
 	}
 	return 0;

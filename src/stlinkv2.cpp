@@ -461,7 +461,10 @@ void stlinkv2::writeMem32(const quint32 &addr, QByteArray &buf)
             usleep(100000); // 100ms
         }
         // Check if write succeeded
-        if (this->readFlashSR() & 242)
+        if ((*this->device)["chip_id"] == STM32::ChipID::F4)
+            if (this->readFlashSR() & 242)
+                qCritical() << "Flash write failed!";
+        else if (this->readFlashSR() & (1 << (*this->device)["SR_PER"]))
             qCritical() << "Flash write failed!";
     }
     this->cmd_buf.append(STLink::Cmd::DebugCommand);
@@ -538,7 +541,7 @@ qint32 stlinkv2::SendCommand()
     return ret;
 }
 
-QString stlinkv2::regPrint(const quint32 reg)
+QString stlinkv2::regPrint(const quint32 reg) const
 {
     QString top("Register dump:\r\nBit | ");
     QString bottom("\r\nVal | ");
