@@ -51,13 +51,12 @@
 #define FLASH_CR_OFFSET 0x10
 #define FLASH_OPTCR_OFFSET 0x14
 
-#define PARAMS_ADDR 0x200003E8
-#define PARAM_DEST 0x00 // Destination in the flash
-#define PARAM_LEN 0x04 // How many times we copy data from sram to flash
-#define PARAM_BUSY 0x08 // If the program is busy writing
-#define PARAM_PGSIZE 0x1C // Half word or word
-
-
+#define PARAMS_ADDR 0x200003E8 // Parameters address in the ram.
+#define PARAM_DEST 0x00 // Destination in the flash.  Set by debugger.
+#define PARAM_LEN 0x04 // How many times we copy data from sram to flash. Set by debugger.
+#define PARAM_BUSY 0x08 // If the program is busy writing. Set by program.
+#define PARAM_RDY 0x0C // Ready to transfer. Set by debugger.
+#define PARAM_PGSIZE 0x10 // Half word or word. Set by debugger.
 
 static inline uint32_t flashBusy(void) {
 	
@@ -69,7 +68,13 @@ int main(void) {
 	uint32_t len = 0;
 	uint32_t dest = 0;
 	uint32_t pgsize = 0;
+	mmio32(PARAMS_ADDR+PARAM_RDY) = 0;
+	mmio32(PARAMS_ADDR+PARAM_BUSY) = 0;
 	while (1) {
+		
+		if (!mmio32(PARAMS_ADDR+PARAM_RDY))
+				continue;
+		
 		dest = mmio32(PARAMS_ADDR+PARAM_DEST);
 		len = mmio32(PARAMS_ADDR+PARAM_LEN);
 		pgsize = mmio32(PARAMS_ADDR+PARAM_PGSIZE);
