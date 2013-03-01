@@ -14,30 +14,30 @@
     You should have received a copy of the GNU General Public License
     along with QSTLink2.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef DIALOG_H
-#define DIALOG_H
+#ifndef VERSION_H
+#define VERSION_H
 
-#include <QDialog>
+#include <QObject>
+#include <QDomDocument>
+#include <QFile>
+#include <QDebug>
 #include <QString>
-#include <QColor>
-#include <QStyle>
-#include <version.h>
+#include <compat.h>
 
-namespace Ui {
-    class Dialog;
-}
-
-class Dialog : public QDialog
+class svnversion : public QObject
 {
     Q_OBJECT
-
 public:
-    explicit Dialog(QWidget *parent = 0);
-    ~Dialog();
-    void setText(const QString &title, const QString &text);
-    void setHTML(const QString &title, const QString &html);
-    Ui::Dialog *ui;
-    svnversion m_version;
+    explicit svnversion(QObject *parent = 0);
+    QString getBuildDate(void) const { return QString(__DATE__)+" "+QString(__TIME__); }
+    quint32 getRevision(void) const { return m_revision; }
+    
+signals:
+    
+public slots:
+
+private:
+    quint32 m_revision;
 };
 
-#endif // DIALOG_H
+#endif // VERSION_H

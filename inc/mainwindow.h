@@ -24,8 +24,8 @@ This file is part of QSTLink2.
 #include <QFileDialog>
 #include <QFile>
 #include <QByteArray>
-#include "dialog.h"
-#include "transferthread.h"
+#include <dialog.h>
+#include <transferthread.h>
 #include <compat.h>
 
 namespace Ui {

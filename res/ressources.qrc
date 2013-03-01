@@ -6,5 +6,6 @@
         <file>devices.xml</file>
         <file>images/icon.ico</file>
         <file>images/Qt-logo.png</file>
+        <file>svn-info.xml</file>
     </qresource>
 </RCC>

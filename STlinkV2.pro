@@ -31,7 +31,8 @@ SOURCES += src/main.cpp\
     src/LibUsb.cpp \
     src/devices.cpp \
     src/dialog.cpp \
-   src/transferthread.cpp
+   src/transferthread.cpp \
+    src/version.cpp
 
 HEADERS  += inc/mainwindow.h \
     inc/stlinkv2.h \
@@ -39,7 +40,8 @@ HEADERS  += inc/mainwindow.h \
     inc/devices.h \
     inc/dialog.h \
     inc/transferthread.h \
-    inc/compat.h
+    inc/compat.h \
+    inc/version.h
 
 FORMS    += ui/mainwindow.ui \
     ui/dialog.ui
@@ -67,3 +69,4 @@ misc.path = /usr/share/qstlink2
 misc.files = res/devices.xml res/help.html
 INSTALLS += misc
 
+system("svn info --xml > res/svn-info.xml")
