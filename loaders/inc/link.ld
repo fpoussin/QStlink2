@@ -18,19 +18,23 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-__main_stack_size__     = 0x080;
-__process_stack_size__  = 0x080;
+ENTRY(ResetHandler)
+
+__main_stack_size__     = 0x100;
+__process_stack_size__  = 0x100;
 
 MEMORY
 {
-    ram : org = 0x20000000, len = 1000
-    params : org = 0x200003E8, len = 24
-    buffer : org = 0x20000400, len = 3k
+    ram : org = 0x20000000, len = 2000
+    params : org = 0x200007D0, len = 48
+    buffer : org = 0x20000800, len = 2k
 }
 
 __ram_start__           = ORIGIN(ram);
 __ram_size__            = LENGTH(ram);
 __ram_end__             = __ram_start__ + __ram_size__;
+__params__               = ORIGIN(params);
+__buffer__               = ORIGIN(buffer);
 
 SECTIONS
 {
@@ -125,7 +129,7 @@ SECTIONS
         *(.ramtext)
         . = ALIGN(4);
         PROVIDE(_edata = .);
-    } > ram AT > ram
+    } > ram
 
     .bss :
     {

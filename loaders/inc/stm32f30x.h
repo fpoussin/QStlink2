@@ -53,6 +53,8 @@
 #ifndef __STM32F30x_H
 #define __STM32F30x_H
 
+#define assert_param(expr) ((void)0)
+
 #ifdef __cplusplus
  extern "C" {
 #endif /* __cplusplus */

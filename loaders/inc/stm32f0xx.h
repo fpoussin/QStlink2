@@ -49,9 +49,10 @@
 /** @addtogroup stm32f0xx
   * @{
   */
-    
 #ifndef __STM32F0XX_H
 #define __STM32F0XX_H
+
+#define assert_param(expr) ((void)0)
 
 #ifdef __cplusplus
  extern "C" {
