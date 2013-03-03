@@ -26,7 +26,11 @@ transferThread::transferThread(QObject *parent) :
 void transferThread::run()
 {
     if (this->m_write) {
-        this->send(this->m_filename);
+
+        if ((*this->stlink->device)["chip_id"] == STM32::ChipID::F4)
+            this->send(this->m_filename);
+        else
+            this->sendWithLoader(this->m_filename);
         if (this->m_verify)
             this->verify(this->m_filename);
     }
@@ -68,7 +72,7 @@ void transferThread::send(const QString &filename)
          program_size = 4; // WORD (4 bytes)
     // The MCU will write program_size 32 times to empty the MCU buffer.
     // We don't have to write to USB only a few bytes at a time, the MCU handles flash programming for us.
-    quint32 step_size = program_size*64;
+    quint32 step_size = 128;
     quint32 from = (*this->stlink->device)["flash_base"];
     quint32 to = (*this->stlink->device)["flash_base"]+file.size();
     qInformal() << "Writing from" << "0x"+QString::number(from, 16) << "to" << "0x"+QString::number(to, 16);
@@ -82,12 +86,9 @@ void transferThread::send(const QString &filename)
     if (!this->stlink->unlockFlash())
         return;
 
-    // 2 on F0, 4 on F4
-    this->stlink->setProgramSize(program_size);
-
-    while(this->stlink->isBusy()) {
-        usleep(10000); // 100ms
-    }
+    // Not supported on F0
+    if ((*this->stlink->device)["chip_id"] == STM32::ChipID::F4)
+        this->stlink->setProgramSize(program_size);
 
     if (this->m_erase) {
         emit sendStatus("Erasing flash... This might take some time.");
@@ -98,21 +99,11 @@ void transferThread::send(const QString &filename)
         }
     }
 
-    this->stlink->resetMCU();
-
     // We finally enable flash programming
     if (!this->stlink->setFlashProgramming(true)) {
         qCritical() << "setFlashProgramming Failed!";
         return;
     }
-
-    while(this->stlink->isBusy()) {
-        usleep(100000); // 1000ms
-    }
-
-    // Unlock flash again. Seems like this is mandatory.
-    if (this->stlink->isLocked())
-        return;
 
     progress = 0;
     for (int i=0; i<=file.size(); i+=step_size)
@@ -157,6 +148,110 @@ void transferThread::send(const QString &filename)
 
 //    // Lock flash
 //    this->stlink->lockFlash();
+
+    this->stlink->hardResetMCU();
+    this->stlink->resetMCU();
+    this->stlink->runMCU();
+
+    emit sendLock(false);
+}
+
+void transferThread::sendWithLoader(const QString &filename)
+{
+    QFile file(filename);
+    if (!file.open(QIODevice::ReadOnly)) {
+        qCritical("Could not open the file.");
+        return;
+    }
+    emit sendLock(true);
+    this->m_stop = false;
+    this->stlink->hardResetMCU(); // We stop the MCU
+    quint8 program_size = 2; // WORD (4 bytes)
+    if ((*this->stlink->device)["chip_id"] == STM32::ChipID::F4)
+         program_size = 4; // WORD (4 bytes)
+    // The MCU will write program_size 32 times to empty the MCU buffer.
+    // We don't have to write to USB only a few bytes at a time, the MCU handles flash programming for us.
+    quint32 step_size = 2048;
+    quint32 from = (*this->stlink->device)["flash_base"];
+    quint32 to = (*this->stlink->device)["flash_base"]+file.size();
+    qInformal() << "Writing from" << "0x"+QString::number(from, 16) << "to" << "0x"+QString::number(to, 16);
+    QByteArray buf;
+    quint32 addr, progress, oldprogress, read;
+    char *buf2 = new char[step_size];
+
+    this->stlink->resetMCU();
+    this->stlink->sendLoader();
+
+    // Unlock flash
+    if (!this->stlink->unlockFlash())
+        return;
+
+    // Not supported on F0
+    if ((*this->stlink->device)["chip_id"] == STM32::ChipID::F4)
+        this->stlink->setProgramSize(program_size);
+
+    while(this->stlink->isBusy()) {
+        usleep(100000); // 100ms
+    }
+
+    if (this->m_erase) {
+        emit sendStatus("Erasing flash... This might take some time.");
+
+        if (!this->stlink->eraseFlash()) {
+            qCritical() << "eraseFlash Failed!";
+            return;
+        }
+    }
+
+    // We finally enable flash programming
+    if (!this->stlink->setFlashProgramming(true)) {
+        qCritical() << "setFlashProgramming Failed!";
+        return;
+    }
+
+    progress = 0;
+    for (int i=0; i<=file.size(); i+=step_size)
+    {
+        buf.clear();
+
+        if (this->m_stop)
+            break;
+
+        if (file.atEnd()) {
+            qDebug() << "End Of File";
+            break;
+        }
+
+        memset(buf2, 0, step_size);
+        if ((read = file.read(buf2, step_size)) <= 0)
+            break;
+        qDebug() << "Read" << read << "Bytes from disk";
+        buf.append(buf2, read);
+
+        addr = (*this->stlink->device)["flash_base"]+i;
+
+        this->stlink->setupLoader(addr+i, buf);
+        this->stlink->runMCU();
+
+        while (this->stlink->getStatus() == "Status: Core Running") { // Wait for the breakpoint
+                usleep(100000); // 100ms
+        }
+
+        oldprogress = progress;
+        progress = (i*100)/file.size();
+        if (progress > oldprogress) { // Push only if number has increased
+            emit sendProgress(progress);
+            qInformal() << "Progress:"<< QString::number(progress)+"%";
+        }
+        emit sendStatus("Transfered "+QString::number(i/1024)+" kilobytes out of "+QString::number(file.size()/1024));
+    }
+    file.close();
+    delete buf2;
+
+    emit sendProgress(100);
+    emit sendStatus("Transfer done");
+    emit sendLog("Transfer done");
+    qInformal() << "Transfer done";
 
     this->stlink->hardResetMCU();
     this->stlink->resetMCU();
@@ -217,43 +312,40 @@ void transferThread::verify(const QString &filename)
     emit sendLock(true);
     this->m_stop = false;
     this->stlink->hardResetMCU(); // We stop the MCU
-    quint32 buf_size = 512;
+    quint32 buf_size = 256;
     quint32 from = (*this->stlink->device)["flash_base"];
     quint32 to = (*this->stlink->device)["flash_base"]+file.size();
     qInformal() << "Reading from" << QString::number(from, 16) << "to" << QString::number(to, 16);
     quint32 addr, progress, oldprogress;
     QByteArray tmp;
-    qint32 cnt = 1;
 
     progress = 0;
     for (quint32 i=0; i<file.size(); i+=buf_size)
     {
         if (this->m_stop)
             break;
-        addr = (*this->stlink->device)["flash_base"]+i;
-        if (this->stlink->readMem32(addr, buf_size) < 0)
-            break;
 
         tmp = file.read(buf_size);
+        addr = (*this->stlink->device)["flash_base"]+i;
+        if (this->stlink->readMem32(addr, tmp.size()) < 0) // Read same amount of data as from file.
+            break;
 
-        //qDebug() << tmp << ":" << this->stlink->recv_buf;
-        for (quint32 a=0; a<0 ; a++) {
+        if (this->stlink->recv_buf != tmp) {
 
-            if ((!cnt || this->stlink->recv_buf.at(a) != tmp.at(1))) { // needs recheck...
+            file.close();
+            emit sendProgress(100);
+            emit sendStatus("Verification failed at 0x"+QString::number(addr, 16));
 
-                file.close();
-                emit sendProgress(100);
-                if (!cnt)
-                    qCritical() << "End of file";
-                emit sendStatus("Verification failed at 0x"+QString::number(addr+a, 16));
-                qCritical() << "Verification failed at" << QString::number(addr+a, 16) <<
-                               "expecting:" << QString::number(tmp.at(1), 16) <<
-                               "got:" << QString::number(this->stlink->recv_buf.at(a), 16);
-                this->stlink->runMCU();
-                emit sendLock(false);
-                return;
+            QString stmp, sbuf;
+            for (int b=0;b<tmp.size();b++) {
+                stmp.append(QString().sprintf("%02X ", (uchar)tmp.at(b)));
+                sbuf.append(QString().sprintf("%02X ", (uchar)this->stlink->recv_buf.at(b)));
             }
-
+            qCritical() << "Verification failed at" << QString::number(addr, 16) <<
+                           "\r\n Expecting:" << stmp << "\r\n Got:" << sbuf;
+            this->stlink->runMCU();
+            emit sendLock(false);
+            return;
         }
         oldprogress = progress;
         progress = (i*100)/file.size();

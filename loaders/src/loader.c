@@ -14,7 +14,6 @@
     You should have received a copy of the GNU General Public License
     along with QSTLink2.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <string.h>
 
 #if defined(STM32F0)
 	#include <stm32f0xx.h>

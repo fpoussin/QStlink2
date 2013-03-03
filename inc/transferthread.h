@@ -45,6 +45,7 @@ private slots:
 
 private:
     void send(const QString &filename);
+    void sendWithLoader(const QString &filename);
     void receive(const QString &filename);
     void verify(const QString &filename);
 

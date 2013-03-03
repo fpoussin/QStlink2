@@ -25,6 +25,7 @@ This file is part of QSTLink2.
 #include <QtEndian>
 #include <devices.h>
 #include <compat.h>
+#include <loader.h>
 
 namespace STLink {
     namespace Status {
@@ -61,10 +62,14 @@ namespace STLink {
                 const quint8 ForceDebug = 0x02;
                 const quint8 ResetSys = 0x03;
                 const quint8 ReadAllRegs = 0x04;
+                const quint8 ReadReg = 0x05;
+                const quint8 WriteReg = 0x06;
                 const quint8 RunCore = 0x09;
                 const quint8 StepCore = 0x0A;
+                const quint8 WriteRegPC = 0x34;
                 const quint8 HardReset = 0x3C; // Unsure
                 const quint8 ReadCoreRegs = 0x3A; // All regs fetched at once
+                const quint8 SetFP = 0x0B;
         }
     }
 }
@@ -165,18 +170,20 @@ public slots:
     void setModeJTAG();
     void setModeSWD();
     void setExitModeDFU();
-    qint32 readMem32(const quint32 &addr, const quint16 &len = 4);
-    void writeMem32(const quint32 &addr, QByteArray &buf);
+    qint32 readMem32(quint32 addr, quint16 len = 4);
+    void writeMem32(quint32 addr, QByteArray &buf);
+    void writeRegister(quint32 val, quint8 index);
+    void writePC(quint32 val);
     bool isLocked();
     bool eraseFlash();
     bool unlockFlash();
     bool lockFlash();
     bool unlockFlashOpt();
     bool isBusy();
-    bool setFlashProgramming(const bool &val);
-    bool setMassErase(const bool &val);
+    bool setFlashProgramming(bool val);
+    bool setMassErase(bool val);
     bool setSTRT();
-    void setProgramSize(const quint8 &size);
+    void setProgramSize(quint8 size);
     quint32 readFlashSize();
     QString getStatus();
     QString getVersion();
@@ -184,14 +191,16 @@ public slots:
     QString getCoreID();
     QString getChipID();
     QString getRevID();
+    void sendLoader();
+    bool setupLoader(quint32 addr, const QByteArray& buf);
 
 private:
     LibUsb *libusb;
-    qint32 Command(const quint8 &st_cmd0, const quint8 &st_cmd1, const quint32 &resp_len);
-    qint32 DebugCommand(const quint8 &st_cmd1, const quint8 &st_cmd2, const quint32 &resp_len);
+    qint32 Command(quint8 st_cmd0, quint8 st_cmd1, quint32 resp_len);
+    qint32 DebugCommand(quint8 st_cmd1, quint8 st_cmd2, quint32 resp_len);
     quint32 readFlashSR();
     quint32 readFlashCR();
-    quint32 writeFlashCR(const quint32 &mask, const bool &value);
+    quint32 writeFlashCR(quint32 mask, bool value);
     qint32 SendCommand();
     quint16 ST_VendorID;
     quint16 ST_ProductID;
@@ -200,7 +209,8 @@ private:
     QString mode;
     qint8 mode_id;
     bool connected;
-    QString regPrint(const quint32 reg) const;
+    QString regPrint(quint32 reg) const;
+    loader m_loader;
 };
 
 #endif // STLINKV2_H

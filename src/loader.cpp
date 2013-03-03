@@ -11,7 +11,10 @@ loader::loader(QObject *parent) :
 
 bool loader::loadBin(const QString &path) {
 
-    QFile file(path);
+    const QString _path = ":/bin/"+path;
+    qDebug() << "Loader" << _path;
+
+    QFile file(_path);
 
     if (!file.open(QFile::ReadOnly))
         return false;
@@ -22,8 +25,7 @@ bool loader::loadBin(const QString &path) {
     return true;
 }
 
-bool loader::loadToRam(quint32 addr) {
+QByteArray& loader::refData(void) {
 
-
-    return true;
+    return this->m_data;
 }

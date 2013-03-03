@@ -37,6 +37,7 @@ public:
     bool contains(QString x) { return m_map.contains(x); }
     QString repr(void) const;
     QString type;
+    QString loader_file;
 private:
     QMap<QString, quint32> m_map;
 };

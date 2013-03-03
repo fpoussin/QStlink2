@@ -232,7 +232,7 @@ bool stlinkv2::eraseFlash()
     qInformal() << "Erasing flash... This might take some time.";
     this->setSTRT();
     while(this->isBusy()) { // then we wait for completion
-        usleep(1000000); // 500ms
+        usleep(500000); // 500ms
     }
 
     // We remove the mass erase flag
@@ -348,7 +348,7 @@ quint32 stlinkv2::readFlashCR()
     return res;
 }
 
-quint32 stlinkv2::writeFlashCR(const quint32 &mask, const bool &value)
+quint32 stlinkv2::writeFlashCR(quint32 mask, bool value)
 {
 //    if (this->isLocked())
 //        this->unlockFlash();
@@ -358,9 +358,9 @@ quint32 stlinkv2::writeFlashCR(const quint32 &mask, const bool &value)
     quint32 addr, val;
     quint32 fcr = this->readFlashCR();
     if (value)
-        val = mask | fcr; // We append bits (AND)
+        val = fcr | mask ; // We append bits (OR)
     else
-        val = mask ^ fcr; // We remove bits (XOR)
+        val = fcr & ~mask; // We remove bits (NOT AND)
     qDebug() << "Flash control register new value:" << "0x"+QString::number(val, 16) << regPrint(val);
 
     addr = (*this->device)["flash_int_reg"] + (*this->device)["CR_OFFSET"];
@@ -371,7 +371,7 @@ quint32 stlinkv2::writeFlashCR(const quint32 &mask, const bool &value)
     return this->readFlashCR();
 }
 
-bool stlinkv2::setFlashProgramming(const bool &val)
+bool stlinkv2::setFlashProgramming(bool val)
 {
     qDebug() << "***[setFlashProgramming]***";
     const quint32 mask = (1 << STM32::Flash::CR_PG);
@@ -381,7 +381,7 @@ bool stlinkv2::setFlashProgramming(const bool &val)
     return res;
 }
 
-bool stlinkv2::setMassErase(const bool &val)
+bool stlinkv2::setMassErase(bool val)
 {
     qDebug() << "***[setMassErase]***";
     const quint32 mask = (1 << STM32::Flash::CR_MER);
@@ -403,7 +403,7 @@ bool stlinkv2::setSTRT()
     return (this->writeFlashCR(mask, true) & mask) == mask;
 }
 
-void stlinkv2::setProgramSize(const quint8 &size)
+void stlinkv2::setProgramSize(quint8 size)
 {
     qDebug() << "***[setProgramSize]***";
 
@@ -447,7 +447,7 @@ bool stlinkv2::isBusy()
     return res;
 }
 
-void stlinkv2::writeMem32(const quint32 &addr, QByteArray &buf)
+void stlinkv2::writeMem32(quint32 addr, QByteArray &buf)
 {
     qDebug() << "+++++[writeMem32] Writing" << buf.size() << "bytes to" << "0x"+QString::number(addr, 16).toUpper();
     if (buf.size() % 4 != 0) {
@@ -481,15 +481,14 @@ void stlinkv2::writeMem32(const quint32 &addr, QByteArray &buf)
     buf.clear();
 }
 
-qint32 stlinkv2::readMem32(const quint32 &addr, const quint16 &len)
+qint32 stlinkv2::readMem32(quint32 addr, quint16 len)
 {
     qDebug() << "+++++[readMem32] Reading at" << "0x"+QString::number(addr, 16).toUpper();
     if (len % 4 != 0)
         return 0;
     this->cmd_buf.append(STLink::Cmd::DebugCommand);
     this->cmd_buf.append(STLink::Cmd::Dbg::ReadMem32bit);
-    uchar cmd[4];
-    uchar _len[2];
+    uchar cmd[4], _len[2];
     qToLittleEndian(addr, cmd);
     qToLittleEndian(len, _len);
     this->cmd_buf.append((const char*)cmd, sizeof(cmd));
@@ -498,7 +497,7 @@ qint32 stlinkv2::readMem32(const quint32 &addr, const quint16 &len)
     return this->libusb->read(&this->recv_buf, len);
 }
 
-qint32 stlinkv2::Command(const quint8 &st_cmd0, const quint8 &st_cmd1, const quint32 &resp_len)
+qint32 stlinkv2::Command(quint8 st_cmd0, quint8 st_cmd1, quint32 resp_len)
 {
     this->cmd_buf.append(st_cmd0);
     this->cmd_buf.append(st_cmd1);
@@ -509,7 +508,7 @@ qint32 stlinkv2::Command(const quint8 &st_cmd0, const quint8 &st_cmd1, const qui
     return 0;
 }
 
-qint32 stlinkv2::DebugCommand(const quint8 &st_cmd1, const quint8 &st_cmd2, const quint32 &resp_len)
+qint32 stlinkv2::DebugCommand(quint8 st_cmd1, quint8 st_cmd2, quint32 resp_len)
 {
     this->cmd_buf.append(STLink::Cmd::DebugCommand);
     this->cmd_buf.append(st_cmd1);
@@ -526,6 +525,29 @@ qint32 stlinkv2::DebugCommand(const quint8 &st_cmd1, const quint8 &st_cmd2, cons
     return res;
 }
 
+void stlinkv2::writeRegister(quint32 val, quint8 index) // Not working
+{
+    qDebug() << "***[writeRegister]***";
+    this->cmd_buf.append(STLink::Cmd::DebugCommand);
+    this->cmd_buf.append(STLink::Cmd::Dbg::WriteReg);
+    this->cmd_buf.append(index);
+    uchar tval[4];
+    qToLittleEndian(val, tval);
+    this->cmd_buf.append((const char*)tval, sizeof(tval));
+    this->SendCommand();
+}
+
+void stlinkv2::writePC(quint32 val) // Not working
+{
+    qDebug() << "***[writePC]***";
+    this->cmd_buf.append(STLink::Cmd::DebugCommand);
+    this->cmd_buf.append(STLink::Cmd::Dbg::WriteRegPC);
+    this->cmd_buf.append((char)0x07);
+    uchar tval[4];
+    qToLittleEndian(val, tval);
+    this->cmd_buf.append((const char*)tval, sizeof(tval));
+    this->SendCommand();
+}
 
 qint32 stlinkv2::SendCommand()
 {
@@ -541,7 +563,55 @@ qint32 stlinkv2::SendCommand()
     return ret;
 }
 
-QString stlinkv2::regPrint(const quint32 reg) const
+void stlinkv2::sendLoader() {
+
+    m_loader.loadBin(this->device->loader_file);
+    /*
+    QByteArray tmp;
+    int i=0;
+    const int step = 256;
+    for (; i < m_loader.refData().size()/step; i++) {
+
+        tmp = QByteArray(m_loader.refData().constData()+(i*step), step);
+        this->writeMem32((*this->device)["sram_base"]+(i*step), tmp);
+    }
+    const int mod = m_loader.refData().size()%step;
+    tmp = QByteArray(m_loader.refData().constData()+m_loader.refData().size()-mod, mod);
+    this->writeMem32((*this->device)["sram_base"]+(i*step), tmp);
+    */
+    this->writeMem32((*this->device)["sram_base"], m_loader.refData());
+    this->writePC((*this->device)["sram_base"]); // PC register to sram base.
+}
+
+bool stlinkv2::setupLoader(quint32 addr, const QByteArray& buf) {
+
+    using namespace Loader::Addr;
+    uchar ar_tmp[4];
+    qToLittleEndian(addr, ar_tmp);
+    QByteArray tmp((const char*)ar_tmp, 4);
+    this->writeMem32(PARAMS+OFFSET_DEST, tmp);
+
+    qToLittleEndian(buf.size(), ar_tmp);
+    tmp = QByteArray((const char*)ar_tmp, 4);
+    this->writeMem32(PARAMS+OFFSET_LEN, tmp);
+    /*
+    int i=0;
+    const int step = 256;
+    for (; i < buf.size()/step; i++) {
+
+        tmp = QByteArray(buf.constData()+(i*step), step);
+        this->writeMem32(BUFFER+(i*step), tmp);
+    }
+    const int mod = buf.size()%step;
+    tmp = QByteArray(buf.constData()+buf.size()-mod, mod);
+    this->writeMem32(BUFFER+(i*step), tmp);
+    */
+
+    this->writeMem32(BUFFER, QByteArray(buf));
+    return true;
+}
+
+QString stlinkv2::regPrint(quint32 reg) const
 {
     QString top("Register dump:\r\nBit | ");
     QString bottom("\r\nVal | ");

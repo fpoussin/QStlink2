@@ -230,7 +230,7 @@ void MainWindow::Receive(const QString &path)
 
 void MainWindow::Verify()
 {
-    qDebug("Reading flash");
+    qDebug("Verify flash");
     this->filename.clear();
     this->filename = QFileDialog::getOpenFileName(this, "Open file", "", "Binary Files (*.bin)");
     if (!this->filename.isNull()) {
