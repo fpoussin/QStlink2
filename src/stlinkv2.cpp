@@ -461,9 +461,10 @@ void stlinkv2::writeMem32(quint32 addr, QByteArray &buf)
             usleep(100000); // 100ms
         }
         // Check if write succeeded
-        if ((*this->device)["chip_id"] == STM32::ChipID::F4)
+        if ((*this->device)["chip_id"] == STM32::ChipID::F4) {
             if (this->readFlashSR() & 242)
                 qCritical() << "Flash write failed!";
+        }
         else if (this->readFlashSR() & (1 << (*this->device)["SR_PER"]))
             qCritical() << "Flash write failed!";
     }
@@ -606,8 +607,8 @@ bool stlinkv2::setupLoader(quint32 addr, const QByteArray& buf) {
     tmp = QByteArray(buf.constData()+buf.size()-mod, mod);
     this->writeMem32(BUFFER+(i*step), tmp);
     */
-
-    this->writeMem32(BUFFER, QByteArray(buf));
+    tmp = QByteArray(buf);
+    this->writeMem32(BUFFER, tmp);
     return true;
 }
 
