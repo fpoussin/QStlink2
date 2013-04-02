@@ -27,6 +27,7 @@ This file is part of QSTLink2.
 #include <dialog.h>
 #include <transferthread.h>
 #include <compat.h>
+#include <QMessageBox>
 
 namespace Ui {
     class MainWindow;

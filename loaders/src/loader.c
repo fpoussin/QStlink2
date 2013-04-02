@@ -28,8 +28,8 @@
 #elif defined(STM32F2)
 	#include <stm32f2xx.h>
 	#include <stm32f2xx_flash.h>
-	#define FLASH_STEP 8
-	#define FLASH_PGM FLASH_ProgramDoubleWord
+	#define FLASH_STEP 4
+	#define FLASH_PGM FLASH_ProgramWord
 	#define FLASH_EraseAllPages() FLASH_EraseAllSectors(VoltageRange_3)
 #elif defined(STM32F30)
 	#include <stm32f30x.h>
@@ -44,8 +44,8 @@
 #elif defined(STM32F4)
 	#include <stm32f4xx.h>
 	#include <stm32f4xx_flash.h>
-	#define FLASH_STEP 8
-	#define FLASH_PGM FLASH_ProgramDoubleWord
+	#define FLASH_STEP 4
+	#define FLASH_PGM FLASH_ProgramWord
 	#define FLASH_EraseAllPages() FLASH_EraseAllSectors(VoltageRange_3)
 #elif defined(STM32L1)
 	#include <stm32l1xx.h>
@@ -74,7 +74,8 @@
 #define MASK_VERR (1<<14) // Verification error
 #define MASK_ERR (1<<15) // Error
 
-#define BUFFER 0x20000800
+#define BUFFER_ADDR 0x20000800
+#define PARAMS_LEN (BUFFER_ADDR-PARAMS_ADDR)
 
 extern uint32_t __params__;
 extern uint32_t __buffer__;
@@ -83,15 +84,16 @@ int main(void) {
 
 	uint32_t len = 0;
 	uint32_t dest = 0;
-	mmio32(PARAMS_ADDR+OFFSET_STATUS) = 0 ; // Clear status.
-	mmio32(PARAMS_ADDR+OFFSET_DEST) = 0 ; // Clear addr.
-	mmio32(PARAMS_ADDR+OFFSET_LEN) = 0 ; // Clear length.
 	
-	//~ FLASH_Unlock();
-	
-	//~ FLASH_EraseAllPages();
+	uint32_t i;
+	for (i=0;i < PARAMS_LEN ;i+=4) { // Clear parameters
+		mmio32(PARAMS_ADDR+i) = 0;
+	}
 	
 	asm volatile ("bkpt #0x0");
+	
+	FLASH_Unlock();
+	//~ FLASH_EraseAllPages();
 
 	while (1) {
 		

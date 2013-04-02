@@ -27,9 +27,9 @@ void transferThread::run()
 {
     if (this->m_write) {
 
-        if ((*this->stlink->device)["chip_id"] == STM32::ChipID::F4)
-            this->send(this->m_filename);
-        else
+//        if ((*this->stlink->device)["chip_id"] == STM32::ChipID::F4)
+//            this->send(this->m_filename);
+//        else
             this->sendWithLoader(this->m_filename);
         if (this->m_verify)
             this->verify(this->m_filename);
