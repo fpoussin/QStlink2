@@ -193,6 +193,8 @@ public slots:
     QString getRevID();
     void sendLoader();
     bool setupLoader(quint32 addr, const QByteArray& buf);
+    quint32 getLoaderStatus();
+    void getLoaderParams();
 
 private:
     LibUsb *libusb;

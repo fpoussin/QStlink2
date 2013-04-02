@@ -212,7 +212,7 @@ extern funcp_t __fini_array_end;
 /**
  * @brief   Application @p main() function.
  */
-extern void main(void);
+extern int main(void);
 
 /**
  * @brief   Early initialization.

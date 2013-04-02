@@ -526,7 +526,7 @@ qint32 stlinkv2::DebugCommand(quint8 st_cmd1, quint8 st_cmd2, quint32 resp_len)
     return res;
 }
 
-void stlinkv2::writeRegister(quint32 val, quint8 index) // Not working
+void stlinkv2::writeRegister(quint32 val, quint8 index)
 {
     qDebug() << "***[writeRegister]***";
     this->cmd_buf.append(STLink::Cmd::DebugCommand);
@@ -543,7 +543,7 @@ void stlinkv2::writePC(quint32 val) // Not working
     qDebug() << "***[writePC]***";
     this->cmd_buf.append(STLink::Cmd::DebugCommand);
     this->cmd_buf.append(STLink::Cmd::Dbg::WriteRegPC);
-    this->cmd_buf.append((char)0x07);
+    this->cmd_buf.append((quint8)0x07);
     uchar tval[4];
     qToLittleEndian(val, tval);
     this->cmd_buf.append((const char*)tval, sizeof(tval));
@@ -567,7 +567,7 @@ qint32 stlinkv2::SendCommand()
 void stlinkv2::sendLoader() {
 
     m_loader.loadBin(this->device->loader_file);
-    /*
+
     QByteArray tmp;
     int i=0;
     const int step = 256;
@@ -579,9 +579,9 @@ void stlinkv2::sendLoader() {
     const int mod = m_loader.refData().size()%step;
     tmp = QByteArray(m_loader.refData().constData()+m_loader.refData().size()-mod, mod);
     this->writeMem32((*this->device)["sram_base"]+(i*step), tmp);
-    */
-    this->writeMem32((*this->device)["sram_base"], m_loader.refData());
-    this->writePC((*this->device)["sram_base"]); // PC register to sram base.
+
+//    this->writeMem32((*this->device)["sram_base"], m_loader.refData());
+    this->writeRegister((*this->device)["sram_base"], 15); // PC register to sram base.
 }
 
 bool stlinkv2::setupLoader(quint32 addr, const QByteArray& buf) {
@@ -595,6 +595,21 @@ bool stlinkv2::setupLoader(quint32 addr, const QByteArray& buf) {
     qToLittleEndian(buf.size(), ar_tmp);
     tmp = QByteArray((const char*)ar_tmp, 4);
     this->writeMem32(PARAMS+OFFSET_LEN, tmp);
+
+    this->readMem32(PARAMS+OFFSET_DEST);
+    const quint32 dest = qFromLittleEndian<quint32>((uchar*)this->recv_buf.constData());
+    this->readMem32(PARAMS+OFFSET_LEN);
+    const quint32 len = qFromLittleEndian<quint32>((uchar*)this->recv_buf.constData());
+
+    qDebug() << "Data destination and length:" << "0x"+QString::number(dest, 16) << len;
+
+    if ((dest != addr) || ((quint32)buf.size() != len)) {
+
+        qCritical() << "Failed to set loader settings!";
+        qCritical() << "Expected data destination and length:" << "0x"+QString::number(addr, 16) << buf.size();
+        return false;
+    }
+
     /*
     int i=0;
     const int step = 256;
@@ -610,6 +625,28 @@ bool stlinkv2::setupLoader(quint32 addr, const QByteArray& buf) {
     tmp = QByteArray(buf);
     this->writeMem32(BUFFER, tmp);
     return true;
+}
+
+quint32 stlinkv2::getLoaderStatus() {
+
+    qDebug() << "***[getLoaderStatus]***";
+    using namespace Loader::Addr;
+    this->readMem32(PARAMS+OFFSET_STATUS);
+    quint32 tmp = qFromLittleEndian<quint32>((uchar*)this->recv_buf.constData());
+    qDebug() << this->regPrint(tmp);
+    return tmp;
+}
+
+void stlinkv2::getLoaderParams() {
+
+    qDebug() << "***[getLoaderStatus]***";
+    using namespace Loader::Addr;
+    this->readMem32(PARAMS+OFFSET_DEST);
+    const quint32 dest = qFromLittleEndian<quint32>((uchar*)this->recv_buf.constData());
+    this->readMem32(PARAMS+OFFSET_LEN);
+    const quint32 len = qFromLittleEndian<quint32>((uchar*)this->recv_buf.constData());
+
+    qDebug() << "Data destination and length:" << "0x"+QString::number(dest, 16) << len;
 }
 
 QString stlinkv2::regPrint(quint32 reg) const

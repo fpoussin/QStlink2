@@ -158,6 +158,7 @@ void transferThread::send(const QString &filename)
 
 void transferThread::sendWithLoader(const QString &filename)
 {
+    qInformal() << "Using loader";
     QFile file(filename);
     if (!file.open(QIODevice::ReadOnly)) {
         qCritical("Could not open the file.");
@@ -166,33 +167,25 @@ void transferThread::sendWithLoader(const QString &filename)
     emit sendLock(true);
     this->m_stop = false;
     this->stlink->hardResetMCU(); // We stop the MCU
-    quint8 program_size = 2; // WORD (4 bytes)
-    if ((*this->stlink->device)["chip_id"] == STM32::ChipID::F4)
-         program_size = 4; // WORD (4 bytes)
     // The MCU will write program_size 32 times to empty the MCU buffer.
     // We don't have to write to USB only a few bytes at a time, the MCU handles flash programming for us.
-    quint32 step_size = 2048;
+    quint32 step_size = 256;
     quint32 from = (*this->stlink->device)["flash_base"];
     quint32 to = (*this->stlink->device)["flash_base"]+file.size();
     qInformal() << "Writing from" << "0x"+QString::number(from, 16) << "to" << "0x"+QString::number(to, 16);
-    QByteArray buf;
+//    QByteArray buf;
     quint32 addr, progress, oldprogress, read;
     char *buf2 = new char[step_size];
 
     this->stlink->resetMCU();
-    this->stlink->sendLoader();
 
     // Unlock flash
     if (!this->stlink->unlockFlash())
         return;
 
-    // Not supported on F0
-    if ((*this->stlink->device)["chip_id"] == STM32::ChipID::F4)
-        this->stlink->setProgramSize(program_size);
-
-    while(this->stlink->isBusy()) {
-        usleep(100000); // 100ms
-    }
+//    while(this->stlink->isBusy()) {
+//        usleep(100000); // 100ms
+//    }
 
     if (this->m_erase) {
         emit sendStatus("Erasing flash... This might take some time.");
@@ -203,16 +196,13 @@ void transferThread::sendWithLoader(const QString &filename)
         }
     }
 
-    // We finally enable flash programming
-    if (!this->stlink->setFlashProgramming(true)) {
-        qCritical() << "setFlashProgramming Failed!";
-        return;
-    }
+    this->stlink->sendLoader();
+    this->stlink->runMCU(); // Will stop before the loop
 
     progress = 0;
     for (int i=0; i<=file.size(); i+=step_size)
     {
-        buf.clear();
+//        buf.clear();
 
         if (this->m_stop)
             break;
@@ -226,15 +216,26 @@ void transferThread::sendWithLoader(const QString &filename)
         if ((read = file.read(buf2, step_size)) <= 0)
             break;
         qDebug() << "Read" << read << "Bytes from disk";
-        buf.append(buf2, read);
+        QByteArray buf(buf2, read);
+//        buf.append(buf2, read);
 
         addr = (*this->stlink->device)["flash_base"]+i;
 
-        this->stlink->setupLoader(addr+i, buf);
-        this->stlink->runMCU();
+        if (!this->stlink->setupLoader(addr+i, buf)) { // TODO
+            emit sendStatus("Failed to set loader parameters.");
+            break;
+        }
+//        this->stlink->getLoaderParams();
+//        this->stlink->runMCU();
 
-        while (this->stlink->getStatus() == "Status: Core Running") { // Wait for the breakpoint
-                usleep(100000); // 100ms
+//        while (this->stlink->getStatus() == "Status: Core Running") { // Wait for the breakpoint
+//                usleep(100000); // 100ms
+//                if (this->m_stop) break;
+//        }
+
+        if (this->stlink->getLoaderStatus() & Loader::Masks::ERR) {
+
+            qCritical() << "Loader reported an error!";
         }
 
         oldprogress = progress;
