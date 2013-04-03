@@ -82,7 +82,7 @@ typedef struct
 	__IO uint32_t DEST;          /*!Address offset: 0x00 - Destination in the flash.  Set by debugger.*/
 	__IO uint32_t LEN;          /*!Address offset: 0x04 - How many bytes we copy data from sram to flash. Set by debugger.*/
 	__IO uint32_t STATUS;          /*!Address offset: 0x08 -  Status. Set by program and debugger. */
-	__IO uint32_t TEST;          /*!Address offset: 0x0B -  For testing */
+	__IO uint32_t TEST;          /*!Address offset: 0x0C -  For testing */
 
 } PARAMS_TypeDef;
 
@@ -101,15 +101,11 @@ int loader(void) {
 	
 	while (1) {
 		
-		PARAMS->TEST =  0xABCD; // copied value seems to be wrong
+		//~ PARAMS->TEST =  0;
 		
 		asm volatile ("bkpt"); // Halt core after init and before writing to flash.
 		asm volatile ("nop"); 
 		
-		//~ __IO uint32_t t1 = PARAMS->DEST;
-		
-		//~ volatile uint32_t dest = DEST;
-		//~ volatile uint32_t len = LEN;
 		
 		//~ if (!(PARAMS->STATUS  & MASK_STRT)) // Skip if not ready
 				//~ continue;
@@ -134,6 +130,7 @@ int loader(void) {
 				break;
 			}
 		}
+		PARAMS->TEST =  PARAMS->DEST+i;
 		//~ PARAMS->STATUS &= ~MASK_BUSY; // Clear busy bit
 	} 
 	return 0;

@@ -238,7 +238,7 @@ void transferThread::sendWithLoader(const QString &filename)
 
         addr = (*this->stlink->device)["flash_base"]+i;
 
-        if (!this->stlink->setLoaderBuffer(addr+i, buf)) {
+        if (!this->stlink->setLoaderBuffer(addr, buf)) {
             emit sendStatus("Failed to set loader parameters.");
             break;
         }
