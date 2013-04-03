@@ -72,4 +72,9 @@ misc.path = /usr/share/qstlink2
 misc.files = res/devices.xml res/help.html
 INSTALLS += misc
 
+loaders.target = loaders
+loaders.commands = cd $$_PRO_FILE_PWD_/loaders && make -f Makefile -j 4
+
+QT_EXTRA_TARGETS += loaders
+
 system("svn info --xml > res/svn-info.xml")
