@@ -72,7 +72,7 @@ void LibUsb::close()
     }
 }
 
-qint32 LibUsb::read(QByteArray *buf, const quint32 bytes)
+qint32 LibUsb::read(QByteArray *buf, quint32 bytes)
 {
     // check it isn't closed already
     if (!device) return -1;
@@ -106,7 +106,7 @@ qint32 LibUsb::read(QByteArray *buf, const quint32 bytes)
     return rc;
 }
 
-qint32 LibUsb::write(QByteArray *buf, const quint32 bytes)
+qint32 LibUsb::write(QByteArray *buf, quint32 bytes)
 {
 
     // check it isn't closed

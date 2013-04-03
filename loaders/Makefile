@@ -6,7 +6,7 @@ OBJCOPY = $(CROSS_COMPILE)objcopy
 CODE=src/loader.c
 STARTUP=src/crt0.c
 
-CFLAGS=-Wall -Iinc/ -Os -nostdlib -mthumb -DTHUMB -nostartfiles -fomit-frame-pointer -falign-functions=16 -ffunction-sections -fdata-sections -fno-common
+CFLAGS=-Wall -Iinc/ -O0 -g -nostdlib -mthumb -DTHUMB -nostartfiles -fomit-frame-pointer -falign-functions=16 -ffunction-sections -fdata-sections -fno-common
 LDFLAGS=-Tinc/link.ld -Wl,--gc-sections
 
 all: loader_f0.bin loader_f1.bin loader_f2.bin loader_f30.bin loader_f37.bin loader_f4.bin #loader_l1.bin

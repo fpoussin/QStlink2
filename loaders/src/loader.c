@@ -61,13 +61,11 @@
 #define mmio16(x)   (*(volatile uint16_t *)(x))
 #define mmio8(x)   (*(volatile uint8_t *)(x))
 
-#define PARAMS_ADDR 0x200007D0 // Parameters address in the ram.
-#define OFFSET_DEST 0x00 // Destination in the flash.  Set by debugger.
-#define OFFSET_LEN 0x04 // How many words (32bits) we copy data from sram to flash. Set by debugger.
-#define OFFSET_STATUS 0x08 // Status. Set by program and debugger.
+#define PARAMS_ADDR ((uint32_t)0x200007D0) // Parameters address in the ram.
 
 #define MASK_STRT (1<<0) // Start bit
 #define MASK_BUSY (1<<1) // Busy bit
+#define MASK_SUCCESS (1<<2) // Success bit
 
 #define MASK_VEREN (1<<4) // Verification enable bit
 
@@ -77,52 +75,66 @@
 #define BUFFER_ADDR 0x20000800
 #define PARAMS_LEN (BUFFER_ADDR-PARAMS_ADDR)
 
+#define PARAMS ((PARAMS_TypeDef *) PARAMS_ADDR)
+
+typedef struct
+{
+	__IO uint32_t DEST;          /*!Address offset: 0x00 - Destination in the flash.  Set by debugger.*/
+	__IO uint32_t LEN;          /*!Address offset: 0x04 - How many bytes we copy data from sram to flash. Set by debugger.*/
+	__IO uint32_t STATUS;          /*!Address offset: 0x08 -  Status. Set by program and debugger. */
+	__IO uint32_t TEST;          /*!Address offset: 0x0B -  For testing */
+
+} PARAMS_TypeDef;
+
 extern uint32_t __params__;
 extern uint32_t __buffer__;
 
-int main(void) {
+int loader(void) {
 
-	uint32_t len = 0;
-	uint32_t dest = 0;
-	
 	uint32_t i;
 	for (i=0;i < PARAMS_LEN ;i+=4) { // Clear parameters
 		mmio32(PARAMS_ADDR+i) = 0;
 	}
 	
-	asm volatile ("bkpt #0x0");
-	
 	FLASH_Unlock();
 	//~ FLASH_EraseAllPages();
-
+	
 	while (1) {
 		
-		//~ if (!mmio32(PARAMS_ADDR+OFFSET_STATUS) & MASK_STRT) // Skip if not ready
+		PARAMS->TEST =  0xABCD; // copied value seems to be wrong
+		
+		asm volatile ("bkpt"); // Halt core after init and before writing to flash.
+		asm volatile ("nop"); 
+		
+		//~ __IO uint32_t t1 = PARAMS->DEST;
+		
+		//~ volatile uint32_t dest = DEST;
+		//~ volatile uint32_t len = LEN;
+		
+		//~ if (!(PARAMS->STATUS  & MASK_STRT)) // Skip if not ready
 				//~ continue;
 		
-		dest = mmio32(PARAMS_ADDR+OFFSET_DEST);
-		len = mmio32(PARAMS_ADDR+OFFSET_LEN);
-		mmio32(PARAMS_ADDR+OFFSET_STATUS) &= ~MASK_STRT; // Clear start bit
-		mmio32(PARAMS_ADDR+OFFSET_STATUS) &= ~MASK_ERR; // Clear error bit
-		mmio32(PARAMS_ADDR+OFFSET_STATUS) |= MASK_BUSY; // Set busy bit
+		PARAMS->STATUS &= ~MASK_STRT; // Clear start bit
+		PARAMS->STATUS  &= ~MASK_ERR; // Clear error bit
+		PARAMS->STATUS  &= ~MASK_SUCCESS; // Clear success bit
+		//~ PARAMS->STATUS  |= MASK_BUSY; // Set busy bit
 		
 		uint32_t i=0;			
-		while (i < len) {
+		while (i < PARAMS->LEN) {
 			
-			if (FLASH_ProgramWord(dest+i,  ((uint32_t)0x12345678)) == FLASH_COMPLETE)	{
+			if (FLASH_ProgramWord(PARAMS->DEST+i,  mmio32(BUFFER_ADDR+i)) == FLASH_COMPLETE)	{
 					
 				i+=FLASH_STEP;
+				PARAMS->STATUS |= MASK_SUCCESS; // Set success bit
 			}
 			else { 
 				/* Error occurred while writing data in Flash memory. 
 				User can add here some code to deal with this error */
-				mmio32(PARAMS_ADDR+OFFSET_STATUS) |= MASK_ERR; // Set error bit
+				PARAMS->STATUS |= MASK_ERR; // Set error bit
 				break;
 			}
 		}
-		mmio32(PARAMS_ADDR+OFFSET_STATUS) &= ~MASK_BUSY; // Clear busy bit
-		
-		asm volatile ("bkpt #0x1"); // Halt core when done to be able to read/write data from debugger.
+		//~ PARAMS->STATUS &= ~MASK_BUSY; // Clear busy bit
 	} 
 	return 0;
 }

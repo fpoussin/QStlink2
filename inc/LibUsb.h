@@ -49,8 +49,8 @@ public:
 public slots:
     qint32 open();
     void close();
-    qint32 read(QByteArray *buf, const quint32 bytes);
-    qint32 write(QByteArray *buf, const quint32 bytes);
+    qint32 read(QByteArray *buf, quint32 bytes);
+    qint32 write(QByteArray *buf, quint32 bytes);
 
 private:
     struct usb_dev_handle* OpenAntStick();

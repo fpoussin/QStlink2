@@ -18,15 +18,15 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-ENTRY(ResetHandler)
+ENTRY(main)
 
-__main_stack_size__     = 0x100;
-__process_stack_size__  = 0x100;
+__main_stack_size__     = 0x180;
+__process_stack_size__  = 0x180;
 
 MEMORY
 {
     ram : org = 0x20000000, len = 2000
-    params : org = 0x200007D0, len = 48
+    params : org = 0x20000800-48, len = 48
     buffer : org = 0x20000800, len = 2k
 }
 

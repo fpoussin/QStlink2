@@ -163,6 +163,7 @@ signals:
 public slots:
     qint32 connect();
     void disconnect();
+    void clearBuffer();
     void resetMCU();
     void hardResetMCU();
     void haltMCU();
@@ -172,7 +173,8 @@ public slots:
     void setExitModeDFU();
     qint32 readMem32(quint32 addr, quint16 len = 4);
     void writeMem32(quint32 addr, QByteArray &buf);
-    void writeRegister(quint32 val, quint8 index);
+    bool writeRegister(quint32 val, quint8 index);
+    quint32 readRegister(quint8 index);
     void writePC(quint32 val);
     bool isLocked();
     bool eraseFlash();
@@ -192,7 +194,7 @@ public slots:
     QString getChipID();
     QString getRevID();
     void sendLoader();
-    bool setupLoader(quint32 addr, const QByteArray& buf);
+    bool setLoaderBuffer(quint32 addr, const QByteArray& buf);
     quint32 getLoaderStatus();
     void getLoaderParams();
 

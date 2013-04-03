@@ -146,7 +146,7 @@ void MainWindow::lockUI(bool enabled)
     this->ui->gb_bottom->setEnabled(!enabled);
 }
 
-void MainWindow::updateProgress(const quint32 &p)
+void MainWindow::updateProgress(quint32 p)
 {
     this->ui->pgb_transfer->setValue(p);
 }
@@ -185,7 +185,7 @@ void MainWindow::Send()
     }
 }
 
-void MainWindow::Send(const QString &path, const bool &erase)
+void MainWindow::Send(const QString &path, bool erase)
 {
     qDebug("Writing flash");
     this->stlink->resetMCU(); // We stop the MCU

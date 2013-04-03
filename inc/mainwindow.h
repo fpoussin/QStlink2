@@ -45,9 +45,9 @@ public:
 public slots:
     bool Connect();
     void Disconnect();
-    void updateProgress(const quint32 &p);
+    void updateProgress(quint32 p);
     void updateStatus(const QString &s);
-    void Send(const QString &path, const bool &erase);
+    void Send(const QString &path, bool erase);
     void Receive(const QString &path);
     void Verify(const QString &path);
     void eraseFlash();

@@ -57,6 +57,15 @@ bool stlinkv2::isConnected()
     return this->connected;
 }
 
+void stlinkv2::clearBuffer()
+{
+    qDebug() << "***[clearBuffer]***";
+    QByteArray tmp;
+    this->cmd_buf.clear();
+    this->recv_buf.clear();
+    this->libusb->read(&tmp, 128);
+}
+
 QString stlinkv2::getVersion() {
 
     qDebug() << "***[getVersion]***";
@@ -213,11 +222,13 @@ void stlinkv2::hardResetMCU()
 
 void stlinkv2::runMCU()
 {
+    qDebug() << "***[runMCU]***";
     this->DebugCommand(STLink::Cmd::Dbg::RunCore, 0, 2);
 }
 
 void stlinkv2::haltMCU()
 {
+    qDebug() << "***[haltMCU]***";
     this->DebugCommand(STLink::Cmd::Dbg::StepCore, 0, 2);
 }
 
@@ -495,6 +506,7 @@ qint32 stlinkv2::readMem32(quint32 addr, quint16 len)
     this->cmd_buf.append((const char*)cmd, sizeof(cmd));
     this->cmd_buf.append((const char*)_len, sizeof(_len)); //length the data we are requesting
     this->SendCommand();
+    this->recv_buf.clear();
     return this->libusb->read(&this->recv_buf, len);
 }
 
@@ -526,7 +538,7 @@ qint32 stlinkv2::DebugCommand(quint8 st_cmd1, quint8 st_cmd2, quint32 resp_len)
     return res;
 }
 
-void stlinkv2::writeRegister(quint32 val, quint8 index)
+bool stlinkv2::writeRegister(quint32 val, quint8 index) // Not working on F4 ?
 {
     qDebug() << "***[writeRegister]***";
     this->cmd_buf.append(STLink::Cmd::DebugCommand);
@@ -536,6 +548,29 @@ void stlinkv2::writeRegister(quint32 val, quint8 index)
     qToLittleEndian(val, tval);
     this->cmd_buf.append((const char*)tval, sizeof(tval));
     this->SendCommand();
+    QByteArray tmp;
+    this->libusb->read(&tmp, 2);
+
+    const quint32 tmpval = this->readRegister(index);
+    if (tmpval != val) {
+        qCritical() << "Failed to set register" << index << "at" << "0x"+QString::number(val, 16) << "current val is" << "0x"+QString::number(tmpval, 16);
+        return false;
+    }
+    qDebug() << "Set register" << index << "at" << "0x"+QString::number(val, 16);
+    return true;
+}
+
+quint32 stlinkv2::readRegister(quint8 index)
+{
+    qDebug() << "***[readRegister]***";
+    this->cmd_buf.append(STLink::Cmd::DebugCommand);
+    this->cmd_buf.append(STLink::Cmd::Dbg::ReadReg);
+    this->cmd_buf.append(index);
+    this->SendCommand();
+
+    QByteArray tmp;
+    this->libusb->read(&tmp, 4);
+    return qFromLittleEndian<quint32>((const uchar*)tmp.constData());
 }
 
 void stlinkv2::writePC(quint32 val) // Not working
@@ -570,7 +605,7 @@ void stlinkv2::sendLoader() {
 
     QByteArray tmp;
     int i=0;
-    const int step = 256;
+    const int step = 128;
     for (; i < m_loader.refData().size()/step; i++) {
 
         tmp = QByteArray(m_loader.refData().constData()+(i*step), step);
@@ -584,7 +619,7 @@ void stlinkv2::sendLoader() {
     this->writeRegister((*this->device)["sram_base"], 15); // PC register to sram base.
 }
 
-bool stlinkv2::setupLoader(quint32 addr, const QByteArray& buf) {
+bool stlinkv2::setLoaderBuffer(quint32 addr, const QByteArray& buf) {
 
     using namespace Loader::Addr;
     uchar ar_tmp[4];
@@ -610,20 +645,18 @@ bool stlinkv2::setupLoader(quint32 addr, const QByteArray& buf) {
         return false;
     }
 
-    /*
     int i=0;
-    const int step = 256;
+    const int step = 196;
     for (; i < buf.size()/step; i++) {
 
         tmp = QByteArray(buf.constData()+(i*step), step);
         this->writeMem32(BUFFER+(i*step), tmp);
     }
     const int mod = buf.size()%step;
-    tmp = QByteArray(buf.constData()+buf.size()-mod, mod);
-    this->writeMem32(BUFFER+(i*step), tmp);
-    */
-    tmp = QByteArray(buf);
-    this->writeMem32(BUFFER, tmp);
+    if (mod>0)  {
+        tmp = QByteArray(buf.constData()+buf.size()-mod, mod);
+        this->writeMem32(BUFFER+(i*step), tmp);
+    }
     return true;
 }
 
@@ -633,20 +666,23 @@ quint32 stlinkv2::getLoaderStatus() {
     using namespace Loader::Addr;
     this->readMem32(PARAMS+OFFSET_STATUS);
     quint32 tmp = qFromLittleEndian<quint32>((uchar*)this->recv_buf.constData());
-    qDebug() << this->regPrint(tmp);
+//    qDebug() << this->regPrint(tmp);
     return tmp;
 }
 
 void stlinkv2::getLoaderParams() {
 
-    qDebug() << "***[getLoaderStatus]***";
+    qDebug() << "***[getLoaderParams]***";
     using namespace Loader::Addr;
     this->readMem32(PARAMS+OFFSET_DEST);
     const quint32 dest = qFromLittleEndian<quint32>((uchar*)this->recv_buf.constData());
     this->readMem32(PARAMS+OFFSET_LEN);
     const quint32 len = qFromLittleEndian<quint32>((uchar*)this->recv_buf.constData());
 
-    qDebug() << "Data destination and length:" << "0x"+QString::number(dest, 16) << len;
+    this->readMem32(PARAMS+OFFSET_TEST);
+    const quint32 test = qFromLittleEndian<quint32>((uchar*)this->recv_buf.constData());
+
+    qDebug() << "---Data destination and length:" << "0x"+QString::number(dest, 16) << len << "test:" << "0x"+QString::number(test, 16) ;
 }
 
 QString stlinkv2::regPrint(quint32 reg) const

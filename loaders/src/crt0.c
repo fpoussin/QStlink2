@@ -212,7 +212,7 @@ extern funcp_t __fini_array_end;
 /**
  * @brief   Application @p main() function.
  */
-extern int main(void);
+extern int loader(void);
 
 /**
  * @brief   Early initialization.
@@ -258,7 +258,7 @@ void _default_exit(void) {
 #if !defined(__DOXYGEN__)
 __attribute__((naked))
 #endif
-void ResetHandler(void) {
+int main(void) {
   uint32_t psp, reg;
 
   /* Process Stack initialization, it is allocated starting from the
@@ -300,7 +300,7 @@ void ResetHandler(void) {
 #endif
 
   /* Early initialization hook invocation.*/
-  __early_init();
+  //~ __early_init();
 
 #if CRT0_INIT_DATA
   /* DATA segment initialization.*/
@@ -320,7 +320,7 @@ void ResetHandler(void) {
 #endif
 
   /* Late initialization hook invocation.*/
-  __late_init();
+  //~ __late_init();
 
 #if CRT0_CALL_CONSTRUCTORS
   /* Constructors invocation.*/
@@ -334,7 +334,7 @@ void ResetHandler(void) {
 #endif
 
   /* Invoking application main() function.*/
-  main();
+  loader();
 
 #if CRT0_CALL_DESTRUCTORS
   /* Destructors invocation.*/
@@ -348,7 +348,9 @@ void ResetHandler(void) {
 #endif
 
   /* Invoking the exit handler.*/
-  _default_exit();
+  //~ _default_exit();
+  
+  return 0;
 }
 
 /** @} */

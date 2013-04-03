@@ -32,10 +32,10 @@ public:
     void setParams(stlinkv2 *stlink, QString filename, bool write, bool erase, bool verify);
 
 signals:
-    void sendProgress(const quint32 &p);
+    void sendProgress(quint32 p);
     void sendStatus(const QString &s);
     void sendError(const QString &s);
-    void sendLock(const bool &enabled);
+    void sendLock(bool enabled);
     void sendLog(const QString &s);
 
 public slots:
