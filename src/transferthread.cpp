@@ -214,9 +214,6 @@ void transferThread::sendWithLoader(const QString &filename)
         return;
     }
 
-//    // Move to 16 bits after the breakpoint to continue
-//    this->stlink->writeRegister(bkp1+2, 15);
-
     progress = 0;
     this->stlink->clearBuffer();
     for (int i=0; i<=file.size(); i+=step_size) {
@@ -234,7 +231,7 @@ void transferThread::sendWithLoader(const QString &filename)
             break;
         qDebug() << "Read" << read << "Bytes from disk";
         QByteArray buf(buf2, read);
-//        buf.append(buf2, read);
+
 
         addr = (*this->stlink->device)["flash_base"]+i;
 
@@ -242,6 +239,7 @@ void transferThread::sendWithLoader(const QString &filename)
             emit sendStatus("Failed to set loader parameters.");
             break;
         }
+        // Step over breakpoint.
         this->stlink->writeRegister(bkp1+2, 15);
         this->stlink->runMCU();
 
@@ -256,17 +254,7 @@ void transferThread::sendWithLoader(const QString &filename)
             break;
         }
 
-        this->stlink->getLoaderParams();
-
-//        // Restart
-//        this->stlink->hardResetMCU();
-//        this->stlink->resetMCU();
-//        this->stlink->writeRegister((*this->stlink->device)["sram_base"], 15);
-//        this->stlink->runMCU();
-//        while (this->stlink->getStatus() == "Status: Core Running") { // Wait for the breakpoint
-//                usleep(100000); // 100ms
-//                if (this->m_stop) break;
-//        }
+//        this->stlink->getLoaderParams();
 
         oldprogress = progress;
         progress = (i*100)/file.size();
@@ -388,7 +376,7 @@ void transferThread::verify(const QString &filename)
             emit sendProgress(progress);
             qInformal() << "Progress:"<< QString::number(progress)+"%";
         }
-        emit sendStatus("Verified "+QString::number(i/1024)+" kilobytes out of "+QString::number((*this->stlink->device)["flash_size"]/1024));
+        emit sendStatus("Verified "+QString::number(i/1024)+" kilobytes out of "+QString::number((*this->stlink->device)["flash_size"]));
     }
     file.close();
     emit sendProgress(100);

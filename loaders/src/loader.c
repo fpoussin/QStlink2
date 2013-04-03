@@ -68,6 +68,7 @@
 #define MASK_SUCCESS (1<<2) // Success bit
 
 #define MASK_VEREN (1<<4) // Verification enable bit
+#define MASK_DELEN (1<<5) // Delete enable bit
 
 #define MASK_VERR (1<<14) // Verification error
 #define MASK_ERR (1<<15) // Error
@@ -97,7 +98,9 @@ int loader(void) {
 	}
 	
 	FLASH_Unlock();
-	//~ FLASH_EraseAllPages();
+	
+	//~ if (PARAMS->STATUS & MASK_DELEN)
+		//~ FLASH_EraseAllPages();
 	
 	while (1) {
 		
@@ -105,7 +108,6 @@ int loader(void) {
 		
 		asm volatile ("bkpt"); // Halt core after init and before writing to flash.
 		asm volatile ("nop"); 
-		
 		
 		//~ if (!(PARAMS->STATUS  & MASK_STRT)) // Skip if not ready
 				//~ continue;

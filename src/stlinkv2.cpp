@@ -682,7 +682,7 @@ void stlinkv2::getLoaderParams() {
     this->readMem32(PARAMS+OFFSET_TEST);
     const quint32 test = qFromLittleEndian<quint32>((uchar*)this->recv_buf.constData());
 
-    qDebug() << "---Data destination and length:" << "0x"+QString::number(dest, 16) << len << "test:" << "0x"+QString::number(test, 16) ;
+    qDebug() << "Data destination and length:" << "0x"+QString::number(dest, 16) << len << "test:" << "0x"+QString::number(test, 16);
 }
 
 QString stlinkv2::regPrint(quint32 reg) const
