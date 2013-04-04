@@ -6,10 +6,10 @@ OBJCOPY = $(CROSS_COMPILE)objcopy
 CODE=src/loader.c
 STARTUP=src/crt0.c
 
-CFLAGS=-Wall -Iinc/ -Os -g -nostdlib -mthumb -DTHUMB -nostartfiles -fomit-frame-pointer -falign-functions=16 -ffunction-sections -fdata-sections -fno-common
+CFLAGS=-Wall -Iinc/ -O0 -g -nostdlib -mthumb -DTHUMB -nostartfiles -fomit-frame-pointer -falign-functions=16 -ffunction-sections -fdata-sections -fno-common
 LDFLAGS=-Tinc/link.ld -Wl,--gc-sections
 
-all: loader_f0.bin loader_f1.bin loader_f2.bin loader_f30.bin loader_f37.bin loader_f4.bin #loader_l1.bin
+all: loader_f0.bin loader_f1.bin loader_f2.bin loader_f30.bin loader_f37.bin loader_f4.bin loader_l1.bin
  
 %.bin: %.elf
 	$(OBJCOPY) -O binary elf/$^ bin/$@
@@ -32,7 +32,7 @@ loader_f37.elf: $(STARTUP) $(CODE) src/stm32f37x_flash.c
 loader_f4.elf: $(STARTUP) $(CODE) src/stm32f4xx_flash.c
 	$(CC) -o elf/$@ $(CFLAGS) -DSTM32F4 -mcpu=cortex-m4 $(LDFLAGS) $^
 	
-loader_l1.elf: $(STARTUP) $(CODE) src/stm32l1xx_flash.c src/stm32l1xx_flash_ramfunc.c
+loader_l1.elf: $(STARTUP) $(CODE) src/stm32l1xx_flash.c
 	$(CC) -o elf/$@ $(CFLAGS) -DSTM32L1 -mcpu=cortex-m3 $(LDFLAGS) $^
 
 clean:

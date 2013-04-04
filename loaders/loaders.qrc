@@ -6,5 +6,6 @@
         <file>bin/loader_f4.bin</file>
         <file>bin/loader_f30.bin</file>
         <file>bin/loader_f37.bin</file>
+        <file>bin/loader_l1.bin</file>
     </qresource>
 </RCC>

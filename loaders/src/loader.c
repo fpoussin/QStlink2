@@ -18,26 +18,40 @@
 #if defined(STM32F0)
 	#include <stm32f0xx.h>
 	#include <stm32f0xx_flash.h>
+	#define FLASH_STEP 4
+	#define FLASH_PGM FLASH_ProgramWord
 #elif defined(STM32F1)
 	#include <stm32f10x.h>
 	#include <stm32f10x_flash.h>
+	#define FLASH_STEP 4
+	#define FLASH_PGM FLASH_ProgramWord
 #elif defined(STM32F2)
 	#include <stm32f2xx.h>
 	#include <stm32f2xx_flash.h>
+	#define FLASH_STEP 4
+	#define FLASH_PGM FLASH_ProgramWord
 	#define FLASH_EraseAllPages() FLASH_EraseAllSectors(VoltageRange_3)
 #elif defined(STM32F30)
 	#include <stm32f30x.h>
 	#include <stm32f30x_flash.h>
+	#define FLASH_STEP 4
+	#define FLASH_PGM FLASH_ProgramWord
 #elif defined(STM32F37)
 	#include <stm32f37x.h>
 	#include <stm32f37x_flash.h>
+	#define FLASH_STEP 4
+	#define FLASH_PGM FLASH_ProgramWord
 #elif defined(STM32F4)
 	#include <stm32f4xx.h>
 	#include <stm32f4xx_flash.h>
+	#define FLASH_STEP 4
+	#define FLASH_PGM FLASH_ProgramWord
 	#define FLASH_EraseAllPages() FLASH_EraseAllSectors(VoltageRange_3)
 #elif defined(STM32L1)
 	#include <stm32l1xx.h>
 	#include <stm32l1xx_flash.h>
+	#define FLASH_STEP 4
+	#define FLASH_PGM FLASH_FastProgramWord
 #else
 	#error "No valid device specified"
 #endif
@@ -106,9 +120,9 @@ int loader(void) {
 		uint32_t i=0;			
 		while (i < PARAMS->LEN) {
 			
-			if (FLASH_ProgramWord(PARAMS->DEST+i,  mmio32(BUFFER_ADDR+i)) == FLASH_COMPLETE)	{
+			if (FLASH_PGM(PARAMS->DEST+i,  mmio32(BUFFER_ADDR+i)) == FLASH_COMPLETE)	{
 					
-				i+=4;
+				i+=FLASH_STEP;
 				PARAMS->STATUS |= MASK_SUCCESS; // Set success bit
 			}
 			else { 
