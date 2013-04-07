@@ -167,9 +167,9 @@ void transferThread::sendWithLoader(const QString &filename)
     emit sendLock(true);
     this->m_stop = false;
     this->stlink->hardResetMCU(); // We stop the MCU
-    // The MCU will write program_size 32 times to empty the MCU buffer.
-    // We don't have to write to USB only a few bytes at a time, the MCU handles flash programming for us.
     quint32 step_size = 2048;
+    if ((*this->stlink->device)["sram_size"] > 0)
+        step_size = (*this->stlink->device)["sram_size"]-2048;
     quint32 from = (*this->stlink->device)["flash_base"];
     quint32 to = (*this->stlink->device)["flash_base"]+file.size();
     qInformal() << "Writing from" << "0x"+QString::number(from, 16) << "to" << "0x"+QString::number(to, 16);
@@ -178,7 +178,7 @@ void transferThread::sendWithLoader(const QString &filename)
     char *buf2 = new char[step_size];
 
     this->stlink->resetMCU();
-
+/*
     // Unlock flash
     if (!this->stlink->unlockFlash())
         return;
@@ -195,7 +195,7 @@ void transferThread::sendWithLoader(const QString &filename)
             return;
         }
     }
-
+*/
     this->stlink->clearBuffer();
     this->stlink->sendLoader();
     this->stlink->runMCU(); // Will stop at the loop beginning
@@ -216,6 +216,7 @@ void transferThread::sendWithLoader(const QString &filename)
 
     progress = 0;
     this->stlink->clearBuffer();
+    quint32 status = 0;
     for (int i=0; i<=file.size(); i+=step_size) {
 
         if (this->m_stop)
@@ -248,12 +249,15 @@ void transferThread::sendWithLoader(const QString &filename)
                 if (this->m_stop) break;
         }
 
-        if (this->stlink->getLoaderStatus() & Loader::Masks::ERR) {
-
+        status = this->stlink->getLoaderStatus();
+        if (status & Loader::Masks::ERR) {
             qCritical() << "Loader reported an error!";
             break;
         }
 
+        if (status & Loader::Masks::DEL) {
+            qInformal() << "Page(s) deleted";
+        }
 //        this->stlink->getLoaderParams();
 
         oldprogress = progress;

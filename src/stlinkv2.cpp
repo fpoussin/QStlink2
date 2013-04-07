@@ -646,7 +646,7 @@ bool stlinkv2::setLoaderBuffer(quint32 addr, const QByteArray& buf) {
     }
 
     int i=0;
-    const int step = 196;
+    const int step = 256-8;
     for (; i < buf.size()/step; i++) {
 
         tmp = QByteArray(buf.constData()+(i*step), step);

@@ -6,6 +6,7 @@
 #include <QFile>
 #include <QByteArray>
 #include <QDebug>
+#include <compat.h>
 
 namespace Loader {
 
@@ -24,6 +25,7 @@ namespace Loader {
         const quint32 STRT = (1<<0);
         const quint32 BUSY = (1<<1);
         const quint32 SUCCESS = (1<<2);
+        const quint32 DEL = (1<<3);
         const quint32 VEREN = (1<<4);
         const quint32 ERR = (1<<15);
     }
