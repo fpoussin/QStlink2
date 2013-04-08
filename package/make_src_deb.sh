@@ -30,4 +30,4 @@ debuild -j4 -S -sa
 
 cd ..
 #rm -rf $BUILD_FOLDER *.build *.changes
-#rm -rf $BUILD_FOLDER
+rm -rf $BUILD_FOLDER
