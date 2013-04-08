@@ -114,7 +114,8 @@ typedef struct
 	__IO uint32_t DEST;          /*!Address offset: 0x00 - Destination in the flash.  Set by debugger.*/
 	__IO uint32_t LEN;          /*!Address offset: 0x04 - How many bytes we copy data from sram to flash. Set by debugger.*/
 	__IO uint32_t STATUS;          /*!Address offset: 0x08 -  Status. Set by program and debugger. */
-	__IO uint32_t TEST;          /*!Address offset: 0x0C -  For testing */
+	__IO uint32_t POS;          /*!Address offset: 0x0C -  Current position */
+	__IO uint32_t TEST;          /*!Address offset: 0x10 -  For testing */
 
 } PARAMS_TypeDef;
 
@@ -143,6 +144,7 @@ int loader(void) {
 		
 		from = PARAMS->DEST;
 		to = from + PARAMS->LEN;
+		uint32_t a;
 		
 		// Erase flash where needed
 		#if defined(STM32F2) || defined(STM32F4)
@@ -150,7 +152,6 @@ int loader(void) {
 			// Get the number of the start and end sectors
 			const uint32_t StartSector = GetSector(from);
 			const uint32_t EndSector = GetSector(to);
-			uint32_t a;
 			for (a = StartSector ; a <= EndSector ; a+=8) {
 				if (erased_sectors & (1 << a/8)) continue; // Skip sectors already erased
 				if (FLASH_EraseSector(a, VoltageRange_3) != FLASH_COMPLETE) {
@@ -163,8 +164,6 @@ int loader(void) {
 		#else
 			FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPERR); 
 			uint32_t NbrOfPage = (to - from) / FLASH_PAGE_SIZE;
-			//~ uint32_t EraseCounter;
-			uint32_t a;
 			for (a = 0 ; a <= NbrOfPage ; a++) {
 				if (erased_sectors >= from + (FLASH_PAGE_SIZE * a)) continue; // Skip sectors already erased
 				if (FLASH_ErasePage(from + (FLASH_PAGE_SIZE * a))!= FLASH_COMPLETE) {
@@ -189,6 +188,7 @@ int loader(void) {
 					
 				i+=FLASH_STEP;
 				PARAMS->STATUS |= MASK_SUCCESS; // Set success bit
+				PARAMS->POS = PARAMS->DEST+i;
 			}
 			else { 
 				/* Error occurred while writing data in Flash memory. 
@@ -268,9 +268,4 @@ uint32_t GetSector(uint32_t Address)
 
 #else
 
-uint32_t GetPage(uint32_t Address)
-{
-	const uint32_t base = ((uint32_t)0x08000000);
-	return ((base - Address) / 1024);
-}
 #endif

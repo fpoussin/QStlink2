@@ -89,10 +89,7 @@ void showHelp()
 bool shortParam(const QString &str, char p)
 {
     // We check is does not start with '--' and contains the letter we look for.
-    if (str.startsWith('-') && str.at(1) != '-' && str.contains(p))
-        return true;
-
-    return false;
+    return (str.startsWith('-') && !str.startsWith("--") && str.contains(p));
 }
 
 int main(int argc, char *argv[])
@@ -120,7 +117,7 @@ int main(int argc, char *argv[])
                     show = false;
                  if (shortParam(str, 'e') || str == "--erase")
                     erase = true;
-                 if (shortParam(str, 'e') || str == "--write")
+                 if (shortParam(str, 'w') || str == "--write")
                     write_flash = true;
                  if (shortParam(str, 'r') || str == "--read")
                     read_flash = true;
@@ -157,27 +154,28 @@ int main(int argc, char *argv[])
             qInformal() << "Erase:" << erase;
             qInformal() << "Write:" << write_flash;
             qInformal() << "Verify:" << verify;
-            if (!w->Connect())
+            if (!w->Connect()) {
                 return 1;
-
-            if (verify)
-                qInformal() << "Verify not yet implemented.";
-
-            if (write_flash)
-                w->Send(path, erase);
-            else if (read_flash)
+            }
+            if (write_flash) {
+                w->Send(path);
+                while (w->tfThread->isRunning()) { usleep(100000); }
+            }
+            else if (read_flash) {
                 w->Receive(path);
-            if (verify)
+                while (w->tfThread->isRunning()) { usleep(100000); }
+            }
+            if (verify) {
                 w->Verify(path);
-
+                while (w->tfThread->isRunning()) { usleep(100000); }
+            }
             usleep(300000); //300 msec
-            while (w->tfThread->isRunning())
-                usleep(100000);
             w->Disconnect();
             w->close();
             return 0;
             }
         else if (erase) {
+            qInformal() << "Only erasing flash";
             if (!w->Connect())
                 return 1;
             w->eraseFlash();

@@ -63,6 +63,7 @@ ICON = res/images/icon.icns
 TARGET = qstlink2
 target.path = /usr/bin
 #target.depends = loaders
+target.depends = svninfo
 INSTALLS += target
 
 conf.path = /etc/udev/rules.d
@@ -77,4 +78,4 @@ INSTALLS += misc
 #loaders.commands = cd $$_PRO_FILE_PWD_/loaders && make -f Makefile -j 4
 #QMAKE_EXTRA_TARGETS += loaders
 
-system("svn info --xml > res/svn-info.xml")
+system("svn info $$_PRO_FILE_PWD_ --xml > res/svn-info.xml")

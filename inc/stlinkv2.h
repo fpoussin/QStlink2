@@ -143,26 +143,31 @@ namespace Cortex {
 class stlinkv2 : public QThread
 {
     Q_OBJECT
+
+    struct STVersion {
+        quint32 stlink;
+        quint32 jtag;
+        quint32 swim;
+    };
+
 public:
     explicit stlinkv2(QObject *parent = 0);
     ~stlinkv2();
     Device *device;
-    quint32 STLink_ver;
-    quint32 JTAG_ver;
-    quint32 SWIM_ver;
     quint32 core_id;
     quint32 chip_id;
     quint32 rev_id;
     QByteArray cmd_buf;
     QByteArray recv_buf;
     QByteArray send_buf;
-    bool isConnected();
+    STVersion version;
 
 signals:
 
 public slots:
     qint32 connect();
     void disconnect();
+    bool isConnected();
     void clearBuffer();
     void resetMCU();
     void hardResetMCU();
@@ -187,15 +192,16 @@ public slots:
     bool setSTRT();
     void setProgramSize(quint8 size);
     quint32 readFlashSize();
-    QString getStatus();
-    QString getVersion();
-    QString getMode();
-    QString getCoreID();
-    QString getChipID();
-    QString getRevID();
+    quint8 getStatus();
+    stlinkv2::STVersion getVersion();
+    quint8 getMode();
+    quint32 getCoreID();
+    quint32 getChipID();
+    quint32 getRevID();
     void sendLoader();
     bool setLoaderBuffer(quint32 addr, const QByteArray& buf);
     quint32 getLoaderStatus();
+    quint32 getLoaderPos();
     void getLoaderParams();
 
 private:
@@ -206,11 +212,6 @@ private:
     quint32 readFlashCR();
     quint32 writeFlashCR(quint32 mask, bool value);
     qint32 SendCommand();
-    quint16 ST_VendorID;
-    quint16 ST_ProductID;
-    quint8 verbose;
-    QString version;
-    QString mode;
     qint8 mode_id;
     bool connected;
     QString regPrint(quint32 reg) const;

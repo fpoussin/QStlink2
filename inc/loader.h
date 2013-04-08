@@ -17,7 +17,8 @@ namespace Loader {
         const quint32 OFFSET_DEST = 0x00;
         const quint32 OFFSET_LEN = 0x04;
         const quint32 OFFSET_STATUS = 0x08;
-        const quint32 OFFSET_TEST = 0x0C;
+        const quint32 OFFSET_POS = 0x0C;
+        const quint32 OFFSET_TEST = 0x10;
         const quint32 BUFFER = 0x20000800;
     }
     namespace Masks {

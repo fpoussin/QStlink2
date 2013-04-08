@@ -181,11 +181,11 @@ void MainWindow::Send()
         }
         file.close();
 
-        this->Send(this->filename, true);
+        this->Send(this->filename);
     }
 }
 
-void MainWindow::Send(const QString &path, bool erase)
+void MainWindow::Send(const QString &path)
 {
     qDebug("Writing flash");
     this->stlink->resetMCU(); // We stop the MCU
@@ -194,7 +194,7 @@ void MainWindow::Send(const QString &path, bool erase)
     this->ui->l_progress->setText("Starting transfer...");
 
     // Transfer thread
-    this->tfThread->setParams(this->stlink, path, true, erase, false);
+    this->tfThread->setParams(this->stlink, path, true, false);
     this->tfThread->start();
 }
 
@@ -222,7 +222,7 @@ void MainWindow::Receive(const QString &path)
     this->ui->l_progress->setText("Starting transfer...");
 
     // Transfer thread
-    this->tfThread->setParams(this->stlink, path, false, false, false);
+    this->tfThread->setParams(this->stlink, path, false, false);
     this->tfThread->start();
 }
 
@@ -250,12 +250,16 @@ void MainWindow::Verify(const QString &path)
     this->ui->l_progress->setText("Starting Verification...");
 
     // Transfer thread
-    this->tfThread->setParams(this->stlink, path, false, false, true);
+    this->tfThread->setParams(this->stlink, path, false, true);
     this->tfThread->start();
 }
 
 void MainWindow::eraseFlash()
 {
+    this->stlink->hardResetMCU();
+    this->stlink->resetMCU();
+    if (!this->stlink->unlockFlash())
+        return;
     this->stlink->eraseFlash();
 }
 
@@ -320,13 +324,45 @@ void MainWindow::getVersion()
 void MainWindow::getMode()
 {
     this->log("Fetching mode...");
-    this->log(this->stlink->getMode());
+    const quint8 mode = this->stlink->getMode();
+    QString mode_str;
+    switch (mode) {
+        case STLink::Mode::UNKNOWN:
+            mode_str = "Unknown";
+            break;
+        case STLink::Mode::DFU:
+            mode_str = "DFU";
+            break;
+        case STLink::Mode::MASS:
+            mode_str = "Mass Storage";
+            break;
+        case STLink::Mode::DEBUG:
+            mode_str = "Debug";
+            break;
+        default:
+            mode_str = "Unknown";
+            break;
+        }
+        this->log("Mode: "+mode_str);
 }
 
 void MainWindow::getStatus()
 {
     this->log("Fetching status...");
-    this->log(this->stlink->getStatus());
+    const quint8 status = this->stlink->getStatus();
+    QString status_str;
+    switch (status) {
+        case STLink::Status::CORE_RUNNING:
+            status_str = "Core Running";
+            break;
+        case STLink::Status::CORE_HALTED:
+            status_str = "Core Halted";
+            break;
+        default:
+            status_str = "Unknown";
+            break;
+        }
+        this->log("Status: "+status_str);
 }
 
 bool MainWindow::getMCU()
@@ -347,13 +383,13 @@ bool MainWindow::getMCU()
         this->ui->le_ramsize->setText(QString::number((*this->stlink->device)["sram_size"]/1024)+"KB");
         this->ui->le_rambase->setText("0x"+QString::number((*this->stlink->device)["sram_base"], 16));
 
-        this->ui->le_stlver->setText(QString::number(this->stlink->STLink_ver));
-        this->ui->le_jtagver->setText(QString::number(this->stlink->JTAG_ver));
-        this->ui->le_swimver->setText(QString::number(this->stlink->SWIM_ver));
+        this->ui->le_stlver->setText(QString::number(this->stlink->version.stlink));
+        this->ui->le_jtagver->setText(QString::number(this->stlink->version.jtag));
+        this->ui->le_swimver->setText(QString::number(this->stlink->version.swim));
 
-        if(!this->stlink->JTAG_ver)
+        if(!this->stlink->version.stlink)
             this->ui->le_jtagver->setToolTip("Not supported");
-        if(!this->stlink->SWIM_ver)
+        if(!this->stlink->version.swim)
             this->ui->le_swimver->setToolTip("Not supported");
 
         (*this->stlink->device)["flash_size"] = this->stlink->readFlashSize();

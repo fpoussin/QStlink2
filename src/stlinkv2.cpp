@@ -22,11 +22,10 @@ stlinkv2::stlinkv2(QObject *parent) :
     QThread(parent)
 {
     this->libusb = new LibUsb;
-    this->verbose = 0;
     this->mode_id = -1;
     this->core_id = 0;
     this->chip_id = 0;
-    this->STLink_ver = 0;
+    this->version.stlink = 0;
     this->connected = false;
 }
 
@@ -66,76 +65,49 @@ void stlinkv2::clearBuffer()
     this->libusb->read(&tmp, 128);
 }
 
-QString stlinkv2::getVersion() {
+stlinkv2::STVersion stlinkv2::getVersion() {
 
     qDebug() << "***[getVersion]***";
     this->Command(STLink::Cmd::GetVersion, 0x80, 6);
     char b0 = this->recv_buf.at(0);
     char b1 = this->recv_buf.at(1);
-    this->STLink_ver = (b0 & 0xf0) >> 4;
-    this->JTAG_ver = ((b0 & 0x0f) << 2) | ((b1 & 0xc0) >> 6);
-    this->SWIM_ver = b1 & 0x3f;
-    this->version = "ST-Link Version: "+QString::number(this->STLink_ver)+
-                    "\nJTAG Version: "+QString::number(this->JTAG_ver)+
-                    "\nSWIM Version: "+QString::number(this->SWIM_ver);
+    this->version.stlink = (b0 & 0xf0) >> 4;
+    this->version.jtag = ((b0 & 0x0f) << 2) | ((b1 & 0xc0) >> 6);
+    this->version.swim = b1 & 0x3f;
     return this->version;
 }
 
-QString stlinkv2::getMode() {
+quint8 stlinkv2::getMode() {
 
     qDebug() << "***[getMode]***";
     if (this->Command(STLink::Cmd::GetCurrentMode, 0, 2)) {
-        QString mode;
-        switch (this->mode_id = this->recv_buf.at(0)) {
-        case -1:
-            mode = "Unknown";
-            break;
-        case 0:
-            mode = "DFU";
-            break;
-        case 1:
-            mode = "Mass Storage";
-            break;
-        case 2:
-            mode = "Debug";
-            break;
-        default:
-            mode = "Unknown";
-            break;
-        }
-        this->mode = "Mode: "+mode;
-        return this->mode;
+        return this->mode_id = this->recv_buf.at(0);
     }
-    return this->mode;
+    return this->mode_id;
 }
 
-QString stlinkv2::getStatus()
+quint8 stlinkv2::getStatus()
 {
     qDebug() << "***[getStatus]***";
     this->DebugCommand(STLink::Cmd::Dbg::GetStatus, 0, 2);
-    if ((uchar)this->recv_buf.at(0) == STLink::Status::CORE_RUNNING)
-        return QString("Status: Core Running");
-    else if ((uchar)this->recv_buf.at(0) == STLink::Status::CORE_HALTED)
-        return QString("Status: Core Halted");
-    else
-        return QString("Status: Unknown");
+    return this->recv_buf.at(0);
 }
 
-QString stlinkv2::getCoreID() {
+quint32 stlinkv2::getCoreID() {
 
     qDebug() << "***[getCoreID]***";
     this->DebugCommand(STLink::Cmd::Dbg::ReadCoreID, 0, 4);
     this->core_id = qFromLittleEndian<quint32>((uchar*)this->recv_buf.constData());
     qInformal() << "CoreID:" << QString::number(this->core_id, 16);
-    return QString::number(this->core_id, 16);
+    return this->core_id;
 }
 
-QString stlinkv2::getChipID()
+quint32 stlinkv2::getChipID()
 {
     qDebug() << "***[getChipID]***";
 
     if (this->core_id == 0xFFFFFFFF || this->core_id == 0x00000000)
-        return "Unknown";
+        return 0;
 
     if (this->core_id == Cortex::CoreID::M0_R0) {
         this->readMem32(Cortex::Reg::CM0_CHIPID);
@@ -153,10 +125,10 @@ QString stlinkv2::getChipID()
       this->chip_id = STM32::ChipID::F4;
     }
     qInformal() << "ChipID:" << QString::number(this->chip_id, 16);
-    return QString::number(this->chip_id, 16);
+    return this->chip_id;
 }
 
-QString stlinkv2::getRevID()
+quint32 stlinkv2::getRevID()
 {
     qDebug() << "***[getRevID]***";
 
@@ -164,7 +136,7 @@ QString stlinkv2::getRevID()
     this->rev_id = this->recv_buf.at(2) | (this->recv_buf.at(3) << 8);
 
     qInformal() << "RevID:" << QString::number(this->rev_id, 16);
-    return QString::number(this->rev_id, 16);
+    return this->rev_id;
 }
 quint32 stlinkv2::readFlashSize()
 {
@@ -665,6 +637,16 @@ quint32 stlinkv2::getLoaderStatus() {
     qDebug() << "***[getLoaderStatus]***";
     using namespace Loader::Addr;
     this->readMem32(PARAMS+OFFSET_STATUS);
+    quint32 tmp = qFromLittleEndian<quint32>((uchar*)this->recv_buf.constData());
+//    qDebug() << this->regPrint(tmp);
+    return tmp;
+}
+
+quint32 stlinkv2::getLoaderPos() {
+
+    qDebug() << "***[getLoaderPos]***";
+    using namespace Loader::Addr;
+    this->readMem32(PARAMS+OFFSET_POS);
     quint32 tmp = qFromLittleEndian<quint32>((uchar*)this->recv_buf.constData());
 //    qDebug() << this->regPrint(tmp);
     return tmp;
