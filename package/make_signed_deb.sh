@@ -18,7 +18,7 @@ echo "" | dh_make -n --single -e fabien.poussin@gmail.com -c gpl3
 cp -v ../debian/* debian/
 rm -vf debian/*.ex debian/*.EX debian/ex.*
 
-debuild -j4 -b -uc -us
+debuild -j4 -b
 
 cd ..
 rm -rf $BUILD_FOLDER *.build *.changes

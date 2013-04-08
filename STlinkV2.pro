@@ -58,7 +58,7 @@ RESOURCES += res/ressources.qrc \
 # Icon for windows
 win32:RC_FILE = res/qstlink2.rc
 # OSX
-ICON = res/images/icon.icns
+macx:ICON = res/images/icon.icns
 
 TARGET = qstlink2
 target.path = /usr/bin
@@ -73,6 +73,15 @@ misc.path = /usr/share/qstlink2
 misc.files = res/devices.xml res/help.html
 INSTALLS += misc
 
+unix:!macx {
+    icon.path = /usr/share/pixmaps
+    icon.files = res/images/qstlink2.png
+    INSTALLS += icon
+
+    launcher.path = /usr/share/applications
+    launcher.files = res/qstlink2.desktop
+    INSTALLS += launcher
+}
 #loaders.target = loaders
 #loaders.commands = cd $$_PRO_FILE_PWD_/loaders && make -f Makefile -j 4
 #QMAKE_EXTRA_TARGETS += loaders

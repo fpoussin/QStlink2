@@ -1,12 +1,10 @@
 Source: qstlink2
 Section: unknown
 Priority: extra
-Maintainer: Fabien Poussin <mobyfab@gmail.com>
-Build-Depends: debhelper (>= 8.0.0), libqt4-dev, qt4-qmake, libusb-0.1-4, libusb-dev
-Standards-Version: 3.9.2
+Maintainer: Fabien Poussin <fabien.poussin@gmail.com>
+Build-Depends: debhelper (>= 8.0.0), cdbs, libqt4-dev, qt4-qmake, libusb-0.1-4, libusb-dev
+Standards-Version: 3.9.3
 Homepage: http://code.google.com/p/qstlink2/
-#Vcs-Git: git://git.debian.org/collab-maint/qstlink2.git
-#Vcs-Browser: http://git.debian.org/?p=collab-maint/qstlink2.git;a=summary
 
 Package: qstlink2
 Architecture: any

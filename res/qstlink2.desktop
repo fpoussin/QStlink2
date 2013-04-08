@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=QStlink2
+GenericName=QStlink2
+Comment=A ST-Link V2 GUI
+Icon=qstlink2
+Exec=qstlink2
+Terminal=false
+Categories=Qt;Development;
