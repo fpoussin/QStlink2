@@ -63,7 +63,6 @@ ICON = res/images/icon.icns
 TARGET = qstlink2
 target.path = /usr/bin
 #target.depends = loaders
-target.depends = svninfo
 INSTALLS += target
 
 conf.path = /etc/udev/rules.d
