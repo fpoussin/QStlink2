@@ -1,7 +1,8 @@
-#ifndef QWINUSB_H
-#define QWINUSB_H
+#ifndef QUsb_H
+#define QUsb_H
 
 #include <QObject>
+#include <QDebug>
 #include <compat.h>
 // Include Windows headers
 #include <windows.h>
@@ -27,7 +28,7 @@ STLink_GUID="{DBCE1CD9-A320-4b51-A365-A0C3F3C5FB29}"
 static const GUID OSR_DEVICE_INTERFACE =
 { 0xDBCE1CD9, 0xA320, 0x4b51, { 0xA3, 0x65, 0xA0, 0xC3, 0xF3, 0xC5, 0xFB, 0x29 } };
 
-class QWinUsb : public QObject
+class QUsb : public QObject
 {
     Q_OBJECT
 
@@ -37,7 +38,7 @@ class QWinUsb : public QObject
         uchar  PipeOutId;
     };
 public:
-    explicit QWinUsb(QObject *parent = 0);
+    explicit QUsb(QObject *parent = 0);
     
 public slots:
     qint32 open();
@@ -58,4 +59,4 @@ private:
     PIPE_ID PipeID;
 };
 
-#endif // QWINUSB_H
+#endif // QUsb_H

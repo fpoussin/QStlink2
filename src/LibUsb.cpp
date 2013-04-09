@@ -19,17 +19,17 @@
 
 #include "LibUsb.h"
 
-LibUsb::LibUsb(QObject *parent) :
+QUsb::QUsb(QObject *parent) :
     QObject(parent)
 {
-    // dynamic load of libusb on Windows, it is statically linked in Linux
+    // dynamic load of QUsb on Windows, it is statically linked in Linux
     // this is to avoid dll conflicts where the lib has already been installed
     this->intf = NULL;
     this->device = NULL;
     usb_set_debug(0);
 }
 
-qint32 LibUsb::open()
+qint32 QUsb::open()
 {
 
    // Initialize the library.
@@ -60,7 +60,7 @@ qint32 LibUsb::open()
     return rc;
 }
 
-void LibUsb::close()
+void QUsb::close()
 {
     if (this->device) {
         // stop any further write attempts whilst we close down
@@ -73,7 +73,7 @@ void LibUsb::close()
     }
 }
 
-qint32 LibUsb::read(QByteArray *buf, quint32 bytes)
+qint32 QUsb::read(QByteArray *buf, quint32 bytes)
 {
     // check it isn't closed already
     if (!device) return -1;
@@ -107,7 +107,7 @@ qint32 LibUsb::read(QByteArray *buf, quint32 bytes)
     return rc;
 }
 
-qint32 LibUsb::write(QByteArray *buf, quint32 bytes)
+qint32 QUsb::write(QByteArray *buf, quint32 bytes)
 {
 
     // check it isn't closed
@@ -122,10 +122,10 @@ qint32 LibUsb::write(QByteArray *buf, quint32 bytes)
 
     // we use a non-interrupted write on Linux/Mac since the interrupt
     // write block size is incorectly implemented in the version of
-    // libusb we build with. It is no less efficent.
+    // QUsb we build with. It is no less efficent.
 #if defined Q_OS_MAC || WIN32 || __linux__
     qint32 rc = usb_bulk_write(this->device, this->writeEndpoint, buf->data(), bytes, USB_TIMEOUT_MSEC);
-#else // Workaround for OSX with the brew libusb package...
+#else // Workaround for OSX with the brew QUsb package...
     qint32 rc = usb_bulk_write(this->device, this->writeEndpoint, buf->constData(), bytes, USB_TIMEOUT_MSEC);
 #endif
 
@@ -142,7 +142,7 @@ qint32 LibUsb::write(QByteArray *buf, quint32 bytes)
     return rc;
 }
 
-struct usb_dev_handle* LibUsb::OpenAntStick()
+struct usb_dev_handle* QUsb::OpenAntStick()
 {
 
     struct usb_bus* bus;
@@ -206,7 +206,7 @@ struct usb_dev_handle* LibUsb::OpenAntStick()
     return NULL;
 }
 
-struct usb_interface_descriptor* LibUsb::usb_find_interface(struct usb_config_descriptor* config_descriptor)
+struct usb_interface_descriptor* QUsb::usb_find_interface(struct usb_config_descriptor* config_descriptor)
 {
 
     struct usb_interface_descriptor* intf;

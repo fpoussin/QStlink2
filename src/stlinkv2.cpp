@@ -21,7 +21,7 @@ This file is part of QSTLink2.
 stlinkv2::stlinkv2(QObject *parent) :
     QThread(parent)
 {
-    this->libusb = new LibUsb;
+    this->usb = new QUsb;
     this->mode_id = -1;
     this->core_id = 0;
     this->chip_id = 0;
@@ -32,14 +32,15 @@ stlinkv2::stlinkv2(QObject *parent) :
 stlinkv2::~stlinkv2()
 {
     this->disconnect();
-    delete libusb;
+    delete usb;
 }
 
 qint32 stlinkv2::connect()
 {
-    qint32 open;
-    if ((open = this->libusb->open()))
-        this->libusb->read(&this->recv_buf, 6192); // We clean the usb buffer
+    qint32 open = this->usb->open();
+    if ((open > 0)) {
+        this->usb->read(&this->recv_buf, 2048); // We clean the usb buffer
+    }
     this->connected = true;
     return open;
 }
@@ -47,7 +48,7 @@ qint32 stlinkv2::connect()
 void stlinkv2::disconnect()
 {
     this->DebugCommand(STLink::Cmd::Dbg::Exit, 0, 2);
-    this->libusb->close();
+    this->usb->close();
     this->connected = false;
 }
 
@@ -62,7 +63,7 @@ void stlinkv2::clearBuffer()
     QByteArray tmp;
     this->cmd_buf.clear();
     this->recv_buf.clear();
-    this->libusb->read(&tmp, 128);
+    this->usb->read(&tmp, 128);
 }
 
 stlinkv2::STVersion stlinkv2::getVersion() {
@@ -481,7 +482,7 @@ qint32 stlinkv2::readMem32(quint32 addr, quint16 len)
     this->cmd_buf.append((const char*)_len, sizeof(_len)); //length the data we are requesting
     this->SendCommand();
     this->recv_buf.clear();
-    return this->libusb->read(&this->recv_buf, len);
+    return this->usb->read(&this->recv_buf, len);
 }
 
 qint32 stlinkv2::Command(quint8 st_cmd0, quint8 st_cmd1, quint32 resp_len)
@@ -491,7 +492,7 @@ qint32 stlinkv2::Command(quint8 st_cmd0, quint8 st_cmd1, quint32 resp_len)
 
     this->SendCommand();
     if (resp_len > 0)
-        return this->libusb->read(&this->recv_buf, resp_len);
+        return this->usb->read(&this->recv_buf, resp_len);
     return 0;
 }
 
@@ -508,7 +509,7 @@ qint32 stlinkv2::DebugCommand(quint8 st_cmd1, quint8 st_cmd2, quint32 resp_len)
 //        qCritical() << "Error: " << res;
 
     if (resp_len > 0)
-        return this->libusb->read(&this->recv_buf, resp_len);
+        return this->usb->read(&this->recv_buf, resp_len);
     return res;
 }
 
@@ -523,7 +524,7 @@ bool stlinkv2::writeRegister(quint32 val, quint8 index) // Not working on F4 ?
     this->cmd_buf.append((const char*)tval, sizeof(tval));
     this->SendCommand();
     QByteArray tmp;
-    this->libusb->read(&tmp, 2);
+    this->usb->read(&tmp, 2);
 
     const quint32 tmpval = this->readRegister(index);
     if (tmpval != val) {
@@ -543,7 +544,7 @@ quint32 stlinkv2::readRegister(quint8 index)
     this->SendCommand();
 
     QByteArray tmp;
-    this->libusb->read(&tmp, 4);
+    this->usb->read(&tmp, 4);
     return qFromLittleEndian<quint32>((const uchar*)tmp.constData());
 }
 
@@ -562,7 +563,7 @@ void stlinkv2::writePC(quint32 val) // Not working
 qint32 stlinkv2::SendCommand()
 {
     qint32 ret = 0;
-    ret = this->libusb->write(&this->cmd_buf, this->cmd_buf.size());
+    ret = this->usb->write(&this->cmd_buf, this->cmd_buf.size());
     this->cmd_buf.clear();
     if (ret > 0) {
 //        qDebug() << "Command sent successfully.";

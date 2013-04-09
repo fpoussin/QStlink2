@@ -44,9 +44,9 @@ HEADERS  += inc/mainwindow.h \
     inc/loader.h
 
 win32:SOURCES  += src/qwinusb.cpp
-else:SOURCES  += src/LibUsb.cpp
+unix:SOURCES  += src/LibUsb.cpp
 win32:HEADERS  += inc/qwinusb.h
-else:HEADERS  += inc/LibUsb.h
+unix:HEADERS  += inc/LibUsb.h
 
 FORMS    += ui/mainwindow.ui \
     ui/dialog.ui
@@ -54,7 +54,7 @@ FORMS    += ui/mainwindow.ui \
 INCLUDEPATH += inc
 unix:LIBS += -L/usr/lib -lusb
 #win32:LIBS += -L"$$_PRO_FILE_PWD_/libs/" -llibusb
-win32:LIBS += -lwinusb
+#win32:LIBS += -lwinusb
 
 RESOURCES += res/ressources.qrc \
     loaders/loaders.qrc

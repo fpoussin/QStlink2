@@ -19,7 +19,6 @@ This file is part of QSTLink2.
 
 #include <QObject>
 #include <QThread>
-#include <LibUsb.h>
 #include <QFile>
 #include <QByteArray>
 #include <QtEndian>
@@ -205,7 +204,7 @@ public slots:
     void getLoaderParams();
 
 private:
-    LibUsb *libusb;
+    QUsb *usb;
     qint32 Command(quint8 st_cmd0, quint8 st_cmd1, quint32 resp_len);
     qint32 DebugCommand(quint8 st_cmd1, quint8 st_cmd2, quint32 resp_len);
     quint32 readFlashSR();

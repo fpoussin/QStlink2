@@ -17,8 +17,8 @@
  * Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef gc_LibUsb_h
-#define gc_LibUsb_h
+#ifndef gc_QUsb_h
+#define gc_QUsb_h
 
 #include <QString>
 #include <QDebug>
@@ -41,10 +41,10 @@ const quint8 USB_PIPE_OUT = 0x02;	   /* Bulk input endpoint for commands */
 const quint8 USB_PIPE_ERR = 0x83;	   /* An apparently-unused bulk endpoint. */
 const quint16 USB_TIMEOUT_MSEC = 300;
 
-class LibUsb : public QObject {
+class QUsb : public QObject {
 
 public:
-    explicit LibUsb(QObject *parent = 0);
+    explicit QUsb(QObject *parent = 0);
 
 public slots:
     qint32 open();
@@ -58,8 +58,8 @@ private:
     struct usb_dev_handle* device;
     struct usb_interface_descriptor* intf;
 
-    qint32 readEndpoint, writeEndpoint;
-    qint32 interface;
-    qint32 alternate;
+    quint8 readEndpoint, writeEndpoint;
+    quint8 interface;
+    quint8 alternate;
 };
 #endif
