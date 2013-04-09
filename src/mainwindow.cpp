@@ -170,12 +170,12 @@ void MainWindow::Send()
         this->log("Size: "+QString::number(file.size()/1024)+"KB");
 
         if (file.size() > (*this->stlink->device)["flash_size"]*1024) {
-            if(QMessageBox::question(this, "Flash size exceeded", "The file is bigger than the flash size!\n\nThe flash memory will be erased and the new file programmed, continue?") == QMessageBox::No){
+            if(QMessageBox::question(this, "Flash size exceeded", "The file is bigger than the flash size!\n\nThe flash memory will be erased and the new file programmed, continue?", QMessageBox::Yes|QMessageBox::No) != QMessageBox::Yes){
                 return;
             }
         }
         else {
-            if(QMessageBox::question(this, "Confirm", "The flash memory will be erased and the new file programmed, continue?") == QMessageBox::No){
+            if(QMessageBox::question(this, "Confirm", "The flash memory will be erased and the new file programmed, continue?", QMessageBox::Yes|QMessageBox::No) != QMessageBox::Yes){
                 return;
             }
         }
