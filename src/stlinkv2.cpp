@@ -453,10 +453,12 @@ void stlinkv2::writeMem32(quint32 addr, QByteArray &buf)
     }
     this->cmd_buf.append(STLink::Cmd::DebugCommand);
     this->cmd_buf.append(STLink::Cmd::Dbg::WriteMem32bit);
-    uchar _addr[4];
+    uchar _addr[4], _len[2];
     qToLittleEndian(addr, _addr);
+    qToLittleEndian((quint16)buf.size(), _len);
     this->cmd_buf.append((const char*)_addr, sizeof(_addr));
-    this->cmd_buf.append((quint16)buf.size());
+    this->cmd_buf.append((const char*)_len, sizeof(_len));
+//    this->cmd_buf.append((quint16)buf.size());
     this->SendCommand();
 
     // the actual data we are writing is on the second command
@@ -618,7 +620,7 @@ bool stlinkv2::setLoaderBuffer(quint32 addr, const QByteArray& buf) {
     }
 
     int i=0;
-    const int step = 256-8;
+    const int step = 2048;
     for (; i < buf.size()/step; i++) {
 
         tmp = QByteArray(buf.constData()+(i*step), step);

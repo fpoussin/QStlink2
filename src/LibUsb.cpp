@@ -19,7 +19,8 @@
 
 #include "LibUsb.h"
 
-LibUsb::LibUsb()
+LibUsb::LibUsb(QObject *parent) :
+    QObject(parent)
 {
     // dynamic load of libusb on Windows, it is statically linked in Linux
     // this is to avoid dll conflicts where the lib has already been installed

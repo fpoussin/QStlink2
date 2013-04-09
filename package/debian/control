@@ -2,7 +2,7 @@ Source: qstlink2
 Section: devel
 Priority: extra
 Maintainer: Fabien Poussin <fabien.poussin@gmail.com>
-Build-Depends: debhelper (>= 8.0.0), cdbs, libqt4-dev, qt4-qmake, libusb-0.1-4, libusb-dev
+Build-Depends: debhelper (>= 8.0.0), cdbs, libqt4-dev, qt4-qmake, libusb-dev
 Standards-Version: 3.9.3
 Homepage: http://code.google.com/p/qstlink2/
 

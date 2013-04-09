@@ -19,7 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with QSTLink2.  If not, see <http://www.gnu.org/licenses/>.
 
-QT       += core gui widgets xml
+QT += core gui widgets xml
 win32:CONFIG += console
 
 TARGET = qstlink2
@@ -28,7 +28,6 @@ TEMPLATE = app
 SOURCES += src/main.cpp\
         src/mainwindow.cpp \
     src/stlinkv2.cpp \
-    src/LibUsb.cpp \
     src/devices.cpp \
     src/dialog.cpp \
    src/transferthread.cpp \
@@ -37,7 +36,6 @@ SOURCES += src/main.cpp\
 
 HEADERS  += inc/mainwindow.h \
     inc/stlinkv2.h \
-    inc/LibUsb.h \
     inc/devices.h \
     inc/dialog.h \
     inc/transferthread.h \
@@ -45,12 +43,18 @@ HEADERS  += inc/mainwindow.h \
     inc/version.h \
     inc/loader.h
 
+win32:SOURCES  += src/winusb.cpp
+else:SOURCES  += src/LibUsb.cpp
+win32:HEADERS  += inc/winusb.h
+else:HEADERS  += inc/LibUsb.h
+
 FORMS    += ui/mainwindow.ui \
     ui/dialog.ui
 
 INCLUDEPATH += inc
 unix:LIBS += -L/usr/lib -lusb
-win32:LIBS += -L"$$_PRO_FILE_PWD_/libs/" -llibusb
+#win32:LIBS += -L"$$_PRO_FILE_PWD_/libs/" -llibusb
+win32:LIBS += -lwinusb
 
 RESOURCES += res/ressources.qrc \
     loaders/loaders.qrc
