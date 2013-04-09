@@ -31,6 +31,7 @@ This file is part of QSTLink2.
 
 #ifdef WIN32
     #define usleep(num) Sleep(num/1000)
+    #define LibUsb QWinUsb
 #endif
 
 #define QtInfoMsg QtWarningMsg // Little hack to have an "info" level of output.

@@ -1,5 +1,5 @@
-#ifndef WINUSB_H
-#define WINUSB_H
+#ifndef QWINUSB_H
+#define QWINUSB_H
 
 #include <QObject>
 #include <compat.h>
@@ -18,15 +18,6 @@
 #pragma comment (lib , "setupapi.lib" )
 #pragma comment (lib , "winusb.lib" )
 
-const quint16 USB_ST_VID = 0x0483;
-const quint16 USB_STLINK_PID = 0x3744;
-const quint16 USB_STLINKv2_PID = 0x3748;
-const quint8 USB_CONFIGURATION = 1;   /* The sole configuration. */
-const quint8 USB_PIPE_IN = 0x81;   /* Bulk output endpoint for responses */
-const quint8 USB_PIPE_OUT = 0x02;	   /* Bulk input endpoint for commands */
-const quint8 USB_PIPE_ERR = 0x83;	   /* An apparently-unused bulk endpoint. */
-const quint16 USB_TIMEOUT_MSEC = 300;
-
 /*
 VID_0483&PID_3748.DeviceDesc="STMicroelectronics STLink dongle"
 ClassGUID={36FC9E60-C465-11CF-8056-444553540000}
@@ -34,9 +25,9 @@ STLink_GUID="{DBCE1CD9-A320-4b51-A365-A0C3F3C5FB29}"
 */
 
 static const GUID OSR_DEVICE_INTERFACE =
-{ 0x36FC9E60, 0xC465, 0x11CF, { 0x80, 0x56, 0x44, 0x45, 0x53, 0x54, 0x00, 0x00 } };
+{ 0xDBCE1CD9, 0xA320, 0x4b51, { 0xA3, 0x65, 0xA0, 0xC3, 0xF3, 0xC5, 0xFB, 0x29 } };
 
-class WinUsb : public QObject
+class QWinUsb : public QObject
 {
     Q_OBJECT
 
@@ -46,7 +37,7 @@ class WinUsb : public QObject
         uchar  PipeOutId;
     };
 public:
-    explicit WinUsb(QObject *parent = 0);
+    explicit QWinUsb(QObject *parent = 0);
     
 public slots:
     qint32 open();
@@ -65,16 +56,6 @@ private:
     WINUSB_INTERFACE_HANDLE hWinUSBHandle;
     uchar DeviceSpeed;
     PIPE_ID PipeID;
-    /*
-    struct usb_dev_handle* OpenAntStick();
-    struct usb_interface_descriptor* usb_find_interface(struct usb_config_descriptor* config_descriptor);
-    struct usb_dev_handle* device;
-    struct usb_interface_descriptor* intf;
-
-    qint32 readEndpoint, writeEndpoint;
-    qint32 interface;
-    qint32 alternate;
-    */
 };
 
-#endif // WINUSB_H
+#endif // QWINUSB_H

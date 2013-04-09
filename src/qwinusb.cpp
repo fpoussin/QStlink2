@@ -1,6 +1,6 @@
-#include "winusb.h"
+#include "qwinusb.h"
 
-WinUsb::WinUsb(QObject *parent) :
+QWinUsb::QWinUsb(QObject *parent) :
     QObject(parent)
 {
     guidDeviceInterface = OSR_DEVICE_INTERFACE; //in the INF file
@@ -11,7 +11,7 @@ WinUsb::WinUsb(QObject *parent) :
     cbSize = 0;
 }
 
-qint32 WinUsb::open()
+qint32 QWinUsb::open()
 {
     GetDeviceHandle(guidDeviceInterface, &hDeviceHandle);
     GetWinUSBHandle(hDeviceHandle, &hWinUSBHandle);
@@ -19,13 +19,13 @@ qint32 WinUsb::open()
     QueryDeviceEndpoints(hWinUSBHandle, &PipeID);
 }
 
-void WinUsb::close()
+void QWinUsb::close()
 {
     CloseHandle(hDeviceHandle);
     WinUsb_Free(hWinUSBHandle);
 }
 
-qint32 WinUsb::read(QByteArray *buf, quint32 bytes)
+qint32 QWinUsb::read(QByteArray *buf, quint32 bytes)
 {
     quint32 cbRead = 0;
     bool bResult = WinUsb_ReadPipe(hDeviceHandle, &PipeID.PipeInId, (uchar*)buf->data(), bytes, &cbRead, 0);
@@ -33,7 +33,7 @@ qint32 WinUsb::read(QByteArray *buf, quint32 bytes)
     return cbRead;
 }
 
-qint32 WinUsb::write(QByteArray *buf, quint32 bytes)
+qint32 QWinUsb::write(QByteArray *buf, quint32 bytes)
 {
     quint32 cbSent = 0;
     bool bResult = WinUsb_WritePipe(hDeviceHandle, &PipeID.PipeOutId, (uchar*)buf->data(), bytes, &cbSent, 0);
@@ -41,7 +41,7 @@ qint32 WinUsb::write(QByteArray *buf, quint32 bytes)
     return cbSent;
 }
 
-bool WinUsb::GetDeviceHandle(GUID guidDeviceInterface, PHANDLE hDeviceHandle)
+bool QWinUsb::GetDeviceHandle(GUID guidDeviceInterface, PHANDLE hDeviceHandle)
 {
     if (guidDeviceInterface==GUID_NULL)
     {
@@ -211,7 +211,7 @@ bool WinUsb::GetDeviceHandle(GUID guidDeviceInterface, PHANDLE hDeviceHandle)
     return bResult;
 }
 
-bool WinUsb::GetWinUSBHandle(HANDLE hDeviceHandle, PWINUSB_INTERFACE_HANDLE phWinUSBHandle)
+bool QWinUsb::GetWinUSBHandle(HANDLE hDeviceHandle, PWINUSB_INTERFACE_HANDLE phWinUSBHandle)
 {
     if (hDeviceHandle == INVALID_HANDLE_VALUE)
     {
@@ -228,7 +228,7 @@ bool WinUsb::GetWinUSBHandle(HANDLE hDeviceHandle, PWINUSB_INTERFACE_HANDLE phWi
     return true;
 }
 
-bool WinUsb::GetUSBDeviceSpeed(WINUSB_INTERFACE_HANDLE hDeviceHandle, quint8 *pDeviceSpeed)
+bool QWinUsb::GetUSBDeviceSpeed(WINUSB_INTERFACE_HANDLE hDeviceHandle, quint8 *pDeviceSpeed)
 {
     if (!pDeviceSpeed || hDeviceHandle==INVALID_HANDLE_VALUE)
     {
@@ -261,7 +261,7 @@ bool WinUsb::GetUSBDeviceSpeed(WINUSB_INTERFACE_HANDLE hDeviceHandle, quint8 *pD
     return false;
 }
 
-bool WinUsb::QueryDeviceEndpoints(WINUSB_INTERFACE_HANDLE hDeviceHandle, WinUsb::PIPE_ID *pipeid)
+bool QWinUsb::QueryDeviceEndpoints(WINUSB_INTERFACE_HANDLE hDeviceHandle, QWinUsb::PIPE_ID *pipeid)
 {
     if (hDeviceHandle==INVALID_HANDLE_VALUE)
     {

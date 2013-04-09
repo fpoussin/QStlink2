@@ -43,9 +43,9 @@ HEADERS  += inc/mainwindow.h \
     inc/version.h \
     inc/loader.h
 
-win32:SOURCES  += src/winusb.cpp
+win32:SOURCES  += src/qwinusb.cpp
 else:SOURCES  += src/LibUsb.cpp
-win32:HEADERS  += inc/winusb.h
+win32:HEADERS  += inc/qwinusb.h
 else:HEADERS  += inc/LibUsb.h
 
 FORMS    += ui/mainwindow.ui \
