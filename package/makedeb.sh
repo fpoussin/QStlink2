@@ -18,6 +18,8 @@ echo "" | dh_make -n --single -e fabien.poussin@gmail.com -c gpl3
 cp -v ../debian/* debian/
 rm -vf debian/*.ex debian/*.EX debian/ex.*
 
+/usr/bin/python ../svn2debcl.py $1
+
 debuild -j4 -b -uc -us
 
 cd ..
