@@ -49,8 +49,8 @@ public slots:
 private:
     bool GetDeviceHandle(GUID guidDeviceInterface, PHANDLE hDeviceHandle);
     bool GetWinUSBHandle(HANDLE hDeviceHandle, PWINUSB_INTERFACE_HANDLE phWinUSBHandle);
-    bool GetUSBDeviceSpeed(WINUSB_INTERFACE_HANDLE hDeviceHandle, quint8 *pDeviceSpeed);
-    bool QueryDeviceEndpoints(WINUSB_INTERFACE_HANDLE hDeviceHandle, PIPE_ID* pipeid);
+    bool GetUSBDeviceSpeed(WINUSB_INTERFACE_HANDLE hWinUSBHandle, quint8 *pDeviceSpeed);
+    bool QueryDeviceEndpoints(WINUSB_INTERFACE_HANDLE hWinUSBHandle, PIPE_ID* pipeid);
 
     GUID guidDeviceInterface;
     HANDLE hDeviceHandle;

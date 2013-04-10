@@ -53,8 +53,8 @@ FORMS    += ui/mainwindow.ui \
 
 INCLUDEPATH += inc
 unix:LIBS += -L/usr/lib -lusb
-#win32:LIBS += -L"$$_PRO_FILE_PWD_/libs/" -llibusb
-#win32:LIBS += -lwinusb
+win32:LIBS += -L"$$_PRO_FILE_PWD_/libs/"
+win32:INCLUDEPATH += $$_PRO_FILE_PWD_/libs
 
 RESOURCES += res/ressources.qrc \
     loaders/loaders.qrc

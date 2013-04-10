@@ -230,7 +230,7 @@ struct usb_interface_descriptor* QUsb::usb_find_interface(struct usb_config_desc
     this->readEndpoint = USB_PIPE_IN; // IN = ST link -> Host
     this->writeEndpoint = USB_PIPE_OUT; // OUT = Host -> ST link
 
-    if (this->readEndpoint < 0 || this->writeEndpoint < 0)
+    if (this->readEndpoint == 0 || this->writeEndpoint == 0)
         return NULL;
 
     return intf;

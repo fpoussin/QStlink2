@@ -563,13 +563,17 @@ void stlinkv2::writePC(quint32 val) // Not working
 qint32 stlinkv2::SendCommand()
 {
     qint32 ret = 0;
+
+//    while (this->cmd_buf.size() < 16)
+//        this->cmd_buf.append((char)0);
+
     ret = this->usb->write(&this->cmd_buf, this->cmd_buf.size());
     this->cmd_buf.clear();
     if (ret > 0) {
 //        qDebug() << "Command sent successfully.";
     }
     else {
-        qCritical() << "Error!";
+        qCritical() << "SendCommand() Error!";
     }
     return ret;
 }
