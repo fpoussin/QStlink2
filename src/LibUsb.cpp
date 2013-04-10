@@ -78,7 +78,7 @@ qint32 QUsb::read(QByteArray *buf, quint32 bytes)
     // check it isn't closed already
     if (!device) return -1;
 
-    char *buffer = (char*)malloc(bytes);
+    char *buffer = new char[bytes];
     qint32 rc = usb_bulk_read(this->device, this->readEndpoint, buffer, bytes, USB_TIMEOUT_MSEC);
 //    qDebug() << "Bytes read: " << rc;
 
@@ -103,7 +103,7 @@ qint32 QUsb::read(QByteArray *buf, quint32 bytes)
             qCritical() << "usb_bulk_read Error reading: " << rc << usb_strerror();
         return rc;
     }
-    free(buffer);
+    delete buffer;
     return rc;
 }
 

@@ -96,6 +96,13 @@ bool MainWindow::Connect()
     switch (this->stlink->connect()) {
     case -1:
         this->log("ST Link V2 not found or unable to access it.\nCheck the logs.");
+#if defined(QWINUSB) && defined(WIN32)
+        this->log("Did you install the official ST-Link V2 driver ?");
+#elif !defined(WIN32)
+        this->log("Did you install the udev rules ?");
+#else
+        this->log("Did you install the libusb-win32 driver ?");
+#endif
         return false;
     default:
         this->log("ST Link V2 found!");

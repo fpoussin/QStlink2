@@ -26,6 +26,12 @@ This file is part of QSTLink2.
 #include <compat.h>
 #include <loader.h>
 
+#ifdef QWINUSB
+    #include <qwinusb.h>
+#else
+    #include <LibUsb.h>
+#endif
+
 namespace STLink {
     namespace Status {
              const quint8 OK = 0x80;

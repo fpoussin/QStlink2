@@ -179,7 +179,7 @@ void transferThread::receive(const QString &filename)
     emit sendLock(true);
     this->m_stop = false;
     this->stlink->hardResetMCU(); // We stop the MCU
-    const quint32 buf_size = 1024;
+    const quint32 buf_size = 2048;
     const quint32 from = (*this->stlink->device)["flash_base"];
     const quint32 to = (*this->stlink->device)["flash_base"]+from;
     const quint32 flash_size = (*this->stlink->device)["flash_size"]*1024;
@@ -222,7 +222,7 @@ void transferThread::verify(const QString &filename)
     emit sendLock(true);
     this->m_stop = false;
     this->stlink->hardResetMCU(); // We stop the MCU
-    quint32 buf_size = 256;
+    quint32 buf_size = 2048;
     quint32 from = (*this->stlink->device)["flash_base"];
     quint32 to = (*this->stlink->device)["flash_base"]+file.size();
     qInformal() << "Reading from" << QString::number(from, 16) << "to" << QString::number(to, 16);

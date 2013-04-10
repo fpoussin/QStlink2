@@ -3,33 +3,33 @@
 QUsb::QUsb(QObject *parent) :
     QObject(parent)
 {
-    guidDeviceInterface = OSR_DEVICE_INTERFACE; //in the INF file
+    m_guidDeviceInterface = OSR_DEVICE_INTERFACE; //in the INF file
 
-    hDeviceHandle = INVALID_HANDLE_VALUE;
-    hWinUSBHandle = INVALID_HANDLE_VALUE;
+    m_devHandle = INVALID_HANDLE_VALUE;
+    m_usbHandle = INVALID_HANDLE_VALUE;
 
 //    cbSize = 0;
 }
 
 qint32 QUsb::open()
 {
-    if (!GetDeviceHandle(guidDeviceInterface, &hDeviceHandle)) return -1;
-    else if (!GetWinUSBHandle(hDeviceHandle, &hWinUSBHandle)) return -1;
-    else if (!GetUSBDeviceSpeed(hWinUSBHandle, &DeviceSpeed)) return -1;
-    else if (!QueryDeviceEndpoints(hWinUSBHandle, &PipeID)) return -1;
+    if (!GetDeviceHandle(m_guidDeviceInterface, &m_devHandle)) return -1;
+    else if (!GetWinUSBHandle(m_devHandle, &m_usbHandle)) return -1;
+    else if (!GetUSBDeviceSpeed(m_usbHandle, &m_devSpeed)) return -1;
+//    else if (!QueryDeviceEndpoints(m_usbHandle, &PipeID)) return -1;
 
-    PipeID.PipeInId = 0x81;
-    PipeID.PipeOutId = 0x02;
+    m_pipeId.PipeInId = 0x81;
+    m_pipeId.PipeOutId = 0x02;
 
-    if (!WinUsb_ResetPipe(hWinUSBHandle, PipeID.PipeInId)) {
+    if (!WinUsb_ResetPipe(m_usbHandle, m_pipeId.PipeInId)) {
         qCritical("Error WinUsb_ResetPipe: %d.\n", GetLastError()); return -1; }
-    if (!WinUsb_ResetPipe(hWinUSBHandle, PipeID.PipeOutId)) {
+    if (!WinUsb_ResetPipe(m_usbHandle, m_pipeId.PipeOutId)) {
         qCritical("Error WinUsb_ResetPipe: %d.\n", GetLastError()); return -1; }
 
     ulong timeout = 300; // ms
-    if (!WinUsb_SetPipePolicy( hWinUSBHandle, PipeID.PipeInId, PIPE_TRANSFER_TIMEOUT, sizeof(ulong), &timeout)) {
+    if (!WinUsb_SetPipePolicy(m_usbHandle, m_pipeId.PipeInId, PIPE_TRANSFER_TIMEOUT, sizeof(ulong), &timeout)) {
         qCritical("Error WinUsb_SetPipePolicy: %d.\n", GetLastError()); return -1; }
-    if (!WinUsb_SetPipePolicy( hWinUSBHandle, PipeID.PipeOutId, PIPE_TRANSFER_TIMEOUT, sizeof(ulong), &timeout)) {
+    if (!WinUsb_SetPipePolicy(m_usbHandle, m_pipeId.PipeOutId, PIPE_TRANSFER_TIMEOUT, sizeof(ulong), &timeout)) {
         qCritical("Error WinUsb_SetPipePolicy: %d.\n", GetLastError()); return -1; }
 
     return 1;
@@ -37,36 +37,36 @@ qint32 QUsb::open()
 
 void QUsb::close()
 {
-    CloseHandle(hDeviceHandle);
-    WinUsb_Free(hWinUSBHandle);
+    CloseHandle(m_devHandle);
+    WinUsb_Free(m_usbHandle);
 }
 
 qint32 QUsb::read(QByteArray *buf, quint32 bytes)
 {
     qDebug() << "***[QWinUsb::read]***";
-    if (hWinUSBHandle==INVALID_HANDLE_VALUE || !PipeID.PipeInId)
+    if (m_usbHandle==INVALID_HANDLE_VALUE || !m_pipeId.PipeInId)
     {
         return -1;
     }
     bool bResult = true;
     ulong cbRead = 0;
     uchar *buffer = new uchar[bytes];
-    bResult = WinUsb_ReadPipe(hWinUSBHandle, PipeID.PipeInId, buffer, bytes, &cbRead, 0);
+    bResult = WinUsb_ReadPipe(m_usbHandle, m_pipeId.PipeInId, buffer, bytes, &cbRead, 0);
     // we clear the buffer.
     buf->clear();
-    QString data, s;
+//    QString data, s;
 
     if (cbRead > 0) {
         for (quint32 i = 0; i < bytes; i++) {
             buf->append(buffer[i]);
-            data.append(s.sprintf("%02X",(uchar)buf->at(i))+":");
+//            data.append(s.sprintf("%02X",(uchar)buf->at(i))+":");
         }
-        data.remove(data.size()-1, 1); //remove last colon
-        qDebug() << "Received: " << data;
+//        data.remove(data.size()-1, 1); //remove last colon
+//        qDebug() << "Received: " << data;
     }
     delete buffer;
     if (!bResult) {
-        qCritical("Error WinUsb_ReadPipe: %d.\n", GetLastError());
+        PrintError("WinUsb_ReadPipe");
         return -1;
     }
     return cbRead;
@@ -75,22 +75,22 @@ qint32 QUsb::read(QByteArray *buf, quint32 bytes)
 qint32 QUsb::write(QByteArray *buf, quint32 bytes)
 {
     qDebug() << "***[QWinUsb::write]***";
-    if (hWinUSBHandle==INVALID_HANDLE_VALUE || !PipeID.PipeOutId)
+    if (m_usbHandle==INVALID_HANDLE_VALUE || !m_pipeId.PipeOutId)
     {
         return -1;
     }
 
-    QString cmd, s;
-        for (int i=0; i<buf->size(); i++) {
-            cmd.append(s.sprintf("%02X",(uchar)buf->at(i))+":");
-        }
-        cmd.remove(cmd.size()-1, 1); //remove last colon
-        qDebug() << "Sending" << buf->size() << "bytes:" << cmd;
+//    QString cmd, s;
+//        for (int i=0; i<buf->size(); i++) {
+//            cmd.append(s.sprintf("%02X",(uchar)buf->at(i))+":");
+//        }
+//        cmd.remove(cmd.size()-1, 1); //remove last colon
+//        qDebug() << "Sending" << buf->size() << "bytes:" << cmd;
 
     ulong cbSent = 0;
-    bool bResult = WinUsb_WritePipe(hWinUSBHandle, PipeID.PipeOutId, (uchar*)buf->data(), bytes, &cbSent, 0);
+    bool bResult = WinUsb_WritePipe(m_usbHandle, m_pipeId.PipeOutId, (uchar*)buf->data(), bytes, &cbSent, 0);
     if (!bResult) {
-        qCritical("Error WinUsb_WritePipe: %d.\n", GetLastError());
+        PrintError("WinUsb_WritePipe");
         return -1;
     }
     return cbSent;
@@ -128,7 +128,7 @@ bool QUsb::GetDeviceHandle(GUID guidDeviceInterface, PHANDLE hDeviceHandle)
     if (hDeviceInfo == INVALID_HANDLE_VALUE)
     {
         // ERROR
-        qCritical("Error SetupDiGetClassDevs: %d.\n", GetLastError());
+        PrintError("SetupDiGetClassDevs");
         goto done;
     }
 
@@ -166,7 +166,7 @@ bool QUsb::GetDeviceHandle(GUID guidDeviceInterface, PHANDLE hDeviceHandle)
         //Check for some other error
         if (!bResult)
         {
-            qCritical("Error SetupDiEnumDeviceInterfaces: %d.\n", GetLastError());
+            PrintError("SetupDiEnumDeviceInterfaces");
             goto done;
         }
 
@@ -200,7 +200,7 @@ bool QUsb::GetDeviceHandle(GUID guidDeviceInterface, PHANDLE hDeviceHandle)
             }
             else
             {
-                qCritical("Error SetupDiEnumDeviceInterfaces: %d.\n", GetLastError());
+                PrintError("SetupDiEnumDeviceInterfaces");
                 goto done;
             }
         }
@@ -220,7 +220,7 @@ bool QUsb::GetDeviceHandle(GUID guidDeviceInterface, PHANDLE hDeviceHandle)
         //Check for some other error
         if (!bResult)
         {
-            qCritical("Error SetupDiGetDeviceInterfaceDetail: %d.\n", GetLastError());
+            PrintError("SetupDiGetDeviceInterfaceDetail");
             goto done;
         }
 
@@ -255,7 +255,7 @@ bool QUsb::GetDeviceHandle(GUID guidDeviceInterface, PHANDLE hDeviceHandle)
     if (*hDeviceHandle == INVALID_HANDLE_VALUE)
     {
         //Error.
-        qCritical("Error %d.", GetLastError());
+        PrintError("");
         goto done;
     }
 
@@ -278,7 +278,7 @@ bool QUsb::GetWinUSBHandle(HANDLE hDeviceHandle, PWINUSB_INTERFACE_HANDLE phWinU
     if(!WinUsb_Initialize(hDeviceHandle, phWinUSBHandle))
     {
         //Error.
-        qCritical("WinUsb_Initialize Error %d.", GetLastError());
+        PrintError("WinUsb_Initialize");
         return false;
     }
 
@@ -297,7 +297,7 @@ bool QUsb::GetUSBDeviceSpeed(WINUSB_INTERFACE_HANDLE hWinUSBHandle, quint8 *pDev
 
     if(!WinUsb_QueryDeviceInformation(hWinUSBHandle, DEVICE_SPEED, &length, pDeviceSpeed))
     {
-        qCritical("Error getting device speed: %d.\n", GetLastError());
+        PrintError("Error getting device speed");
         return false;
     }
 
@@ -383,4 +383,21 @@ bool QUsb::QueryDeviceEndpoints(WINUSB_INTERFACE_HANDLE hWinUSBHandle, QUsb::PIP
         return false;
     }
     return true;
+}
+
+void QUsb::PrintError(const QString &func)
+{
+    const quint32 err = GetLastError();
+    switch (err) {
+
+    case 121:
+        qCritical() << func << "ERROR_SEM_TIMEOUT" << err;
+        break;
+    case 997:
+        qCritical() << func << "ERROR_IO_PENDING" << err;
+        break;
+    default:
+        qCritical() << func << "Error id:" << err;
+        break;
+    }
 }

@@ -21,7 +21,6 @@
 
 /*
 VID_0483&PID_3748.DeviceDesc="STMicroelectronics STLink dongle"
-ClassGUID={36FC9E60-C465-11CF-8056-444553540000}
 STLink_GUID="{DBCE1CD9-A320-4b51-A365-A0C3F3C5FB29}"
 */
 
@@ -51,12 +50,13 @@ private:
     bool GetWinUSBHandle(HANDLE hDeviceHandle, PWINUSB_INTERFACE_HANDLE phWinUSBHandle);
     bool GetUSBDeviceSpeed(WINUSB_INTERFACE_HANDLE hWinUSBHandle, quint8 *pDeviceSpeed);
     bool QueryDeviceEndpoints(WINUSB_INTERFACE_HANDLE hWinUSBHandle, PIPE_ID* pipeid);
+    void PrintError(const QString& func);
 
-    GUID guidDeviceInterface;
-    HANDLE hDeviceHandle;
-    WINUSB_INTERFACE_HANDLE hWinUSBHandle;
-    uchar DeviceSpeed;
-    PIPE_ID PipeID;
+    GUID m_guidDeviceInterface;
+    HANDLE m_devHandle;
+    WINUSB_INTERFACE_HANDLE m_usbHandle;
+    uchar m_devSpeed;
+    PIPE_ID m_pipeId;
 };
 
 #endif // QUsb_H

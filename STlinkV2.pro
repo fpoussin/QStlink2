@@ -19,11 +19,18 @@
 #   You should have received a copy of the GNU General Public License
 #   along with QSTLink2.  If not, see <http://www.gnu.org/licenses/>.
 
-QT += core gui widgets xml
-win32:CONFIG += console
+QT += core gui xml
+contains(QT_MAJOR_VERSION, 5) { QT += widgets }
+#win32:CONFIG += console
+win32:CONFIG += winusb
 
 TARGET = qstlink2
 TEMPLATE = app
+
+INCLUDEPATH += inc
+
+FORMS += ui/mainwindow.ui \
+    ui/dialog.ui
 
 SOURCES += src/main.cpp\
         src/mainwindow.cpp \
@@ -43,21 +50,30 @@ HEADERS  += inc/mainwindow.h \
     inc/version.h \
     inc/loader.h
 
-win32:SOURCES  += src/qwinusb.cpp
+win32 {
+    CONFIG(console) { message(Building with debug console.) }
+    CONFIG(winusb) {
+        message(Building with WinUSB support.)
+        DEFINES += QWINUSB
+        SOURCES  += src/qwinusb.cpp
+        HEADERS  += inc/qwinusb.h
+        LIBS += -L"$$_PRO_FILE_PWD_/libs/"
+        INCLUDEPATH += $$_PRO_FILE_PWD_/libs
+    }
+    else {
+        message(Building with LibUsb support.)
+        SOURCES  += src/LibUsb.cpp
+        HEADERS  += inc/LibUsb.h
+        LIBS += -L"$$_PRO_FILE_PWD_/libs/" -llibusb
+        INCLUDEPATH += $$_PRO_FILE_PWD_/libs
+    }
+}
+
 unix:SOURCES  += src/LibUsb.cpp
-win32:HEADERS  += inc/qwinusb.h
 unix:HEADERS  += inc/LibUsb.h
-
-FORMS    += ui/mainwindow.ui \
-    ui/dialog.ui
-
-INCLUDEPATH += inc
 unix:LIBS += -L/usr/lib -lusb
-win32:LIBS += -L"$$_PRO_FILE_PWD_/libs/"
-win32:INCLUDEPATH += $$_PRO_FILE_PWD_/libs
 
-RESOURCES += res/ressources.qrc \
-    loaders/loaders.qrc
+RESOURCES += res/ressources.qrc loaders/loaders.qrc
 
 # Icon for windows
 win32:RC_FILE = res/qstlink2.rc
