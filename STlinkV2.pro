@@ -57,8 +57,8 @@ win32 {
         DEFINES += QWINUSB
         SOURCES  += src/qwinusb.cpp
         HEADERS  += inc/qwinusb.h
-        LIBS += -L"$$_PRO_FILE_PWD_/libs/"
-        INCLUDEPATH += $$_PRO_FILE_PWD_/libs
+        #LIBS += -L"$$_PRO_FILE_PWD_/libs/"
+        #INCLUDEPATH += $$_PRO_FILE_PWD_/libs
     }
     else {
         message(Building with LibUsb support.)
@@ -69,10 +69,12 @@ win32 {
     }
 }
 
-unix:SOURCES  += src/LibUsb.cpp
-unix:HEADERS  += inc/LibUsb.h
-unix:LIBS += -L/usr/lib -lusb
-
+unix {
+    message(Building with LibUsb support.)
+    SOURCES  += src/LibUsb.cpp
+    HEADERS  += inc/LibUsb.h
+    LIBS += -L/usr/lib -lusb
+}
 RESOURCES += res/ressources.qrc loaders/loaders.qrc
 
 # Icon for windows
@@ -106,4 +108,4 @@ unix:!macx {
 #loaders.commands = cd $$_PRO_FILE_PWD_/loaders && make -f Makefile -j 4
 #QMAKE_EXTRA_TARGETS += loaders
 
-system("svn info $$_PRO_FILE_PWD_ --xml > res/svn-info.xml")
+unix:system("svn info $$_PRO_FILE_PWD_ --xml > res/svn-info.xml")
