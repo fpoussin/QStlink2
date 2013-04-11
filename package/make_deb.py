@@ -31,7 +31,7 @@ def makeChangelog(release, dest, rev):
 		row += " -- Fabien Poussin <fabien.poussin@gmail.com>  %s \n\n" %(revdate.strftime("%a, %d %b %Y %H:%M:%S %z")) ## Need to force address to sign with certificate
 		result +=row
 
-	out = open("debian/changelog", "w")
+	out = open(dest+"/debian/changelog", "w")
 	out.write(result)
 	out.close()
 	
