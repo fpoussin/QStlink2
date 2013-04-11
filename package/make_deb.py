@@ -35,7 +35,7 @@ def makeChangelog(release, dest):
 	out.write(result)
 	out.close()
 	
-def copySrc(dest):
+def copySrc(dest, rev):
 	
 	check_output(["rm -rf "+dest], shell=True)
 	print check_output(["mkdir -v "+dest], shell=True)
@@ -50,6 +50,10 @@ def copySrc(dest):
 	check_output(["rm -f "+dest+"/debian/*.ex "+dest+"/debian/*.EX "+dest+"/debian/ex.*"], shell=True)
 	
 	check_output(["svn info .. --xml > "+dest+"/res/svn-info.xml"], shell=True)
+	
+	out = open(dest+"/version", "w")
+	out.write(str(rev))
+	out.close()
 	
 def makeSrc(dest):
 	print "Building Source package"
@@ -83,7 +87,7 @@ if __name__ == "__main__":
 	folder_name = 'qstlink2-0.'+svn_rev+'~'+args.release
 	print "Package version:" , folder_name
 	
-	copySrc(folder_name)
+	copySrc(folder_name, svn_rev)
 	makeChangelog(args.release, folder_name)
 	
 	if args.source:

@@ -23,8 +23,8 @@ Dialog::Dialog(QWidget *parent) :
 {
     ui->setupUi(this);
 //    this->ui->l_text->setStyleSheet(QString::fromUtf8("background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 0), stop:1 rgba(255, 255, 255, 0));"));
-    ui->l_rev->setText(QString::number(this->m_version.getRevision()));
-    ui->l_cmpdate->setText(this->m_version.getBuildDate());
+    ui->l_version->setText(__QSTL_VER__);
+    ui->l_cmpdate->setText(QString(__DATE__)+" "+QString(__TIME__));
 }
 
 Dialog::~Dialog()

@@ -21,8 +21,24 @@
 
 QT += core gui xml
 contains(QT_MAJOR_VERSION, 5) { QT += widgets }
-#win32:CONFIG += console
+win32:CONFIG += console
 win32:CONFIG += winusb
+
+unix {
+    VERSION = $$system(svn info -r HEAD $$_PRO_FILE_PWD_ | grep 'Changed\ Rev' | cut -b 19-)
+    !isEmpty(VERSION){ # For manual build
+        VERSION = 0.$${VERSION}
+    }
+    else { ## For automatic PPA builds.
+        VERSION = 0.$$system(cat version)
+    }
+}
+win32 {
+    VERSION = 0.125 # Manual for windows
+}
+
+VERSTR = '\\"$${VERSION}\\"'  # place quotes around the version string
+DEFINES += __QSTL_VER__=\"$${VERSTR}\" # create a VER macro containing the version string
 
 TARGET = qstlink2
 TEMPLATE = app
@@ -38,7 +54,6 @@ SOURCES += src/main.cpp\
     src/devices.cpp \
     src/dialog.cpp \
    src/transferthread.cpp \
-    src/version.cpp \
     src/loader.cpp
 
 HEADERS  += inc/mainwindow.h \
@@ -47,7 +62,6 @@ HEADERS  += inc/mainwindow.h \
     inc/dialog.h \
     inc/transferthread.h \
     inc/compat.h \
-    inc/version.h \
     inc/loader.h
 
 win32 {
@@ -104,8 +118,3 @@ unix:!macx {
     launcher.files = res/qstlink2.desktop
     INSTALLS += launcher
 }
-#loaders.target = loaders
-#loaders.commands = cd $$_PRO_FILE_PWD_/loaders && make -f Makefile -j 4
-#QMAKE_EXTRA_TARGETS += loaders
-
-unix:system("svn info $$_PRO_FILE_PWD_ --xml > res/svn-info.xml")

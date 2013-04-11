@@ -21,7 +21,6 @@
 #include <QString>
 #include <QColor>
 #include <QStyle>
-#include <version.h>
 
 namespace Ui {
     class Dialog;
@@ -37,7 +36,6 @@ public:
     void setText(const QString &title, const QString &text);
     void setHTML(const QString &title, const QString &html);
     Ui::Dialog *ui;
-    svnversion m_version;
 };
 
 #endif // DIALOG_H

@@ -74,7 +74,7 @@
        <number>1</number>
       </property>
       <item>
-       <widget class="QLabel" name="lt_rev">
+       <widget class="QLabel" name="lt_version">
         <property name="enabled">
          <bool>true</bool>
         </property>
@@ -91,12 +91,12 @@
          </size>
         </property>
         <property name="text">
-         <string>Revision:</string>
+         <string>Version: </string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="l_rev">
+       <widget class="QLabel" name="l_version">
         <property name="text">
          <string/>
         </property>
@@ -118,7 +118,7 @@
          </size>
         </property>
         <property name="text">
-         <string>Compiled On:</string>
+         <string>Compiled On: </string>
         </property>
        </widget>
       </item>

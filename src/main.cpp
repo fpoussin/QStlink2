@@ -77,13 +77,13 @@ static QElapsedTimer timer;
 
 void showHelp()
 {
-    qCritical() << "Missing parameters, help below:";
     QFile help_file(":/help.html");
     if (!help_file.open(QIODevice::ReadOnly))
         return;
     QString help = help_file.readAll();
     help_file.close();
     qInformal() << help.remove(QRegExp("(<[^>]+>)|\t\b")); // Clearing HTML tags.
+    qInformal() << "Version:" << __QSTL_VER__;
 }
 
 bool shortParam(const QString &str, char p)
