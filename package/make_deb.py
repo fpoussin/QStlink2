@@ -91,7 +91,7 @@ if __name__ == "__main__":
 	if args.source:
 		makeSrc(folder_name)
 		if args.ppa:
-			sendSrc('qstlink2_0.'+svn_rev+'~'+args.release)
+			sendSrc('qstlink2_0.'+str(svn_rev)+'~'+args.release)
 	else:
 		makeBin(folder_name)
 		
