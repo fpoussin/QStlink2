@@ -12,10 +12,10 @@ parser.add_argument('-s', '--source', help='Build signed source package', action
 parser.add_argument('-b', '--bin', help='Build local binary package', action="store_true")
 parser.add_argument('-p', '--ppa', help='Send source package to PPA', action="store_true")
 
-def makeChangelog(release, dest):
+def makeChangelog(release, dest, rev):
 	
 	print "Building changelog file from svn logs"
-	tmp_svn = check_output(["svn log .. --limit 10 --xml"], shell=True)
+	tmp_svn = check_output(["svn log -r HEAD:"+str(rev-10)+" .. --limit 10 --xml"], shell=True)
 
 	xml_obj = ET.fromstring(tmp_svn)
 
@@ -49,8 +49,6 @@ def copySrc(dest, rev):
 	print check_output(["cp -v debian/* "+dest+"/debian/"], shell=True)
 	check_output(["rm -f "+dest+"/debian/*.ex "+dest+"/debian/*.EX "+dest+"/debian/ex.*"], shell=True)
 	
-	check_output(["svn info .. --xml > "+dest+"/res/svn-info.xml"], shell=True)
-	
 	out = open(dest+"/version", "w")
 	out.write(str(rev))
 	out.close()
@@ -77,18 +75,18 @@ if __name__ == "__main__":
 		print "Invalid Ubuntu release, please chose among:", releases
 		sys.exit(1)
 		
-	svn_rev = ET.fromstring(check_output(["svn info .. --xml"], shell=True)).find('entry').attrib["revision"]
+	svn_rev = int(ET.fromstring(check_output(["svn info -r HEAD --xml"], shell=True)).find('entry').attrib["revision"])
 	if not svn_rev:
 		print "Could not fetch last revision number"
 		sys.exit(1)
 
 	print "Last revision:" , svn_rev
 	
-	folder_name = 'qstlink2-0.'+svn_rev+'~'+args.release
+	folder_name = 'qstlink2-0.'+str(svn_rev)+'~'+args.release
 	print "Package version:" , folder_name
 	
 	copySrc(folder_name, svn_rev)
-	makeChangelog(args.release, folder_name)
+	makeChangelog(args.release, folder_name, svn_rev)
 	
 	if args.source:
 		makeSrc(folder_name)
