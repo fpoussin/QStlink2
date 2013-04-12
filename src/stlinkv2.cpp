@@ -598,7 +598,7 @@ void stlinkv2::sendLoader() {
     this->writeRegister((*this->device)["sram_base"], 15); // PC register to sram base.
 }
 
-bool stlinkv2::setLoaderBuffer(quint32 addr, const QByteArray& buf) {
+bool stlinkv2::setLoaderBuffer(const quint32 addr, const QByteArray& buf) {
 
     using namespace Loader::Addr;
     uchar ar_tmp[4];

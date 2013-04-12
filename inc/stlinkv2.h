@@ -204,7 +204,7 @@ public slots:
     quint32 getChipID();
     quint32 getRevID();
     void sendLoader();
-    bool setLoaderBuffer(quint32 addr, const QByteArray& buf);
+    bool setLoaderBuffer(const quint32 addr, const QByteArray& buf);
     quint32 getLoaderStatus();
     quint32 getLoaderPos();
     void getLoaderParams();

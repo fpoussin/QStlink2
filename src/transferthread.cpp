@@ -70,11 +70,11 @@ void transferThread::sendWithLoader(const QString &filename)
     quint32 step_size = 2048;
     if ((*this->stlink->device)["sram_size"] > 0)
         step_size = (*this->stlink->device)["sram_size"]-2048;
-    quint32 from = (*this->stlink->device)["flash_base"];
-    quint32 to = (*this->stlink->device)["flash_base"]+file.size();
+    const quint32 from = (*this->stlink->device)["flash_base"];
+    const quint32 to = (*this->stlink->device)["flash_base"]+file.size();
     qInformal() << "Writing from" << "0x"+QString::number(from, 16) << "to" << "0x"+QString::number(to, 16);
 //    QByteArray buf;
-    quint32 addr, progress, oldprogress, read;
+    quint32 progress, oldprogress, read;
     char *buf2 = new char[step_size];
 
     this->stlink->resetMCU();
@@ -116,8 +116,9 @@ void transferThread::sendWithLoader(const QString &filename)
         QByteArray buf(buf2, read);
 
 
-        addr = (*this->stlink->device)["flash_base"]+i;
+        const quint32 addr = (*this->stlink->device)["flash_base"]+i;
 
+        emit sendLoaderStatus("Loading");
         if (!this->stlink->setLoaderBuffer(addr, buf)) {
             emit sendStatus("Failed to set loader parameters.");
             break;
@@ -137,7 +138,8 @@ void transferThread::sendWithLoader(const QString &filename)
                     emit sendProgress(progress);
                     qInformal() << "Progress:"<< QString::number(progress)+"%";
                 }
-                emit sendStatus("Transfered "+QString::number(i/1024)+" kilobytes out of "+QString::number(file.size()/1024));
+                emit sendLoaderStatus("Writing");
+                emit sendStatus("Transferred "+QString::number(i/1024)+"/"+QString::number(file.size()/1024)+"KB");
                 usleep(20000); // 20ms
                 if (this->m_stop) break;
         }
@@ -149,9 +151,11 @@ void transferThread::sendWithLoader(const QString &filename)
         }
 
         if (status & Loader::Masks::DEL) {
+            emit sendLoaderStatus("Erased");
             qInformal() << "Page(s) deleted";
         }
     }
+    emit sendLoaderStatus("Idle");
     file.close();
     delete buf2;
 

@@ -24,24 +24,34 @@ contains(QT_MAJOR_VERSION, 5) { QT += widgets }
 win32:CONFIG += console
 win32:CONFIG += winusb
 
+TEMPLATE = app
+TARGET = qstlink2
+
 unix {
-    VERSION = $$system(svn info -r HEAD $$_PRO_FILE_PWD_ | grep 'Changed\ Rev' | cut -b 19-)
+    VERSION = $$system(svn info | grep \"Changed Rev\" | cut -b 19-)
     !isEmpty(VERSION){ # For manual build
         VERSION = 0.$${VERSION}
     }
     else { ## For automatic PPA builds.
         VERSION = 0.$$system(cat version)
+        message(Using SVN version from static file.)
     }
 }
 win32 {
-    VERSION = 0.125 # Manual for windows
+    VERSION = $$system(svn info | grep \"Changed Rev\" | cut -b 19-)
+    !isEmpty(VERSION){ # For manual build
+        VERSION = 0.$${VERSION}
+    }
+    else {
+        VERSION = 0.0 # Manual for windows
+        message(Using manual SVN version for Windows.)
+    }
 }
+
+message(Version $$VERSION)
 
 VERSTR = '\\"$${VERSION}\\"'  # place quotes around the version string
 DEFINES += __QSTL_VER__=\"$${VERSTR}\" # create a VER macro containing the version string
-
-TARGET = qstlink2
-TEMPLATE = app
 
 INCLUDEPATH += inc
 
@@ -65,7 +75,11 @@ HEADERS  += inc/mainwindow.h \
     inc/loader.h
 
 win32 {
-    CONFIG(console) { message(Building with debug console.) }
+    TARGET = qstlink2_$${VERSION}
+    CONFIG(console) {
+        message(Building with debug console.)
+        TARGET = qstlink2_console_$${VERSION}
+    }
     CONFIG(winusb) {
         message(Building with WinUSB support.)
         DEFINES += QWINUSB
@@ -96,9 +110,7 @@ win32:RC_FILE = res/qstlink2.rc
 # OSX
 macx:ICON = res/images/icon.icns
 
-TARGET = qstlink2
 target.path = /usr/bin
-#target.depends = loaders
 INSTALLS += target
 
 conf.path = /etc/udev/rules.d

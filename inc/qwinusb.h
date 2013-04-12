@@ -38,6 +38,7 @@ class QUsb : public QObject
     };
 public:
     explicit QUsb(QObject *parent = 0);
+    ~QUsb();
     
 public slots:
     qint32 open();

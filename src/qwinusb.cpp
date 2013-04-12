@@ -11,6 +11,11 @@ QUsb::QUsb(QObject *parent) :
 //    cbSize = 0;
 }
 
+QUsb::~QUsb()
+{
+    this->close();
+}
+
 qint32 QUsb::open()
 {
     if (!GetDeviceHandle(m_guidDeviceInterface, &m_devHandle)) return -1;

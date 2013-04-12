@@ -34,6 +34,7 @@ public:
 signals:
     void sendProgress(quint32 p);
     void sendStatus(const QString &s);
+    void sendLoaderStatus(const QString &s);
     void sendError(const QString &s);
     void sendLock(bool enabled);
     void sendLog(const QString &s);

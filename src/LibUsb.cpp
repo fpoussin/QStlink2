@@ -29,6 +29,11 @@ QUsb::QUsb(QObject *parent) :
     usb_set_debug(0);
 }
 
+QUsb::~QUsb()
+{
+    this->close();
+}
+
 qint32 QUsb::open()
 {
 

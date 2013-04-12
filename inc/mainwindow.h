@@ -47,6 +47,7 @@ public slots:
     void Disconnect();
     void updateProgress(quint32 p);
     void updateStatus(const QString &s);
+    void updateLoaderStatus(const QString &s);
     void Send(const QString &path);
     void Receive(const QString &path);
     void Verify(const QString &path);
