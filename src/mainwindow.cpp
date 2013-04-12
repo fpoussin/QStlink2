@@ -23,7 +23,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    this->isroot = false;
     this->ui->b_disconnect->setEnabled(false);
     this->ui->b_send->setEnabled(false);
     this->ui->b_receive->setEnabled(false);
@@ -36,7 +35,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
         this->ui->gb_top->setEnabled(true);
         this->log(QString::number(this->devices->getDevicesCount())+" Device descriptions loaded.");
-        QObject::connect(this->ui->b_quit,SIGNAL(clicked()),qApp,SLOT(quit()));
+        QObject::connect(this->ui->b_quit,SIGNAL(clicked()),this,SLOT(Quit()));
         QObject::connect(this->ui->b_qt,SIGNAL(clicked()),qApp,SLOT(aboutQt()));
         QObject::connect(this->ui->b_connect, SIGNAL(clicked()), this, SLOT(Connect()));
         QObject::connect(this->ui->b_disconnect, SIGNAL(clicked()), this, SLOT(Disconnect()));
@@ -90,13 +89,19 @@ void MainWindow::showHelp()
     this->dialog.show();
 }
 
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    (void)event;
+    this->Quit();
+}
+
 bool MainWindow::Connect()
 {
     this->log("Searching Device...");
 
     switch (this->stlink->connect()) {
     case -1:
-        this->log("ST Link V2 not found or unable to access it.\nCheck the logs.");
+        this->log("ST Link V2 not found or unable to access it.");
 #if defined(QWINUSB) && defined(WIN32)
         this->log("Did you install the official ST-Link V2 driver ?");
 #elif !defined(WIN32)
@@ -326,6 +331,14 @@ void MainWindow::setModeSWD()
     this->stlink->setModeSWD();
     usleep(100000);
     this->getMode();
+}
+
+void MainWindow::Quit()
+{
+    this->hide();
+    if (this->stlink->isConnected())
+        this->Disconnect();
+    qApp->quit();
 }
 
 void MainWindow::getVersion()

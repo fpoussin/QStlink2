@@ -47,7 +47,8 @@ qint32 stlinkv2::connect()
 
 void stlinkv2::disconnect()
 {
-    this->DebugCommand(STLink::Cmd::Dbg::Exit, 0, 2);
+//    this->DebugCommand(STLink::Cmd::Dbg::Exit, 0, 2);
+    this->Command(STLink::Cmd::Reset, 0x80, 2);
     this->usb->close();
     this->connected = false;
 }

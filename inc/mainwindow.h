@@ -53,6 +53,7 @@ public slots:
     void Verify(const QString &path);
     void eraseFlash();
     void showHelp();
+    void closeEvent(QCloseEvent *event);
 
 private:
     Ui::MainWindow *ui;
@@ -61,7 +62,6 @@ private:
     DeviceList *devices;
     QString filename;
     QString username;
-    bool isroot;
 
 private slots:
     void lockUI(bool enabled);
@@ -79,6 +79,7 @@ private slots:
     void HaltMCU();
     void setModeJTAG();
     void setModeSWD();
+    void Quit();
 
 };
 

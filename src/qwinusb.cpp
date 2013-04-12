@@ -37,6 +37,12 @@ qint32 QUsb::open()
     if (!WinUsb_SetPipePolicy(m_usbHandle, m_pipeId.PipeOutId, PIPE_TRANSFER_TIMEOUT, sizeof(ulong), &timeout)) {
         qCritical("Error WinUsb_SetPipePolicy: %d.\n", GetLastError()); return -1; }
 
+    ulong stall = 1; // ms
+    if (!WinUsb_SetPipePolicy(m_usbHandle, m_pipeId.PipeInId, AUTO_CLEAR_STALL, sizeof(ulong), &stall)) {
+        qCritical("Error WinUsb_SetPipePolicy: %d.\n", GetLastError()); return -1; }
+    if (!WinUsb_SetPipePolicy(m_usbHandle, m_pipeId.PipeOutId, AUTO_CLEAR_STALL, sizeof(ulong), &stall)) {
+        qCritical("Error WinUsb_SetPipePolicy: %d.\n", GetLastError()); return -1; }
+
     return 1;
 }
 
