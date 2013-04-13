@@ -625,18 +625,21 @@ bool stlinkv2::setLoaderBuffer(const quint32 addr, const QByteArray& buf) {
         return false;
     }
 
+    emit bufferPct(0);
     int i=0;
     const int step = 2048;
     for (; i < buf.size()/step; i++) {
 
         tmp = QByteArray(buf.constData()+(i*step), step);
         this->writeMem32(BUFFER+(i*step), tmp);
+        emit bufferPct(((step*(i+1))*100)/buf.size());
     }
     const int mod = buf.size()%step;
     if (mod>0)  {
         tmp = QByteArray(buf.constData()+buf.size()-mod, mod);
         this->writeMem32(BUFFER+(i*step), tmp);
     }
+    emit bufferPct(100);
     return true;
 }
 

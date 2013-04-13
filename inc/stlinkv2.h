@@ -168,6 +168,7 @@ public:
     STVersion version;
 
 signals:
+    void bufferPct(quint32 p);
 
 public slots:
     qint32 connect();

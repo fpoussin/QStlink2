@@ -53,6 +53,7 @@ MainWindow::MainWindow(QWidget *parent) :
         QObject::connect(this->tfThread, SIGNAL(sendProgress(quint32)), this, SLOT(updateProgress(quint32)));
         QObject::connect(this->tfThread, SIGNAL(sendStatus(QString)), this, SLOT(updateStatus(QString)));
         QObject::connect(this->tfThread, SIGNAL(sendLoaderStatus(QString)), this, SLOT(updateLoaderStatus(QString)));
+        QObject::connect(this->stlink, SIGNAL(bufferPct(quint32)), this, SLOT(updateLoaderPct(quint32)));
         QObject::connect(this->tfThread, SIGNAL(sendLock(bool)), this, SLOT(lockUI(bool)));
         QObject::connect(this->ui->b_stop, SIGNAL(clicked()), this->tfThread, SLOT(halt()));
         QObject::connect(this->tfThread, SIGNAL(sendLog(QString)), this, SLOT(log(QString)));
@@ -172,6 +173,11 @@ void MainWindow::updateStatus(const QString &s)
 void MainWindow::updateLoaderStatus(const QString &s)
 {
     this->ui->l_status->setText(s);
+}
+
+void MainWindow::updateLoaderPct(quint32 p)
+{
+    this->ui->pgb_loader->setValue(p);
 }
 
 void MainWindow::Send()
