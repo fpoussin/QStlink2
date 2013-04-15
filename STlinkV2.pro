@@ -21,32 +21,12 @@
 
 QT += core gui xml
 contains(QT_MAJOR_VERSION, 5) { QT += widgets }
-win32:CONFIG += console
+#win32:CONFIG += console
 win32:CONFIG += winusb
 
 TEMPLATE = app
 TARGET = qstlink2
-
-unix {
-    VERSION = $$system(svn info | grep \"Changed Rev\" | cut -b 19-)
-    !isEmpty(VERSION){ # For manual build
-        VERSION = 0.$${VERSION}
-    }
-    else { ## For automatic PPA builds.
-        VERSION = 0.$$system(cat version)
-        message(Using SVN version from static file.)
-    }
-}
-win32 {
-    VERSION = $$system(svn info | grep \"Changed Rev\" | cut -b 19-)
-    !isEmpty(VERSION){ # For manual build
-        VERSION = 0.$${VERSION}
-    }
-    else {
-        VERSION = 0.0 # Manual for windows
-        message(Using manual SVN version for Windows.)
-    }
-}
+VERSION = 1.0.0
 
 message(Version $$VERSION)
 
@@ -85,8 +65,6 @@ win32 {
         DEFINES += QWINUSB
         SOURCES  += src/qwinusb.cpp
         HEADERS  += inc/qwinusb.h
-        #LIBS += -L"$$_PRO_FILE_PWD_/libs/"
-        #INCLUDEPATH += $$_PRO_FILE_PWD_/libs
     }
     else {
         message(Building with LibUsb support.)
