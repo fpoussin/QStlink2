@@ -13,27 +13,12 @@ parser.add_argument('-b', '--bin', help='Build local binary package', action="st
 parser.add_argument('-p', '--ppa', help='Send source package to PPA', action="store_true")
 
 def makeChangelog(release, dest, rev):
+
+	#~ f = open(dest+"/debian/changelog", "r")
+	#~ tmp = f.read()
+	#~ f.close()
 	
-	print "Building changelog file from svn logs"
-	tmp_svn = check_output(["svn log -r HEAD:"+str(rev-10)+" .. --limit 10 --xml"], shell=True)
-
-	xml_obj = ET.fromstring(tmp_svn)
-
-	result = ""
-	for entry in xml_obj.iter('logentry'):
-		
-		revmsg = entry.find('msg').text
-		revdate = iso8601.parse_date(entry.find('date').text)
-		revauthor = entry.find('author').text
-		row = "qstlink2 (0.%s~%s) %s; urgency=medium" % (entry.attrib["revision"], release, release)
-		row += "\n\n  * " + revmsg.replace("\n", "\n    ") + "\n"
-		#row += " -- Fabien Poussin <%s>  %s \r\n\r\n" %(revauthor, revdate.strftime("%a, %d %b %Y %H:%M:%S %z"))
-		row += " -- Fabien Poussin <fabien.poussin@gmail.com>  %s \n\n" %(revdate.strftime("%a, %d %b %Y %H:%M:%S %z")) ## Need to force address to sign with certificate
-		result +=row
-
-	out = open(dest+"/debian/changelog", "w")
-	out.write(result)
-	out.close()
+	pass
 	
 def copySrc(dest, rev):
 	
@@ -49,9 +34,16 @@ def copySrc(dest, rev):
 	print check_output(["cp -v debian/* "+dest+"/debian/"], shell=True)
 	check_output(["rm -f "+dest+"/debian/*.ex "+dest+"/debian/*.EX "+dest+"/debian/ex.*"], shell=True)
 	
-	out = open(dest+"/version", "w")
-	out.write(str(rev))
-	out.close()
+	f = open(dest+"/debian/changelog", "r")
+	tmp = f.read().replace("unstable; urgency=low", args.release+"; urgency=medium")
+	f.close()
+	f = open(dest+"/debian/changelog", "w")
+	f.write(str(tmp))
+	f.close()
+	
+	f = open(dest+"/version", "w")
+	f.write(str(rev))
+	f.close()
 	
 def makeSrc(dest):
 	print "Building Source package"
@@ -86,7 +78,7 @@ if __name__ == "__main__":
 	print "Package version:" , folder_name
 	
 	copySrc(folder_name, ver)
-	#makeChangelog(args.release, folder_name, svn_rev)
+	makeChangelog(args.release, folder_name, ver)
 	
 	if args.source:
 		makeSrc(folder_name)
