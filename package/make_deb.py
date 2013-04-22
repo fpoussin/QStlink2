@@ -75,23 +75,23 @@ if __name__ == "__main__":
 		print "Invalid Ubuntu release, please chose among:", releases
 		sys.exit(1)
 		
-	svn_rev = int(ET.fromstring(check_output(["svn info -r HEAD --xml"], shell=True)).find('entry').attrib["revision"])
-	if not svn_rev:
-		print "Could not fetch last revision number"
+	ver = check_output(["grep \"VERSION =\" ../STlinkV2.pro | awk '{ print $3 }' "], shell=True).replace('\n','')
+	if not ver:
+		print "Could not fetch last version"
 		sys.exit(1)
 
-	print "Last revision:" , svn_rev
+	print "Last version:" , ver
 	
-	folder_name = 'qstlink2-0.'+str(svn_rev)+'~'+args.release
+	folder_name = 'qstlink2-'+str(ver)+'~'+args.release
 	print "Package version:" , folder_name
 	
-	copySrc(folder_name, svn_rev)
-	makeChangelog(args.release, folder_name, svn_rev)
+	copySrc(folder_name, ver)
+	#makeChangelog(args.release, folder_name, svn_rev)
 	
 	if args.source:
 		makeSrc(folder_name)
 		if args.ppa:
-			sendSrc('qstlink2_0.'+str(svn_rev)+'~'+args.release)
+			sendSrc('qstlink2_'+str(ver)+'~'+args.release)
 	else:
 		makeBin(folder_name)
 		
