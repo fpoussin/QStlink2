@@ -36,4 +36,7 @@ This file is part of QSTLink2.
 #define QtInfoMsg QtWarningMsg // Little hack to have an "info" level of output.
 #define qInformal() qWarning()
 
+#define PrintError() qCritical ("In %s, at %s:%d", Q_FUNC_INFO, __FILE__, __LINE__)
+#define PrintFuncName() qDebug() << "***[" << Q_FUNC_INFO << "]***"
+
 #endif // COMPAT_H

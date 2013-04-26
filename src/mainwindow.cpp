@@ -98,6 +98,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 bool MainWindow::Connect()
 {
+    PrintFuncName();
     this->log("Searching Device...");
 
     switch (this->stlink->connect()) {

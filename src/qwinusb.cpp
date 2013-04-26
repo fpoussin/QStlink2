@@ -55,7 +55,7 @@ void QUsb::close()
 
 qint32 QUsb::read(QByteArray *buf, quint32 bytes)
 {
-    qDebug() << "***[QWinUsb::read]***";
+    PrintFuncName();
     if (m_usbHandle==INVALID_HANDLE_VALUE || !m_pipeId.PipeInId)
     {
         return -1;
@@ -86,7 +86,7 @@ qint32 QUsb::read(QByteArray *buf, quint32 bytes)
 
 qint32 QUsb::write(QByteArray *buf, quint32 bytes)
 {
-    qDebug() << "***[QWinUsb::write]***";
+    PrintFuncName();
     if (m_usbHandle==INVALID_HANDLE_VALUE || !m_pipeId.PipeOutId)
     {
         return -1;
@@ -110,7 +110,7 @@ qint32 QUsb::write(QByteArray *buf, quint32 bytes)
 
 bool QUsb::GetDeviceHandle(GUID guidDeviceInterface, PHANDLE hDeviceHandle)
 {
-    qDebug() << "***[GetDeviceHandle]***";
+    PrintFuncName();
     if (guidDeviceInterface==GUID_NULL)
     {
         return false;
@@ -281,7 +281,7 @@ bool QUsb::GetDeviceHandle(GUID guidDeviceInterface, PHANDLE hDeviceHandle)
 
 bool QUsb::GetWinUSBHandle(HANDLE hDeviceHandle, PWINUSB_INTERFACE_HANDLE phWinUSBHandle)
 {
-    qDebug() << "***[GetWinUSBHandle]***";
+    PrintFuncName();
     if (hDeviceHandle == INVALID_HANDLE_VALUE)
     {
         return false;
@@ -299,7 +299,7 @@ bool QUsb::GetWinUSBHandle(HANDLE hDeviceHandle, PWINUSB_INTERFACE_HANDLE phWinU
 
 bool QUsb::GetUSBDeviceSpeed(WINUSB_INTERFACE_HANDLE hWinUSBHandle, quint8 *pDeviceSpeed)
 {
-    qDebug() << "***[GetUSBDeviceSpeed]***";
+    PrintFuncName();
     if (!pDeviceSpeed || hWinUSBHandle==INVALID_HANDLE_VALUE)
     {
         return false;
@@ -333,7 +333,7 @@ bool QUsb::GetUSBDeviceSpeed(WINUSB_INTERFACE_HANDLE hWinUSBHandle, quint8 *pDev
 
 bool QUsb::QueryDeviceEndpoints(WINUSB_INTERFACE_HANDLE hWinUSBHandle, QUsb::PIPE_ID *pipeid)
 {
-    qDebug() << "***[QueryDeviceEndpoints]***";
+    PrintFuncName();
     if (hWinUSBHandle==INVALID_HANDLE_VALUE)
     {
         return false;
