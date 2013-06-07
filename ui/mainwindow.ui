@@ -75,6 +75,13 @@
          </widget>
         </item>
         <item>
+         <widget class="Line" name="line_3">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QPushButton" name="b_repeat">
           <property name="enabled">
            <bool>true</bool>
@@ -88,6 +95,13 @@
           <property name="icon">
            <iconset resource="../res/ressources.qrc">
             <normaloff>:/images/refresh.png</normaloff>:/images/refresh.png</iconset>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="Line" name="line_4">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
           </property>
          </widget>
         </item>
@@ -143,6 +157,9 @@
     </item>
     <item>
      <widget class="QPlainTextEdit" name="t_log">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
         <horstretch>0</horstretch>
@@ -157,6 +174,9 @@
         <bold>false</bold>
        </font>
       </property>
+      <property name="documentTitle">
+       <string/>
+      </property>
       <property name="undoRedoEnabled">
        <bool>false</bool>
       </property>
@@ -167,14 +187,23 @@
     </item>
     <item>
      <widget class="QTabWidget" name="tabw_info">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
+      <property name="tabPosition">
+       <enum>QTabWidget::North</enum>
+      </property>
+      <property name="tabShape">
+       <enum>QTabWidget::Rounded</enum>
+      </property>
       <property name="currentIndex">
-       <number>3</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_mcu">
        <attribute name="title">
