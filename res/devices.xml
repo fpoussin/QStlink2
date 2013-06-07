@@ -109,7 +109,7 @@
                 <device type="STM32F30*" coretype="CM4">
 			<core_id>0x2ba01477</core_id>
 			<chip_id>0x422</chip_id>
-			<flash_size_reg>0x1FFF7A22</flash_size_reg>
+                        <flash_size_reg>0x1FFFF7CC</flash_size_reg>
 			<flash_int_reg>0x40023c00</flash_int_reg>
                         <sram_size>0x4000</sram_size>
                         <loader>loader_f30.bin</loader>
@@ -117,7 +117,7 @@
                 <device type="STM32F37*" coretype="CM4">
 			<core_id>0x2ba01477</core_id>
 			<chip_id>0x432</chip_id>
-			<flash_size_reg>0x1FFF7A22</flash_size_reg>
+                        <flash_size_reg>0x1FFFF7CC</flash_size_reg>
 			<flash_int_reg>0x40023c00</flash_int_reg>
                         <sram_size>0x4000</sram_size>
                         <loader>loader_f37.bin</loader>
