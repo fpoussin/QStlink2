@@ -51,7 +51,7 @@ private:
     bool GetWinUSBHandle(HANDLE hDeviceHandle, PWINUSB_INTERFACE_HANDLE phWinUSBHandle);
     bool GetUSBDeviceSpeed(WINUSB_INTERFACE_HANDLE hWinUSBHandle, quint8 *pDeviceSpeed);
     bool QueryDeviceEndpoints(WINUSB_INTERFACE_HANDLE hWinUSBHandle, PIPE_ID* pipeid);
-    void PrintError(const QString& func);
+    void PrintUsbError(const QString& func);
 
     GUID m_guidDeviceInterface;
     HANDLE m_devHandle;

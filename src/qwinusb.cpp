@@ -78,7 +78,7 @@ qint32 QUsb::read(QByteArray *buf, quint32 bytes)
     }
     delete buffer;
     if (!bResult) {
-        PrintError("WinUsb_ReadPipe");
+        PrintUsbError("WinUsb_ReadPipe");
         return -1;
     }
     return cbRead;
@@ -102,7 +102,7 @@ qint32 QUsb::write(QByteArray *buf, quint32 bytes)
     ulong cbSent = 0;
     bool bResult = WinUsb_WritePipe(m_usbHandle, m_pipeId.PipeOutId, (uchar*)buf->data(), bytes, &cbSent, 0);
     if (!bResult) {
-        PrintError("WinUsb_WritePipe");
+        PrintUsbError("WinUsb_WritePipe");
         return -1;
     }
     return cbSent;
@@ -140,7 +140,7 @@ bool QUsb::GetDeviceHandle(GUID guidDeviceInterface, PHANDLE hDeviceHandle)
     if (hDeviceInfo == INVALID_HANDLE_VALUE)
     {
         // ERROR
-        PrintError("SetupDiGetClassDevs");
+        PrintUsbError("SetupDiGetClassDevs");
         goto done;
     }
 
@@ -178,7 +178,7 @@ bool QUsb::GetDeviceHandle(GUID guidDeviceInterface, PHANDLE hDeviceHandle)
         //Check for some other error
         if (!bResult)
         {
-            PrintError("SetupDiEnumDeviceInterfaces");
+            PrintUsbError("SetupDiEnumDeviceInterfaces");
             goto done;
         }
 
@@ -212,7 +212,7 @@ bool QUsb::GetDeviceHandle(GUID guidDeviceInterface, PHANDLE hDeviceHandle)
             }
             else
             {
-                PrintError("SetupDiEnumDeviceInterfaces");
+                PrintUsbError("SetupDiEnumDeviceInterfaces");
                 goto done;
             }
         }
@@ -232,7 +232,7 @@ bool QUsb::GetDeviceHandle(GUID guidDeviceInterface, PHANDLE hDeviceHandle)
         //Check for some other error
         if (!bResult)
         {
-            PrintError("SetupDiGetDeviceInterfaceDetail");
+            PrintUsbError("SetupDiGetDeviceInterfaceDetail");
             goto done;
         }
 
@@ -267,7 +267,7 @@ bool QUsb::GetDeviceHandle(GUID guidDeviceInterface, PHANDLE hDeviceHandle)
     if (*hDeviceHandle == INVALID_HANDLE_VALUE)
     {
         //Error.
-        PrintError("");
+        PrintUsbError("");
         goto done;
     }
 
@@ -290,7 +290,7 @@ bool QUsb::GetWinUSBHandle(HANDLE hDeviceHandle, PWINUSB_INTERFACE_HANDLE phWinU
     if(!WinUsb_Initialize(hDeviceHandle, phWinUSBHandle))
     {
         //Error.
-        PrintError("WinUsb_Initialize");
+        PrintUsbError("WinUsb_Initialize");
         return false;
     }
 
@@ -309,7 +309,7 @@ bool QUsb::GetUSBDeviceSpeed(WINUSB_INTERFACE_HANDLE hWinUSBHandle, quint8 *pDev
 
     if(!WinUsb_QueryDeviceInformation(hWinUSBHandle, DEVICE_SPEED, &length, pDeviceSpeed))
     {
-        PrintError("Error getting device speed");
+        PrintUsbError("Error getting device speed");
         return false;
     }
 
@@ -397,7 +397,7 @@ bool QUsb::QueryDeviceEndpoints(WINUSB_INTERFACE_HANDLE hWinUSBHandle, QUsb::PIP
     return true;
 }
 
-void QUsb::PrintError(const QString &func)
+void QUsb::PrintUsbError(const QString &func)
 {
     const quint32 err = GetLastError();
     switch (err) {
