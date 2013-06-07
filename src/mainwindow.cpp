@@ -133,6 +133,7 @@ bool MainWindow::Connect()
             this->ui->b_send->setEnabled(true);
             this->ui->b_receive->setEnabled(true);
             this->ui->b_verify->setEnabled(true);
+            this->ui->b_repeat->setEnabled(true);
             return true;
         }
         else
@@ -153,6 +154,7 @@ void MainWindow::Disconnect()
     this->ui->b_send->setEnabled(false);
     this->ui->b_receive->setEnabled(false);
     this->ui->b_verify->setEnabled(false);
+    this->ui->b_repeat->setEnabled(false);
 }
 
 void MainWindow::log(const QString &s)
@@ -191,7 +193,6 @@ void MainWindow::Send()
     this->filename.clear();
     this->filename = QFileDialog::getOpenFileName(this, "Open file", "", "Binary Files (*.bin)");
     if (!this->filename.isNull()) {
-        this->log("Sending from "+this->filename);
         QFile file(this->filename);
         if (!file.open(QIODevice::ReadOnly)) {
             qCritical("Could not open the file.");
@@ -219,6 +220,7 @@ void MainWindow::Send()
 void MainWindow::Send(const QString &path)
 {
     qDebug("Writing flash");
+    this->log("Sending "+path);
     this->stlink->resetMCU(); // We stop the MCU
     this->ui->tabw_info->setCurrentIndex(3);
     this->ui->pgb_transfer->setValue(0);
@@ -235,7 +237,6 @@ void MainWindow::Receive()
     this->filename.clear();
     this->filename = QFileDialog::getSaveFileName(this, "Save File", "", "Binary Files (*.bin)");
     if (!this->filename.isNull()) {
-        this->log("Saving to "+this->filename);
         QFile file(this->filename);
         if (!file.open(QIODevice::ReadWrite)) {
             qCritical("Could not save the file.");
@@ -249,6 +250,7 @@ void MainWindow::Receive()
 
 void MainWindow::Receive(const QString &path)
 {
+    this->log("Saving to "+path);
     this->ui->tabw_info->setCurrentIndex(3);
     this->ui->pgb_transfer->setValue(0);
     this->ui->l_progress->setText("Starting transfer...");
@@ -264,7 +266,6 @@ void MainWindow::Verify()
     this->filename.clear();
     this->filename = QFileDialog::getOpenFileName(this, "Open file", "", "Binary Files (*.bin)");
     if (!this->filename.isNull()) {
-        this->log("Verifying "+this->filename);
         QFile file(this->filename);
         if (!file.open(QIODevice::ReadOnly)) {
             qCritical("Could not open the file.");
@@ -299,6 +300,7 @@ void MainWindow::Repeat()
 
 void MainWindow::Verify(const QString &path)
 {
+    this->log("Verifying "+path);
     this->ui->tabw_info->setCurrentIndex(3);
     this->ui->pgb_transfer->setValue(0);
     this->ui->l_progress->setText("Starting Verification...");
