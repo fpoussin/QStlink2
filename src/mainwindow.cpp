@@ -24,12 +24,16 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     this->ui->b_disconnect->setEnabled(false);
+    this->ui->gb_top->setEnabled(false);
     this->ui->b_send->setEnabled(false);
     this->ui->b_receive->setEnabled(false);
     this->ui->b_verify->setEnabled(false);
+    this->ui->b_repeat->setEnabled(false);
     this->stlink = new stlinkv2();
     this->devices = new DeviceList(this);
     this->tfThread = new transferThread();
+
+    this->lastAction = ACTION_NONE;
 
     if (this->devices->IsLoaded()) {
 
@@ -42,6 +46,7 @@ MainWindow::MainWindow(QWidget *parent) :
         QObject::connect(this->ui->b_send, SIGNAL(clicked()), this, SLOT(Send()));
         QObject::connect(this->ui->b_receive, SIGNAL(clicked()), this, SLOT(Receive()));
         QObject::connect(this->ui->b_verify, SIGNAL(clicked()), this, SLOT(Verify()));
+        QObject::connect(this->ui->b_repeat, SIGNAL(clicked()), this, SLOT(Repeat()));
         QObject::connect(this->ui->b_halt, SIGNAL(clicked()), this, SLOT(HaltMCU()));
         QObject::connect(this->ui->b_run, SIGNAL(clicked()), this, SLOT(RunMCU()));
         QObject::connect(this->ui->b_reset, SIGNAL(clicked()), this, SLOT(ResetMCU()));
@@ -207,6 +212,7 @@ void MainWindow::Send()
         file.close();
 
         this->Send(this->filename);
+        this->lastAction = ACTION_SEND;
     }
 }
 
@@ -237,6 +243,7 @@ void MainWindow::Receive()
         }
         file.close();
         this->Receive(this->filename);
+        this->lastAction = ACTION_RECEIVE;
     }
 }
 
@@ -265,6 +272,28 @@ void MainWindow::Verify()
         }
         file.close();
         this->Verify(this->filename);
+        this->lastAction = ACTION_VERIFY;
+    }
+}
+
+void MainWindow::Repeat()
+{
+    switch (this->lastAction) {
+
+        case ACTION_SEND:
+            this->Send(this->filename);
+            break;
+        case ACTION_RECEIVE:
+            this->Receive(this->filename);
+            break;
+        case ACTION_VERIFY:
+            this->Verify(this->filename);
+            break;
+        case ACTION_NONE:
+            this->log("Nothing to repeat.");
+            break;
+        default:
+            break;
     }
 }
 

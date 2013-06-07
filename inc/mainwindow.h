@@ -37,6 +37,13 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
+    enum {
+        ACTION_NONE = 0,
+        ACTION_SEND = 1,
+        ACTION_RECEIVE = 2,
+        ACTION_VERIFY = 3
+    };
+
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
@@ -63,6 +70,7 @@ private:
     DeviceList *devices;
     QString filename;
     QString username;
+    quint32 lastAction;
 
 private slots:
     void lockUI(bool enabled);
@@ -74,6 +82,7 @@ private slots:
     void Send();
     void Receive();
     void Verify();
+    void Repeat();
     void ResetMCU();
     void HardReset();
     void RunMCU();
