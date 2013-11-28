@@ -20,8 +20,8 @@
 
 ENTRY(main)
 
-__main_stack_size__     = 0x100;
-__process_stack_size__  = 0x100;
+__main_stack_size__     = 0x180;
+__process_stack_size__  = 0x180;
 
 MEMORY
 {

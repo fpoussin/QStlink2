@@ -72,7 +72,7 @@
 #elif defined(STM32L1)
 	#define FLASH_STEP 4
 	#define FLASH_PGM FLASH_FastProgramWord
-	#define FLASH_PAGE_SIZE         ((uint32_t)0x00000800)   /* FLASH Page Size */
+	#define FLASH_PAGE_SIZE         ((uint32_t)0x00000400)   /* FLASH Page Size */
 	uint32_t GetPage(uint32_t Address);
 #else
 	#error "No valid device specified"
