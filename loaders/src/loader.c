@@ -43,7 +43,7 @@
 #if defined(STM32F2) || defined(STM32F4)
 	#define FLASH_STEP 4
 	#define FLASH_PGM FLASH_ProgramWord
-	
+
 	/* Base address of the Flash sectors */
 	#define ADDR_FLASH_SECTOR_0     ((uint32_t)0x08000000) /* Base @ of Sector 0, 16 Kbytes */
 	#define ADDR_FLASH_SECTOR_1     ((uint32_t)0x08004000) /* Base @ of Sector 1, 16 Kbytes */
@@ -57,7 +57,7 @@
 	#define ADDR_FLASH_SECTOR_9     ((uint32_t)0x080A0000) /* Base @ of Sector 9, 128 Kbytes */
 	#define ADDR_FLASH_SECTOR_10    ((uint32_t)0x080C0000) /* Base @ of Sector 10, 128 Kbytes */
 	#define ADDR_FLASH_SECTOR_11    ((uint32_t)0x080E0000) /* Base @ of Sector 11, 128 Kbytes */
-	
+
 	uint32_t GetSector(uint32_t Address);
 #elif defined(STM32F0)
 	#define FLASH_STEP 4
@@ -129,26 +129,26 @@ int loader(void) {
 	for (i=0;i < PARAMS_LEN ;i+=4) { // Clear parameters
 		mmio32(PARAMS_ADDR+i) = 0;
 	}
-	
+
 	while (1) {
-		
+
 		asm volatile ("bkpt"); // Halt core after init and before writing to flash.
-		asm volatile ("nop"); 
-		
+		asm volatile ("nop");
+
 		PARAMS->STATUS &= ~MASK_STRT; // Clear start bit
 		PARAMS->STATUS  &= ~MASK_ERR; // Clear error bit
 		PARAMS->STATUS  &= ~MASK_SUCCESS; // Clear success bit
 		PARAMS->STATUS &= ~MASK_DEL; // Clear delete success bit
-		
+
 		FLASH_Unlock();
-		
+
 		from = PARAMS->DEST;
 		to = from + PARAMS->LEN;
 		uint32_t a;
-		
+
 		// Erase flash where needed
 		#if defined(STM32F2) || defined(STM32F4)
-			FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR | FLASH_FLAG_PGAERR | FLASH_FLAG_PGPERR|FLASH_FLAG_PGSERR); 
+			FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR | FLASH_FLAG_PGAERR | FLASH_FLAG_PGPERR|FLASH_FLAG_PGSERR);
 			// Get the number of the start and end sectors
 			const uint32_t StartSector = GetSector(from);
 			const uint32_t EndSector = GetSector(to);
@@ -162,7 +162,7 @@ int loader(void) {
 				PARAMS->STATUS |= MASK_DEL; // Set delete success bit
 			}
 		#else
-			FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPERR); 
+			FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPERR);
 			uint32_t NbrOfPage = (to - from) / FLASH_PAGE_SIZE;
 			for (a = 0 ; a <= NbrOfPage ; a++) {
 				if (erased_sectors >= from + (FLASH_PAGE_SIZE * a)) continue; // Skip sectors already erased
@@ -174,33 +174,33 @@ int loader(void) {
 				PARAMS->STATUS |= MASK_DEL; // Set delete success bit
 			}
 		#endif
-			
+
 		if (PARAMS->STATUS & MASK_ERR) { // If error during page delete, go back to breakpoint
 			FLASH_Lock();
 			continue;
 		}
-		
+
 		// Flash programming
-		uint32_t i=0;			
+		uint32_t i=0;
 		while (i < PARAMS->LEN) {
-			
-			if (FLASH_PGM(PARAMS->DEST+i,  mmio32(BUFFER_ADDR+i)) == FLASH_COMPLETE)	{
-					
+
+			if (FLASH_PGM(PARAMS->DEST+i,  mmio32(BUFFER_ADDR+i)) == FLASH_COMPLETE)
+			{
 				i+=FLASH_STEP;
 				PARAMS->STATUS |= MASK_SUCCESS; // Set success bit
 				PARAMS->POS = PARAMS->DEST+i;
 			}
-			else { 
-				/* Error occurred while writing data in Flash memory. 
+			else {
+				/* Error occurred while writing data in Flash memory.
 				User can add here some code to deal with this error */
 				PARAMS->STATUS |= MASK_ERR; // Set error bit
 				break;
 			}
 		}
 		PARAMS->TEST =  PARAMS->DEST+i;
-		
+
 		FLASH_Lock(); // Lock flash after operations are done.
-	} 
+	}
 	return 0;
 }
 
@@ -213,42 +213,42 @@ int loader(void) {
 uint32_t GetSector(uint32_t Address)
 {
   uint32_t sector = 0;
-  
+
   if((Address < ADDR_FLASH_SECTOR_1) && (Address >= ADDR_FLASH_SECTOR_0))
   {
-    sector = FLASH_Sector_0;  
+    sector = FLASH_Sector_0;
   }
   else if((Address < ADDR_FLASH_SECTOR_2) && (Address >= ADDR_FLASH_SECTOR_1))
   {
-    sector = FLASH_Sector_1;  
+    sector = FLASH_Sector_1;
   }
   else if((Address < ADDR_FLASH_SECTOR_3) && (Address >= ADDR_FLASH_SECTOR_2))
   {
-    sector = FLASH_Sector_2;  
+    sector = FLASH_Sector_2;
   }
   else if((Address < ADDR_FLASH_SECTOR_4) && (Address >= ADDR_FLASH_SECTOR_3))
   {
-    sector = FLASH_Sector_3;  
+    sector = FLASH_Sector_3;
   }
   else if((Address < ADDR_FLASH_SECTOR_5) && (Address >= ADDR_FLASH_SECTOR_4))
   {
-    sector = FLASH_Sector_4;  
+    sector = FLASH_Sector_4;
   }
   else if((Address < ADDR_FLASH_SECTOR_6) && (Address >= ADDR_FLASH_SECTOR_5))
   {
-    sector = FLASH_Sector_5;  
+    sector = FLASH_Sector_5;
   }
   else if((Address < ADDR_FLASH_SECTOR_7) && (Address >= ADDR_FLASH_SECTOR_6))
   {
-    sector = FLASH_Sector_6;  
+    sector = FLASH_Sector_6;
   }
   else if((Address < ADDR_FLASH_SECTOR_8) && (Address >= ADDR_FLASH_SECTOR_7))
   {
-    sector = FLASH_Sector_7;  
+    sector = FLASH_Sector_7;
   }
   else if((Address < ADDR_FLASH_SECTOR_9) && (Address >= ADDR_FLASH_SECTOR_8))
   {
-    sector = FLASH_Sector_8;  
+    sector = FLASH_Sector_8;
   }
   else if((Address < ADDR_FLASH_SECTOR_10) && (Address >= ADDR_FLASH_SECTOR_9))
   {
