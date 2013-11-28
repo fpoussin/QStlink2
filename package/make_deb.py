@@ -4,7 +4,7 @@ import sys,os, re, argparse, iso8601, shutil
 from subprocess import call, check_output, Popen
 from xml.etree import ElementTree as ET
 
-releases = ["oneiric", "precise", "quantal", "raring"]
+releases = ["oneiric", "precise", "quantal", "raring", "saucy"]
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-r', '--release', help='The Ubuntu release')
@@ -84,7 +84,7 @@ if __name__ == "__main__":
 		makeSrc(folder_name)
 		if args.ppa:
 			sendSrc('qstlink2_'+str(ver)+'~'+args.release)
-	else:
+	if args.bin:
 		makeBin(folder_name)
 		
 	print check_output(["rm -rf "+folder_name], shell=True)
