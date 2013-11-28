@@ -50,12 +50,36 @@
 	</devices_default>
 	
 	<devices>
-                <device type="STM32L1xx" coretype="CM3">
+                <device type="STM32L1xx (Low/Med Density)" coretype="CM3">
                         <core_id>0x2ba01477</core_id>
                         <chip_id>0x416</chip_id>
-                        <flash_size_reg>0x1FFFF7E0</flash_size_reg>
+                        <flash_size_reg>0x1FF8004C</flash_size_reg>
                         <flash_int_reg>0x40023C00</flash_int_reg>
                         <sram_size>0x2800</sram_size>
+                        <loader>loader_l1.bin</loader>
+                </device>
+                <device type="STM32L1xx (High Density)" coretype="CM3">
+                        <core_id>0x2ba01477</core_id>
+                        <chip_id>0x427</chip_id>
+                        <flash_size_reg>0x1FF800CC</flash_size_reg>
+                        <flash_int_reg>0x40023C00</flash_int_reg>  
+                        <sram_size>0x2800</sram_size>
+                        <loader>loader_l1.bin</loader>
+                </device>
+                <device type="STM32L1xx (Dual Flash Banks)" coretype="CM3">
+                        <core_id>0x2ba01477</core_id>
+                        <chip_id>0x436</chip_id>
+                        <flash_size_reg>0x1FF800CC</flash_size_reg>
+                        <flash_int_reg>0x40023C00</flash_int_reg>
+                        <sram_size>0x2800</sram_size>
+                        <loader>loader_l1.bin</loader>
+                </device>
+                <device type="STM32L1xx (Dual Flash Banks)" coretype="CM3">
+                        <core_id>0x2ba01477</core_id>
+                        <chip_id>0x437</chip_id>
+                        <flash_size_reg>0x1FF800CC</flash_size_reg>
+                        <flash_int_reg>0x40023C00</flash_int_reg>
+                        <sram_size>0x2800</sram_size> 
                         <loader>loader_l1.bin</loader>
                 </device>
                 <device type="STM32F05x" coretype="CM0">
