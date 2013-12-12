@@ -9,10 +9,11 @@ STARTUP=src/crt0.c
 CFLAGS=-Wall -Iinc/ -Os -g -nostdlib -mthumb -DTHUMB -nostartfiles -fomit-frame-pointer -falign-functions=16 -ffunction-sections -fdata-sections -fno-common
 LDFLAGS=-Tinc/link.ld -Wl,--gc-sections
 
-all: loader_f0.bin loader_f1.bin loader_f2.bin loader_f30.bin loader_f37.bin loader_f4.bin loader_l1.bin clean_elf
+all: loader_f0.bin loader_f1.bin loader_f2.bin loader_f30.bin loader_f37.bin loader_f4.bin loader_l1.bin
  
 %.bin: %.elf
 	$(OBJCOPY) -O binary elf/$^ bin/$@
+	rm -vf elf/$^
 
 loader_f0.elf: $(STARTUP) $(CODE) src/stm32f0xx_flash.c
 	$(CC) -o elf/$@ $(CFLAGS) -DSTM32F0 -mcpu=cortex-m0 $(LDFLAGS) $^
@@ -37,8 +38,5 @@ loader_l1.elf: $(STARTUP) $(CODE) src/stm32l1xx_flash.c
 
 clean_bin:
 	rm -fv bin/*.bin
-
-clean_elf:
-	rm -fv elf/*.elf
 
 clean: clean_bin clean_elf
