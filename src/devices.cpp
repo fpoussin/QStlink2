@@ -61,7 +61,7 @@ DeviceList::DeviceList(QObject *parent) :
                 for (int i = 0;i < childs.count();i++) {
                     QDomElement el = childs.at(i).toElement();
                     qDebug() << e.tagName() << "->" << el.tagName();
-                    (*this->default_device)[el.tagName()] = (quint32)el.text().toInt(&isInt, 16);
+                    (*this->default_device)[el.tagName()] = (quint32)el.text().toUInt(&isInt, 16);
                     if (!isInt)
                         qCritical() << el.tagName() << "Failed to parse number!";
                 }
@@ -70,9 +70,9 @@ DeviceList::DeviceList(QObject *parent) :
                 QDomNodeList regs = e.childNodes();
                 for (int a = 0;a < regs.count(); a++) {
                     QDomElement el = regs.at(a).toElement();
-                    qDebug() << el.tagName() << "->" << el.text().toInt(0, 16);
+                    qDebug() << el.tagName() << "->" << el.text().toUInt(0, 16);
 
-                    (*this->default_device)[el.tagName()] = (quint32)el.text().toInt(&isInt, 16);
+                    (*this->default_device)[el.tagName()] = (quint32)el.text().toUInt(&isInt, 16);
                     if (!isInt)
                         qCritical() << el.tagName() << "Failed to parse number!";
                 }
@@ -99,7 +99,7 @@ DeviceList::DeviceList(QObject *parent) :
                     for (int i = 0;i < childs.count();i++) {
                         QDomElement el = childs.at(i).toElement();
                         qDebug() << device.tagName() << "->" << device.attribute("type") << "->" << el.tagName() ;
-                        (*this->devices.last())[el.tagName()] = (quint32)el.text().toInt(&isInt, 16);
+                        (*this->devices.last())[el.tagName()] = (quint32)el.text().toUInt(&isInt, 16);
                         if (!isInt && el.tagName() != "loader")
                             qCritical() << el.tagName() << "Failed to parse number!";
 
