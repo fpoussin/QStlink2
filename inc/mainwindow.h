@@ -64,13 +64,13 @@ public slots:
     void closeEvent(QCloseEvent *event);
 
 private:
-    Ui::MainWindow *ui;
-    Dialog dialog;
-    stlinkv2 *stlink;
-    DeviceList *devices;
-    QString filename;
-    QString username;
-    quint32 lastAction;
+    Ui::MainWindow *mUi;
+    Dialog mDialog;
+    stlinkv2 *mStlink;
+    DeviceList *mDevices;
+    QString mFilename;
+    QString mUsername;
+    quint32 mLastAction;
 
 private slots:
     void lockUI(bool enabled);

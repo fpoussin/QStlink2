@@ -35,7 +35,7 @@ public:
     ~Dialog();
     void setText(const QString &title, const QString &text);
     void setHTML(const QString &title, const QString &html);
-    Ui::Dialog *ui;
+    Ui::Dialog *mUi;
 };
 
 #endif // DIALOG_H

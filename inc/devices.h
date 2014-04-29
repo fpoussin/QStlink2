@@ -32,14 +32,14 @@ class Device : public QObject
 public:
     explicit Device(QObject *parent = 0);
     explicit Device(Device *device); // Copy contructor
-    quint32 operator[] (QString x) const { return m_map[x]; }
-    quint32& operator[] (QString x) { return m_map[x]; }
-    bool contains(QString x) { return m_map.contains(x); }
+    quint32 operator[] (QString x) const { return mMap[x]; }
+    quint32& operator[] (QString x) { return mMap[x]; }
+    bool contains(QString x) { return mMap.contains(x); }
     QString repr(void) const;
-    QString type;
-    QString loader_file;
+    QString mType;
+    QString mLoaderFile;
 private:
-    QMap<QString, quint32> m_map;
+    QMap<QString, quint32> mMap;
 };
 
 class DeviceList : public QObject
@@ -50,13 +50,13 @@ public:
     bool IsLoaded() const;
     quint16 getDevicesCount() const;
     bool search(const quint32 chip_id); // returns the location of the device in the QVector.
-    Device *cur_device;
+    Device *mCurDevice;
 
 private:
-    QDomDocument *doc;
-    bool loaded;
-    QVector<Device*> devices;
-    Device *default_device;
+    QDomDocument *mDoc;
+    bool mLoaded;
+    QVector<Device*> mDevices;
+    Device *mDefaultDevice;
 };
 
 #endif // DEVICES_H

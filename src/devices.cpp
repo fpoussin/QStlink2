@@ -19,28 +19,28 @@ This file is part of QSTLink2.
 Device::Device(QObject *parent) :
     QObject(parent)
 {
-    this->type = "UNKNOWN";
-    this->loader_file = "UNKNOWN";
+    this->mType = "UNKNOWN";
+    this->mLoaderFile = "UNKNOWN";
 }
 
 Device::Device(Device *device)
 {
-    this->type = device->type;
-    this->m_map = device->m_map;
+    this->mType = device->mType;
+    this->mMap = device->mMap;
 }
 
 DeviceList::DeviceList(QObject *parent) :
     QObject(parent)
 {
-    this->loaded = false;
+    this->mLoaded = false;
     qDebug("Loading device list.");
-    this->doc = new QDomDocument("stlink");
+    this->mDoc = new QDomDocument("stlink");
     QFile file("/usr/share/qstlink2/devices.xml");
     if (!file.open(QIODevice::ReadOnly)) {
         qInformal() << "Could not open the devices.xml file. Using internal data.";
         file.setFileName(":/devices.xml");
     }
-    if (!doc->setContent(&file)) {
+    if (!mDoc->setContent(&file)) {
         file.close();
         qCritical() << "Devices list failed to load.";
         return;
@@ -48,9 +48,9 @@ DeviceList::DeviceList(QObject *parent) :
     file.close();
     qInformal() << "Devices list loaded.";
 
-    this->default_device = new Device(this);
+    this->mDefaultDevice = new Device(this);
     bool isInt;
-    QDomElement docElem = doc->documentElement();
+    QDomElement docElem = mDoc->documentElement();
     QDomNode n = docElem.firstChild();
     while(!n.isNull()) {
         QDomElement e = n.toElement(); // try to convert the node to an element.
@@ -61,7 +61,7 @@ DeviceList::DeviceList(QObject *parent) :
                 for (int i = 0;i < childs.count();i++) {
                     QDomElement el = childs.at(i).toElement();
                     qDebug() << e.tagName() << "->" << el.tagName();
-                    (*this->default_device)[el.tagName()] = (quint32)el.text().toUInt(&isInt, 16);
+                    (*this->mDefaultDevice)[el.tagName()] = (quint32)el.text().toUInt(&isInt, 16);
                     if (!isInt)
                         qCritical() << el.tagName() << "Failed to parse number!";
                 }
@@ -72,7 +72,7 @@ DeviceList::DeviceList(QObject *parent) :
                     QDomElement el = regs.at(a).toElement();
                     qDebug() << el.tagName() << "->" << el.text().toUInt(0, 16);
 
-                    (*this->default_device)[el.tagName()] = (quint32)el.text().toUInt(&isInt, 16);
+                    (*this->mDefaultDevice)[el.tagName()] = (quint32)el.text().toUInt(&isInt, 16);
                     if (!isInt)
                         qCritical() << el.tagName() << "Failed to parse number!";
                 }
@@ -89,22 +89,22 @@ DeviceList::DeviceList(QObject *parent) :
             if (e.tagName() == "devices") {
                 QDomNodeList devices = e.childNodes();
                 for (int a = 0;a < devices.count(); a++) {
-                    this->devices.append(new Device(this->default_device)); // Copy from the default device.
+                    this->mDevices.append(new Device(this->mDefaultDevice)); // Copy from the default device.
 
 
                     QDomElement device = devices.at(a).toElement();
-                    this->devices.last()->type = device.attribute("type");
+                    this->mDevices.last()->mType = device.attribute("type");
 
                     QDomNodeList childs = device.childNodes();
                     for (int i = 0;i < childs.count();i++) {
                         QDomElement el = childs.at(i).toElement();
                         qDebug() << device.tagName() << "->" << device.attribute("type") << "->" << el.tagName() ;
-                        (*this->devices.last())[el.tagName()] = (quint32)el.text().toUInt(&isInt, 16);
+                        (*this->mDevices.last())[el.tagName()] = (quint32)el.text().toUInt(&isInt, 16);
                         if (!isInt && el.tagName() != "loader")
                             qCritical() << el.tagName() << "Failed to parse number!";
 
                         if (el.tagName() == "loader") {
-                            this->devices.last()->loader_file = el.text();
+                            this->mDevices.last()->mLoaderFile = el.text();
                         }
                     }
                 }
@@ -114,22 +114,22 @@ DeviceList::DeviceList(QObject *parent) :
         n = n.nextSibling();
     }
 
-    this->loaded = true;
+    this->mLoaded = true;
     return;
 }
 
 bool DeviceList::IsLoaded() const {
 
-    return this->loaded;
+    return this->mLoaded;
 }
 
 bool DeviceList::search(const quint32 chip_id) {
     qDebug() << "Looking for:" << QString::number(chip_id, 16);
-    for (int i=0; i < this->devices.count(); i++) {
-        if ((*this->devices.at(i))["chip_id"] == chip_id) {
-            this->cur_device = this->devices.at(i);
+    for (int i=0; i < this->mDevices.count(); i++) {
+        if ((*this->mDevices.at(i))["chip_id"] == chip_id) {
+            this->mCurDevice = this->mDevices.at(i);
             qDebug() << "Found chipID";
-            qDebug() << cur_device->repr();
+            qDebug() << mCurDevice->repr();
             return true;
         }
     }
@@ -139,19 +139,19 @@ bool DeviceList::search(const quint32 chip_id) {
 
 quint16 DeviceList::getDevicesCount() const {
 
-    return this->devices.count();
+    return this->mDevices.count();
 }
 
 QString Device::repr(void) const {
 
-    QMapIterator<QString, quint32> i(m_map);
+    QMapIterator<QString, quint32> i(mMap);
     QString tmp("\r\n");
-    tmp.append("Type: "+this->type);
+    tmp.append("Type: "+this->mType);
     while (i.hasNext()) {
         i.next();
         tmp.append("\r\n" + QString(i.key()) + ": 0x" + QString::number(i.value(), 16));
     }
-    tmp.append("\r\nLoader: " + this->loader_file);
+    tmp.append("\r\nLoader: " + this->mLoaderFile);
     return tmp;
 }
 

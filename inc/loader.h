@@ -46,7 +46,7 @@ signals:
 public slots:
 
 private:
-    QByteArray m_data;
+    QByteArray mData;
     
 };
 

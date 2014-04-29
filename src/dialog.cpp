@@ -19,27 +19,27 @@
 
 Dialog::Dialog(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::Dialog)
+    mUi(new Ui::Dialog)
 {
-    ui->setupUi(this);
+    mUi->setupUi(this);
 //    this->ui->l_text->setStyleSheet(QString::fromUtf8("background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 0), stop:1 rgba(255, 255, 255, 0));"));
-    ui->l_version->setText(__QSTL_VER__);
-    ui->l_cmpdate->setText(QString(__DATE__)+" "+QString(__TIME__));
+    mUi->l_version->setText(__QSTL_VER__);
+    mUi->l_cmpdate->setText(QString(__DATE__)+" "+QString(__TIME__));
 }
 
 Dialog::~Dialog()
 {
-    delete ui;
+    delete mUi;
 }
 
 void Dialog::setText(const QString &title, const QString &text)
 {
     this->setWindowTitle(title);
-    this->ui->l_text->setText(text);
+    this->mUi->l_text->setText(text);
 }
 
 void Dialog::setHTML(const QString &title, const QString &html)
 {
     this->setWindowTitle(title);
-    this->ui->l_text->setHtml(html);
+    this->mUi->l_text->setHtml(html);
 }

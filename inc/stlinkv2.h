@@ -165,14 +165,14 @@ class stlinkv2 : public QThread
 public:
     explicit stlinkv2(QObject *parent = 0);
     ~stlinkv2();
-    Device *device;
-    quint32 core_id;
-    quint32 chip_id;
-    quint32 rev_id;
-    QByteArray cmd_buf;
-    QByteArray recv_buf;
-    QByteArray send_buf;
-    STVersion version;
+    Device *mDevice;
+    quint32 mCoreId;
+    quint32 mChipId;
+    quint32 mRevId;
+    QByteArray mCmdBuf;
+    QByteArray mRecvBuf;
+    QByteArray mSendBuf;
+    STVersion mVersion;
 
 signals:
     void bufferPct(quint32 p);
@@ -225,10 +225,10 @@ private:
     quint32 readFlashCR();
     quint32 writeFlashCR(quint32 mask, bool value);
     qint32 SendCommand();
-    qint8 mode_id;
-    bool connected;
+    qint8 mModeId;
+    bool mConnected;
     QString regPrint(quint32 reg) const;
-    loader m_loader;
+    loader mLoader;
 };
 
 #endif // STLINKV2_H
