@@ -26,7 +26,7 @@ win32:CONFIG += winusb
 
 TEMPLATE = app
 TARGET = qstlink2
-VERSION = 1.0.3
+VERSION = 1.1.0
 
 message(Version $$VERSION)
 
@@ -54,33 +54,16 @@ HEADERS  += inc/mainwindow.h \
     inc/compat.h \
     inc/loader.h
 
+include(QtUsb/QtUsb.pri)
+
 win32 {
     TARGET = qstlink2_$${VERSION}
     CONFIG(console) {
         message(Building with debug console.)
         TARGET = qstlink2_console_$${VERSION}
     }
-    CONFIG(winusb) {
-        message(Building with WinUSB support.)
-        DEFINES += QWINUSB
-        SOURCES  += src/qwinusb.cpp
-        HEADERS  += inc/qwinusb.h
-    }
-    else {
-        message(Building with LibUsb support.)
-        SOURCES  += src/LibUsb.cpp
-        HEADERS  += inc/LibUsb.h
-        LIBS += -L"$$_PRO_FILE_PWD_/libs/" -llibusb
-        INCLUDEPATH += $$_PRO_FILE_PWD_/libs
-    }
 }
 
-unix {
-    message(Building with LibUsb support.)
-    SOURCES  += src/LibUsb.cpp
-    HEADERS  += inc/LibUsb.h
-    LIBS += -L/usr/lib -lusb
-}
 RESOURCES += res/ressources.qrc loaders/loaders.qrc
 
 # Icon for windows

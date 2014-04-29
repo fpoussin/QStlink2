@@ -106,18 +106,21 @@ bool MainWindow::Connect()
     PrintFuncName();
     this->log("Searching Device...");
 
-    switch (this->stlink->connect()) {
-    case -1:
+    qint32 ret = this->stlink->connect();
+
+    if (ret < 0) {
         this->log("ST Link V2 not found or unable to access it.");
 #if defined(QWINUSB) && defined(WIN32)
         this->log("Did you install the official ST-Link V2 driver ?");
 #elif !defined(WIN32)
         this->log("Did you install the udev rules ?");
-#else
-        this->log("Did you install the libusb-win32 driver ?");
 #endif
+        this->log("USB error: "+QString::number(ret));
         return false;
-    default:
+
+    }
+
+    else {
         this->log("ST Link V2 found!");
         this->getVersion();
         this->stlink->setExitModeDFU();

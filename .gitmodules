@@ -1,0 +1,3 @@
+[submodule "QtUsb"]
+	path = QtUsb
+	url = git@github.com:mobyfab/QtUsb.git
