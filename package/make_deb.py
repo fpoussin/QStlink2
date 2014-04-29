@@ -67,7 +67,7 @@ if __name__ == "__main__":
 		print "Invalid Ubuntu release, please chose among:", releases
 		sys.exit(1)
 		
-	ver = check_output(["grep \"VERSION =\" ../STlinkV2.pro | awk '{ print $3 }' "], shell=True).replace('\n','')
+	ver = check_output(["grep \"VERSION =\" ../QStlink2.pro | awk '{ print $3 }' "], shell=True).replace('\n','')
 	if not ver:
 		print "Could not fetch last version"
 		sys.exit(1)
