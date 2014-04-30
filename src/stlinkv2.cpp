@@ -27,6 +27,7 @@ stlinkv2::stlinkv2(QObject *parent) :
     this->mChipId = 0;
     this->mVersion.stlink = 0;
     this->mConnected = false;
+    this->mUsb->setDebug(true);
     this->mUsb->setGuid(USB_STLINK_GUID);
     this->mUsb->setDeviceIds(USB_STLINKv2_PID, USB_ST_VID);
     this->mUsb->setEndPoints(USB_PIPE_IN, USB_PIPE_OUT);

@@ -36,8 +36,10 @@ const quint8 USB_PIPE_OUT = 0x02;	   /* Bulk input endpoint for commands */
 const quint8 USB_PIPE_ERR = 0x83;	   /* An apparently-unused bulk endpoint. */
 const quint16 USB_TIMEOUT_MSEC = 300;
 const QString USB_STLINK_GUID = "DBCE1CD9-A320-4b51-A365-A0C3F3C5FB29";
+#ifdef WIN32
 const GUID OSR_DEVICE_INTERFACE =
 { 0xDBCE1CD9, 0xA320, 0x4b51, { 0xA3, 0x65, 0xA0, 0xC3, 0xF3, 0xC5, 0xFB, 0x29 } };
+#endif
 
 namespace STLink {
     namespace Status {
