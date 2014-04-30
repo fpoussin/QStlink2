@@ -27,7 +27,7 @@ stlinkv2::stlinkv2(QObject *parent) :
     this->mChipId = 0;
     this->mVersion.stlink = 0;
     this->mConnected = false;
-    this->mUsb->setDebug(true);
+    this->mUsb->setDebug(false);
     this->mUsb->setGuid(USB_STLINK_GUID);
     this->mUsb->setDeviceIds(USB_STLINKv2_PID, USB_ST_VID);
     this->mUsb->setEndPoints(USB_PIPE_IN, USB_PIPE_OUT);
@@ -54,7 +54,7 @@ qint32 stlinkv2::connect()
 void stlinkv2::disconnect()
 {
 //    this->DebugCommand(STLink::Cmd::Dbg::Exit, 0, 2);
-    this->Command(STLink::Cmd::Reset, 0x80, 2);
+    this->Command(STLink::Cmd::Reset, 0x80, 8);
     this->mUsb->close();
     this->mConnected = false;
 }

@@ -25,7 +25,7 @@ bool show = true;
 bool write_flash = false, read_flash = false, erase = false, verify = false;
 QString path;
 
-static quint8 verbose_level = 3; // Level = info by default
+static quint8 verbose_level = 5; // Level = info by default
 static QElapsedTimer timer;
 
 #if QT_VERSION >= 0x050000
