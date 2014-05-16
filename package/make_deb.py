@@ -56,7 +56,7 @@ def makeBin(dest):
   print check_output(["cd "+dest+"; debuild -j4 -b -uc -us"], shell=True)
 
 def sendSrc(ver):
-  print check_output(["dput ppa:mobyfab/qstlink2 "+ver+"_source.changes"], shell=True)
+  print check_output(["dput ppa:fpoussin/ppa "+ver+"_source.changes"], shell=True)
 
 if __name__ == "__main__":
 
