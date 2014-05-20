@@ -35,9 +35,21 @@ DeviceList::DeviceList(QObject *parent) :
     this->mLoaded = false;
     qDebug("Loading device list.");
     this->mDoc = new QDomDocument("stlink");
-    QFile file("/usr/share/qstlink2/devices.xml");
+
+    /* Try local path first */
+    QFile file("devices.xml");
+
+#ifndef WIN32
+    /* Try default directory on Unix */
+    if (!file.open(QIODevice::ReadOnly)) {
+        file.setFileName("/usr/share/qstlink2/devices.xml");
+    }
+#endif
+
+    /* Load from resource */
     if (!file.open(QIODevice::ReadOnly)) {
         qInformal() << "Could not open the devices.xml file. Using internal data.";
+
         file.setFileName(":/devices.xml");
     }
     if (!mDoc->setContent(&file)) {

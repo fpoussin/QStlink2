@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <stlink>
-	<cores>
-		<core type="CM0" name="ARM Cortex-M0" id="0x0BB11477" idcode-addr="0x40015800" />
-		<core type="CM3" name="ARM Cortex-M3 r1p1-01rel0" id="0x3BA00477" idcode-addr="0xE0042000" />
-		<core type="CM3" name="ARM Cortex-M3 r2p0" id="0x4BA00477" idcode-addr="0xE0042000" />
-		<core type="CM4F" name="ARM Cortex-M4F r0p1" id="0x4BA00477" idcode-addr="0xE0042000" />
-	</cores>
+  <cores>
+    <core type="CM0" name="ARM Cortex-M0" id="0x0BB11477" idcode-addr="0x40015800" />
+    <core type="CM3" name="ARM Cortex-M3 r1p1-01rel0" id="0x3BA00477" idcode-addr="0xE0042000" />
+    <core type="CM3" name="ARM Cortex-M3 r2p0" id="0x4BA00477" idcode-addr="0xE0042000" />
+    <core type="CM4F" name="ARM Cortex-M4F r0p1" id="0x4BA00477" idcode-addr="0xE0042000" />
+  </cores>
 	
-	<revisions>
+  <revisions>
     <revision rev="A">0x1000</revision>
     <revision rev="Z">0x1001</revision>
     <revision rev="B">0x2000</revision>
     <revision rev="Y">0x2001</revision>
     <revision rev="X">0x2003</revision>
-	</revisions>
+  </revisions>
 
   <!-- Registers structure -->
   <regs_default>
@@ -47,9 +47,9 @@
     <sram_size>0x1000</sram_size>
     <flash_size>0x100000</flash_size>
     <flash_pgsize>0x10</flash_pgsize>
-	</devices_default>
+    </devices_default>
 	
-	<devices>
+  <devices>
     <device type="STM32L1xx (Low/Med Density)" coretype="CM3">
       <core_id>0x2ba01477</core_id>
       <chip_id>0x416</chip_id>
@@ -93,7 +93,7 @@
       <flash_int_reg>0x40022000</flash_int_reg>
       <sram_size>0x1000</sram_size>
       <loader>loader_f0.bin</loader>
-		</device>
+    </device>
 
     <device type="STM32F100" coretype="CM3">
       <core_id>0x1ba01477</core_id>
@@ -102,7 +102,7 @@
       <flash_int_reg>0x40022000</flash_int_reg>
       <sram_size>0x4000</sram_size>
       <loader>loader_f1.bin</loader>
-		</device>
+    </device>
 
     <device type="STM32F103 (Low Density)" coretype="CM3">
       <core_id>0x1ba01477</core_id>
@@ -111,7 +111,7 @@
       <flash_int_reg>0x40022000</flash_int_reg>
       <sram_size>0x4000</sram_size>
       <loader>loader_f1.bin</loader>
-		</device>
+    </device>
 
     <device type="STM32F103 (Medium Density)" coretype="CM3">
       <core_id>0x1ba01477</core_id>
@@ -120,7 +120,7 @@
       <flash_int_reg>0x40022000</flash_int_reg>
       <sram_size>0x4000</sram_size>
       <loader>loader_f1.bin</loader>
-		</device>
+    </device>
 
     <device type="STM32F103 (High Density)" coretype="CM3">
       <core_id>0x1ba01477</core_id>
@@ -129,7 +129,7 @@
       <flash_int_reg>0x40022000</flash_int_reg>
       <sram_size>0x4000</sram_size>
       <loader>loader_f1.bin</loader>
-		</device>
+    </device>
 
     <device type="STM32F105 (Connectivity)" coretype="CM3">
       <core_id>0x1ba01477</core_id>
@@ -138,7 +138,8 @@
       <flash_int_reg>0x40022000</flash_int_reg>
       <sram_size>0x4000</sram_size>
       <loader>loader_f1.bin</loader>
-		</device>
+    </device>
+    
     <device type="STM32F2**" coretype="CM3">
       <core_id>0x2ba01477</core_id>
       <chip_id>0x411</chip_id>
@@ -146,7 +147,7 @@
       <flash_int_reg>0x40023c00</flash_int_reg>
       <sram_size>0x4000</sram_size>
       <loader>loader_f2.bin</loader>
-		</device>
+     </device>
 
     <device type="STM32F30*" coretype="CM4">
       <core_id>0x2ba01477</core_id>
@@ -155,7 +156,7 @@
       <flash_int_reg>0x40023c00</flash_int_reg>
       <sram_size>0x4000</sram_size>
       <loader>loader_f30.bin</loader>
-		</device>
+    </device>
 
     <device type="STM32F37*" coretype="CM4">
       <core_id>0x2ba01477</core_id>
@@ -164,9 +165,9 @@
       <flash_int_reg>0x40023c00</flash_int_reg>
       <sram_size>0x4000</sram_size>
       <loader>loader_f37.bin</loader>
-		</device>
+    </device>
 
-    <device type="STM32F4[01]*" regtype="STM32F4" coretype="CM4F">
+    <device type="STM32F401*" regtype="STM32F4" coretype="CM4F">
       <core_id>0x2ba01477</core_id>
       <chip_id>0x423</chip_id>
       <flash_size_reg>0x1FFF7A22</flash_size_reg>
@@ -179,7 +180,22 @@
       <SR_PER>0x1</SR_PER>
       <CR_PGSIZE>0x8</CR_PGSIZE>
       <sram_size>0x4000</sram_size>
-		</device>
+    </device>
+     
+    <device type="STM32F4[01][57]*" regtype="STM32F4" coretype="CM4F">
+      <core_id>0x2ba01477</core_id>
+      <chip_id>0x413</chip_id>
+      <flash_size_reg>0x1FFF7A22</flash_size_reg>
+      <flash_int_reg>0x40023c00</flash_int_reg>
+      <loader>loader_f4.bin</loader>
+      <SR_BSY>0x10</SR_BSY>
+      <CR_STRT>0x10</CR_STRT>
+      <CR_LOCK>0x1F</CR_LOCK>
+      <CR_SER>0x1</CR_SER>
+      <SR_PER>0x1</SR_PER>
+      <CR_PGSIZE>0x8</CR_PGSIZE>
+      <sram_size>0x4000</sram_size>
+    </device>
 
     <device type="STM32F4[23]*" regtype="STM32F4" coretype="CM4F">
       <core_id>0x2ba01477</core_id>
@@ -193,6 +209,7 @@
       <CR_SER>0x1</CR_SER>
       <CR_PGSIZE>0x8</CR_PGSIZE>
       <sram_size>0x4000</sram_size>
-		</device>
-	</devices>
+    </device>
+    
+  </devices>
 </stlink>
