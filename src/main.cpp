@@ -159,15 +159,15 @@ int main(int argc, char *argv[])
             }
             if (write_flash) {
                 w->Send(path);
-                while (w->tfThread->isRunning()) { usleep(100000); }
+                while (w->mTfThread->isRunning()) { usleep(100000); }
             }
             else if (read_flash) {
                 w->Receive(path);
-                while (w->tfThread->isRunning()) { usleep(100000); }
+                while (w->mTfThread->isRunning()) { usleep(100000); }
             }
             if (verify) {
                 w->Verify(path);
-                while (w->tfThread->isRunning()) { usleep(100000); }
+                while (w->mTfThread->isRunning()) { usleep(100000); }
             }
             usleep(300000); //300 msec
             w->Disconnect();

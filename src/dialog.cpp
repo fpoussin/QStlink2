@@ -35,11 +35,11 @@ Dialog::~Dialog()
 void Dialog::setText(const QString &title, const QString &text)
 {
     this->setWindowTitle(title);
-    this->mUi->l_text->setText(text);
+    mUi->l_text->setText(text);
 }
 
 void Dialog::setHTML(const QString &title, const QString &html)
 {
     this->setWindowTitle(title);
-    this->mUi->l_text->setHtml(html);
+    mUi->l_text->setHtml(html);
 }

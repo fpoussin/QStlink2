@@ -19,7 +19,7 @@ bool loader::loadBin(const QString &path) {
     if (!file.open(QFile::ReadOnly))
         return false;
 
-    this->mData = file.readAll();
+    mData = file.readAll();
     file.close();
 
     return true;
@@ -27,5 +27,5 @@ bool loader::loadBin(const QString &path) {
 
 QByteArray& loader::refData(void) {
 
-    return this->mData;
+    return mData;
 }

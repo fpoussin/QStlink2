@@ -23,48 +23,48 @@ MainWindow::MainWindow(QWidget *parent) :
     mUi(new Ui::MainWindow)
 {
     mUi->setupUi(this);
-    this->mUi->b_disconnect->setEnabled(false);
-    this->mUi->gb_top->setEnabled(false);
-    this->mUi->b_send->setEnabled(false);
-    this->mUi->b_receive->setEnabled(false);
-    this->mUi->b_verify->setEnabled(false);
-    this->mUi->b_repeat->setEnabled(false);
-    this->mStlink = new stlinkv2();
-    this->mDevices = new DeviceList(this);
-    this->tfThread = new transferThread();
+    mUi->b_disconnect->setEnabled(false);
+    mUi->gb_top->setEnabled(false);
+    mUi->b_send->setEnabled(false);
+    mUi->b_receive->setEnabled(false);
+    mUi->b_verify->setEnabled(false);
+    mUi->b_repeat->setEnabled(false);
+    mStlink = new stlinkv2();
+    mDevices = new DeviceList(this);
+    mTfThread = new transferThread();
 
-    this->mLastAction = ACTION_NONE;
+    mLastAction = ACTION_NONE;
 
-    if (this->mDevices->IsLoaded()) {
+    if (mDevices->IsLoaded()) {
 
-        this->mUi->gb_top->setEnabled(true);
-        this->log(QString::number(this->mDevices->getDevicesCount())+" Device descriptions loaded.");
-        QObject::connect(this->mUi->b_quit,SIGNAL(clicked()),this,SLOT(Quit()));
-        QObject::connect(this->mUi->b_qt,SIGNAL(clicked()),qApp,SLOT(aboutQt()));
-        QObject::connect(this->mUi->b_connect, SIGNAL(clicked()), this, SLOT(Connect()));
-        QObject::connect(this->mUi->b_disconnect, SIGNAL(clicked()), this, SLOT(Disconnect()));
-        QObject::connect(this->mUi->b_send, SIGNAL(clicked()), this, SLOT(Send()));
-        QObject::connect(this->mUi->b_receive, SIGNAL(clicked()), this, SLOT(Receive()));
-        QObject::connect(this->mUi->b_verify, SIGNAL(clicked()), this, SLOT(Verify()));
-        QObject::connect(this->mUi->b_repeat, SIGNAL(clicked()), this, SLOT(Repeat()));
-        QObject::connect(this->mUi->b_halt, SIGNAL(clicked()), this, SLOT(HaltMCU()));
-        QObject::connect(this->mUi->b_run, SIGNAL(clicked()), this, SLOT(RunMCU()));
-        QObject::connect(this->mUi->b_reset, SIGNAL(clicked()), this, SLOT(ResetMCU()));
-        QObject::connect(this->mUi->r_jtag, SIGNAL(clicked()), this, SLOT(setModeJTAG()));
-        QObject::connect(this->mUi->r_swd, SIGNAL(clicked()), this, SLOT(setModeSWD()));
-        QObject::connect(this->mUi->b_hardReset, SIGNAL(clicked()), this, SLOT(HardReset()));
+        mUi->gb_top->setEnabled(true);
+        this->log(QString::number(mDevices->getDevicesCount())+" Device descriptions loaded.");
+        QObject::connect(mUi->b_quit,SIGNAL(clicked()),this,SLOT(Quit()));
+        QObject::connect(mUi->b_qt,SIGNAL(clicked()),qApp,SLOT(aboutQt()));
+        QObject::connect(mUi->b_connect, SIGNAL(clicked()), this, SLOT(Connect()));
+        QObject::connect(mUi->b_disconnect, SIGNAL(clicked()), this, SLOT(Disconnect()));
+        QObject::connect(mUi->b_send, SIGNAL(clicked()), this, SLOT(Send()));
+        QObject::connect(mUi->b_receive, SIGNAL(clicked()), this, SLOT(Receive()));
+        QObject::connect(mUi->b_verify, SIGNAL(clicked()), this, SLOT(Verify()));
+        QObject::connect(mUi->b_repeat, SIGNAL(clicked()), this, SLOT(Repeat()));
+        QObject::connect(mUi->b_halt, SIGNAL(clicked()), this, SLOT(HaltMCU()));
+        QObject::connect(mUi->b_run, SIGNAL(clicked()), this, SLOT(RunMCU()));
+        QObject::connect(mUi->b_reset, SIGNAL(clicked()), this, SLOT(ResetMCU()));
+        QObject::connect(mUi->r_jtag, SIGNAL(clicked()), this, SLOT(setModeJTAG()));
+        QObject::connect(mUi->r_swd, SIGNAL(clicked()), this, SLOT(setModeSWD()));
+        QObject::connect(mUi->b_hardReset, SIGNAL(clicked()), this, SLOT(HardReset()));
 
         // Thread
-        QObject::connect(this->tfThread, SIGNAL(sendProgress(quint32)), this, SLOT(updateProgress(quint32)));
-        QObject::connect(this->tfThread, SIGNAL(sendStatus(QString)), this, SLOT(updateStatus(QString)));
-        QObject::connect(this->tfThread, SIGNAL(sendLoaderStatus(QString)), this, SLOT(updateLoaderStatus(QString)));
-        QObject::connect(this->mStlink, SIGNAL(bufferPct(quint32)), this, SLOT(updateLoaderPct(quint32)));
-        QObject::connect(this->tfThread, SIGNAL(sendLock(bool)), this, SLOT(lockUI(bool)));
-        QObject::connect(this->mUi->b_stop, SIGNAL(clicked()), this->tfThread, SLOT(halt()));
-        QObject::connect(this->tfThread, SIGNAL(sendLog(QString)), this, SLOT(log(QString)));
+        QObject::connect(mTfThread, SIGNAL(sendProgress(quint32)), this, SLOT(updateProgress(quint32)));
+        QObject::connect(mTfThread, SIGNAL(sendStatus(QString)), this, SLOT(updateStatus(QString)));
+        QObject::connect(mTfThread, SIGNAL(sendLoaderStatus(QString)), this, SLOT(updateLoaderStatus(QString)));
+        QObject::connect(mStlink, SIGNAL(bufferPct(quint32)), this, SLOT(updateLoaderPct(quint32)));
+        QObject::connect(mTfThread, SIGNAL(sendLock(bool)), this, SLOT(lockUI(bool)));
+        QObject::connect(mUi->b_stop, SIGNAL(clicked()), mTfThread, SLOT(halt()));
+        QObject::connect(mTfThread, SIGNAL(sendLog(QString)), this, SLOT(log(QString)));
 
         // Help
-        QObject::connect(this->mUi->b_help, SIGNAL(clicked()), this, SLOT(showHelp()));
+        QObject::connect(mUi->b_help, SIGNAL(clicked()), this, SLOT(showHelp()));
     }
 
     else {
@@ -74,8 +74,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-    this->tfThread->exit();
-    delete tfThread;
+    mTfThread->exit();
+    delete mTfThread;
     delete mStlink;
     delete mDevices;
     delete mUi;
@@ -84,15 +84,15 @@ MainWindow::~MainWindow()
 void MainWindow::showHelp()
 {
 
-    this->mDialog.setText("Help","Could no load help file");
+    mDialog.setText("Help","Could no load help file");
 
     QFile file(":/help.html");
     if (!file.open(QIODevice::ReadOnly)) {
         qCritical("Could not open the help file.");
     }
 
-    this->mDialog.setHTML(QString("Help"), QString(file.readAll()));
-    this->mDialog.show();
+    mDialog.setHTML(QString("Help"), QString(file.readAll()));
+    mDialog.show();
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -106,12 +106,20 @@ bool MainWindow::Connect()
     PrintFuncName();
     this->log("Searching Device...");
 
-    qint32 ret = this->mStlink->connect();
+    /* Try STL V2 first */
+    mStlink->setSTLinkIDs();
+    qint32 ret = mStlink->connect();
+
+    /* Try Nucleo */
+    if (ret < 0) {
+        mStlink->setNucleoIDs();
+        ret = mStlink->connect();
+    }
 
     if (ret < 0) {
-        this->log("ST Link V2 not found or unable to access it.");
+        this->log("ST Link V2 / Nucleo not found or unable to access it.");
 #if defined(QWINUSB) && defined(WIN32)
-        this->log("Did you install the official ST-Link V2 driver ?");
+        this->log("Did you install the official ST-Link V2 / Nucleo driver ?");
 #elif !defined(WIN32)
         this->log("Did you install the udev rules ?");
 #endif
@@ -121,22 +129,22 @@ bool MainWindow::Connect()
     }
 
     else {
-        this->log("ST Link V2 found!");
+        this->log("ST Link V2 / Nucleo found!");
         this->getVersion();
-        this->mStlink->setExitModeDFU();
-        if (this->mUi->r_jtag->isChecked())
+        mStlink->setExitModeDFU();
+        if (mUi->r_jtag->isChecked())
             this->setModeJTAG();
         else
             this->setModeSWD();
         this->getStatus();
-        this->mUi->b_connect->setEnabled(false);
-        this->mUi->b_disconnect->setEnabled(true);
+        mUi->b_connect->setEnabled(false);
+        mUi->b_disconnect->setEnabled(true);
         if (this->getMCU()) {
-            this->mUi->gb_bottom->setEnabled(true);
-            this->mUi->b_send->setEnabled(true);
-            this->mUi->b_receive->setEnabled(true);
-            this->mUi->b_verify->setEnabled(true);
-            this->mUi->b_repeat->setEnabled(true);
+            mUi->gb_bottom->setEnabled(true);
+            mUi->b_send->setEnabled(true);
+            mUi->b_receive->setEnabled(true);
+            mUi->b_verify->setEnabled(true);
+            mUi->b_repeat->setEnabled(true);
             return true;
         }
         else
@@ -148,62 +156,62 @@ bool MainWindow::Connect()
 void MainWindow::Disconnect()
 {
     this->log("Disconnecting...");
-    this->mStlink->disconnect();
+    mStlink->disconnect();
     this->log("Disconnected.");
     qInformal() << "Disconnected.";
-    this->mUi->b_disconnect->setEnabled(false);
-    this->mUi->b_connect->setEnabled(true);
-    this->mUi->gb_bottom->setEnabled(false);
-    this->mUi->b_send->setEnabled(false);
-    this->mUi->b_receive->setEnabled(false);
-    this->mUi->b_verify->setEnabled(false);
-    this->mUi->b_repeat->setEnabled(false);
+    mUi->b_disconnect->setEnabled(false);
+    mUi->b_connect->setEnabled(true);
+    mUi->gb_bottom->setEnabled(false);
+    mUi->b_send->setEnabled(false);
+    mUi->b_receive->setEnabled(false);
+    mUi->b_verify->setEnabled(false);
+    mUi->b_repeat->setEnabled(false);
 }
 
 void MainWindow::log(const QString &s)
 {
-    this->mUi->t_log->appendPlainText(s);
+    mUi->t_log->appendPlainText(s);
 }
 
 void MainWindow::lockUI(bool enabled)
 {
-    this->mUi->gb_top->setEnabled(!enabled);
-    this->mUi->gb_bottom->setEnabled(!enabled);
+    mUi->gb_top->setEnabled(!enabled);
+    mUi->gb_bottom->setEnabled(!enabled);
 }
 
 void MainWindow::updateProgress(quint32 p)
 {
-    this->mUi->pgb_transfer->setValue(p);
+    mUi->pgb_transfer->setValue(p);
 }
 
 void MainWindow::updateStatus(const QString &s)
 {
-    this->mUi->l_progress->setText(s);
+    mUi->l_progress->setText(s);
 }
 
 void MainWindow::updateLoaderStatus(const QString &s)
 {
-    this->mUi->l_status->setText(s);
+    mUi->l_status->setText(s);
 }
 
 void MainWindow::updateLoaderPct(quint32 p)
 {
-    this->mUi->pgb_loader->setValue(p);
+    mUi->pgb_loader->setValue(p);
 }
 
 void MainWindow::Send()
 {
-    this->mFilename.clear();
-    this->mFilename = QFileDialog::getOpenFileName(this, "Open file", "", "Binary Files (*.bin)");
-    if (!this->mFilename.isNull()) {
-        QFile file(this->mFilename);
+    mFilename.clear();
+    mFilename = QFileDialog::getOpenFileName(this, "Open file", "", "Binary Files (*.bin)");
+    if (!mFilename.isNull()) {
+        QFile file(mFilename);
         if (!file.open(QIODevice::ReadOnly)) {
             qCritical("Could not open the file.");
             return;
         }
         this->log("Size: "+QString::number(file.size()/1024)+"KB");
 
-        if (file.size() > (*this->mStlink->mDevice)["flash_size"]*1024) {
+        if (file.size() > (*mStlink->mDevice)["flash_size"]*1024) {
             if(QMessageBox::question(this, "Flash size exceeded", "The file is bigger than the flash size!\n\nThe flash memory will be erased and the new file programmed, continue?", QMessageBox::Yes|QMessageBox::No) != QMessageBox::Yes){
                 return;
             }
@@ -215,8 +223,8 @@ void MainWindow::Send()
         }
         file.close();
 
-        this->Send(this->mFilename);
-        this->mLastAction = ACTION_SEND;
+        this->Send(mFilename);
+        mLastAction = ACTION_SEND;
     }
 }
 
@@ -224,74 +232,74 @@ void MainWindow::Send(const QString &path)
 {
     qDebug("Writing flash");
     this->log("Sending "+path);
-    this->mStlink->resetMCU(); // We stop the MCU
-    this->mUi->tabw_info->setCurrentIndex(3);
-    this->mUi->pgb_transfer->setValue(0);
-    this->mUi->l_progress->setText("Starting transfer...");
+    mStlink->resetMCU(); // We stop the MCU
+    mUi->tabw_info->setCurrentIndex(3);
+    mUi->pgb_transfer->setValue(0);
+    mUi->l_progress->setText("Starting transfer...");
 
     // Transfer thread
-    this->tfThread->setParams(this->mStlink, path, true, false);
-    this->tfThread->start();
+    mTfThread->setParams(mStlink, path, true, false);
+    mTfThread->start();
 }
 
 void MainWindow::Receive()
 {
     qDebug("Reading flash");
-    this->mFilename.clear();
-    this->mFilename = QFileDialog::getSaveFileName(this, "Save File", "", "Binary Files (*.bin)");
-    if (!this->mFilename.isNull()) {
-        QFile file(this->mFilename);
+    mFilename.clear();
+    mFilename = QFileDialog::getSaveFileName(this, "Save File", "", "Binary Files (*.bin)");
+    if (!mFilename.isNull()) {
+        QFile file(mFilename);
         if (!file.open(QIODevice::ReadWrite)) {
             qCritical("Could not save the file.");
             return;
         }
         file.close();
-        this->Receive(this->mFilename);
-        this->mLastAction = ACTION_RECEIVE;
+        this->Receive(mFilename);
+        mLastAction = ACTION_RECEIVE;
     }
 }
 
 void MainWindow::Receive(const QString &path)
 {
     this->log("Saving to "+path);
-    this->mUi->tabw_info->setCurrentIndex(3);
-    this->mUi->pgb_transfer->setValue(0);
-    this->mUi->l_progress->setText("Starting transfer...");
+    mUi->tabw_info->setCurrentIndex(3);
+    mUi->pgb_transfer->setValue(0);
+    mUi->l_progress->setText("Starting transfer...");
 
     // Transfer thread
-    this->tfThread->setParams(this->mStlink, path, false, false);
-    this->tfThread->start();
+    mTfThread->setParams(mStlink, path, false, false);
+    mTfThread->start();
 }
 
 void MainWindow::Verify()
 {
     qDebug("Verify flash");
-    this->mFilename.clear();
-    this->mFilename = QFileDialog::getOpenFileName(this, "Open file", "", "Binary Files (*.bin)");
-    if (!this->mFilename.isNull()) {
-        QFile file(this->mFilename);
+    mFilename.clear();
+    mFilename = QFileDialog::getOpenFileName(this, "Open file", "", "Binary Files (*.bin)");
+    if (!mFilename.isNull()) {
+        QFile file(mFilename);
         if (!file.open(QIODevice::ReadOnly)) {
             qCritical("Could not open the file.");
             return;
         }
         file.close();
-        this->Verify(this->mFilename);
-        this->mLastAction = ACTION_VERIFY;
+        this->Verify(mFilename);
+        mLastAction = ACTION_VERIFY;
     }
 }
 
 void MainWindow::Repeat()
 {
-    switch (this->mLastAction) {
+    switch (mLastAction) {
 
         case ACTION_SEND:
-            this->Send(this->mFilename);
+            this->Send(mFilename);
             break;
         case ACTION_RECEIVE:
-            this->Receive(this->mFilename);
+            this->Receive(mFilename);
             break;
         case ACTION_VERIFY:
-            this->Verify(this->mFilename);
+            this->Verify(mFilename);
             break;
         case ACTION_NONE:
             this->log("Nothing to repeat.");
@@ -304,28 +312,28 @@ void MainWindow::Repeat()
 void MainWindow::Verify(const QString &path)
 {
     this->log("Verifying "+path);
-    this->mUi->tabw_info->setCurrentIndex(3);
-    this->mUi->pgb_transfer->setValue(0);
-    this->mUi->l_progress->setText("Starting Verification...");
+    mUi->tabw_info->setCurrentIndex(3);
+    mUi->pgb_transfer->setValue(0);
+    mUi->l_progress->setText("Starting Verification...");
 
     // Transfer thread
-    this->tfThread->setParams(this->mStlink, path, false, true);
-    this->tfThread->start();
+    mTfThread->setParams(mStlink, path, false, true);
+    mTfThread->start();
 }
 
 void MainWindow::eraseFlash()
 {
-    this->mStlink->hardResetMCU();
-    this->mStlink->resetMCU();
-    if (!this->mStlink->unlockFlash())
+    mStlink->hardResetMCU();
+    mStlink->resetMCU();
+    if (!mStlink->unlockFlash())
         return;
-    this->mStlink->eraseFlash();
+    mStlink->eraseFlash();
 }
 
 void MainWindow::HaltMCU()
 {
     this->log("Halting MCU...");
-    this->mStlink->haltMCU();
+    mStlink->haltMCU();
     usleep(100000);
     this->getStatus();
 }
@@ -333,7 +341,7 @@ void MainWindow::HaltMCU()
 void MainWindow::RunMCU()
 {
     this->log("Resuming MCU...");
-    this->mStlink->runMCU();
+    mStlink->runMCU();
     usleep(100000);
     this->getStatus();
 }
@@ -341,7 +349,7 @@ void MainWindow::RunMCU()
 void MainWindow::ResetMCU()
 {
     this->log("Reseting MCU...");
-    this->mStlink->resetMCU();
+    mStlink->resetMCU();
     usleep(100000);
     this->getStatus();
 }
@@ -349,27 +357,27 @@ void MainWindow::ResetMCU()
 void MainWindow::HardReset()
 {
     this->log("Hard Reset...");
-    this->mStlink->hardResetMCU();
+    mStlink->hardResetMCU();
     usleep(100000);
     this->getStatus();
 }
 
 void MainWindow::setModeJTAG()
 {
-    if (!this->mStlink->isConnected())
+    if (!mStlink->isConnected())
         return;
     this->log("Changing mode to JTAG...");
-    this->mStlink->setModeJTAG();
+    mStlink->setModeJTAG();
     usleep(100000);
     this->getMode();
 }
 
 void MainWindow::setModeSWD()
 {
-    if (!this->mStlink->isConnected())
+    if (!mStlink->isConnected())
         return;
     this->log("Changing mode to SWD...");
-    this->mStlink->setModeSWD();
+    mStlink->setModeSWD();
     usleep(100000);
     this->getMode();
 }
@@ -377,7 +385,7 @@ void MainWindow::setModeSWD()
 void MainWindow::Quit()
 {
     this->hide();
-    if (this->mStlink->isConnected())
+    if (mStlink->isConnected())
         this->Disconnect();
     qApp->quit();
 }
@@ -385,13 +393,13 @@ void MainWindow::Quit()
 void MainWindow::getVersion()
 {
     this->log("Fetching version...");
-    this->mStlink->getVersion();
+    mStlink->getVersion();
 }
 
 void MainWindow::getMode()
 {
     this->log("Fetching mode...");
-    const quint8 mode = this->mStlink->getMode();
+    const quint8 mode = mStlink->getMode();
     QString mode_str;
     switch (mode) {
         case STLink::Mode::UNKNOWN:
@@ -416,7 +424,7 @@ void MainWindow::getMode()
 void MainWindow::getStatus()
 {
     this->log("Fetching status...");
-    const quint8 status = this->mStlink->getStatus();
+    const quint8 status = mStlink->getStatus();
     QString status_str;
     switch (status) {
         case STLink::Status::CORE_RUNNING:
@@ -435,32 +443,32 @@ void MainWindow::getStatus()
 bool MainWindow::getMCU()
 {
     this->log("Fetching MCU Info...");
-    this->mStlink->getCoreID();
-    this->mStlink->resetMCU();
-    this->mStlink->getChipID();
+    mStlink->getCoreID();
+    mStlink->resetMCU();
+    mStlink->getChipID();
 
-    if (this->mDevices->search(this->mStlink->mChipId)) {
-        this->mStlink->mDevice = this->mDevices->mCurDevice;
-        qInformal() << "Device type: " << this->mStlink->mDevice->mType;
+    if (mDevices->search(mStlink->mChipId)) {
+        mStlink->mDevice = mDevices->mCurDevice;
+        qInformal() << "Device type: " << mStlink->mDevice->mType;
 
-        this->mUi->le_type->setText(this->mStlink->mDevice->mType);
-        this->mUi->le_chipid->setText("0x"+QString::number((*this->mStlink->mDevice)["chip_id"], 16));
-        this->mUi->le_flashbase->setText("0x"+QString::number((*this->mStlink->mDevice)["flash_base"], 16));
+        mUi->le_type->setText(mStlink->mDevice->mType);
+        mUi->le_chipid->setText("0x"+QString::number((*mStlink->mDevice)["chip_id"], 16));
+        mUi->le_flashbase->setText("0x"+QString::number((*mStlink->mDevice)["flash_base"], 16));
         //this->ui->le_flashsize->setText(QString::number((*this->stlink->device)["flash_size"]/1024)+"KB");
-        this->mUi->le_ramsize->setText(QString::number((*this->mStlink->mDevice)["sram_size"]/1024)+"KB");
-        this->mUi->le_rambase->setText("0x"+QString::number((*this->mStlink->mDevice)["sram_base"], 16));
+        mUi->le_ramsize->setText(QString::number((*mStlink->mDevice)["sram_size"]/1024)+"KB");
+        mUi->le_rambase->setText("0x"+QString::number((*mStlink->mDevice)["sram_base"], 16));
 
-        this->mUi->le_stlver->setText(QString::number(this->mStlink->mVersion.stlink));
-        this->mUi->le_jtagver->setText(QString::number(this->mStlink->mVersion.jtag));
-        this->mUi->le_swimver->setText(QString::number(this->mStlink->mVersion.swim));
+        mUi->le_stlver->setText(QString::number(mStlink->mVersion.stlink));
+        mUi->le_jtagver->setText(QString::number(mStlink->mVersion.jtag));
+        mUi->le_swimver->setText(QString::number(mStlink->mVersion.swim));
 
-        if(!this->mStlink->mVersion.stlink)
-            this->mUi->le_jtagver->setToolTip("Not supported");
-        if(!this->mStlink->mVersion.swim)
-            this->mUi->le_swimver->setToolTip("Not supported");
+        if(!mStlink->mVersion.stlink)
+            mUi->le_jtagver->setToolTip("Not supported");
+        if(!mStlink->mVersion.swim)
+            mUi->le_swimver->setToolTip("Not supported");
 
-        (*this->mStlink->mDevice)["flash_size"] = this->mStlink->readFlashSize();
-        this->mUi->le_flashsize->setText(QString::number((*this->mStlink->mDevice)["flash_size"])+"KB");
+        (*mStlink->mDevice)["flash_size"] = mStlink->readFlashSize();
+        mUi->le_flashsize->setText(QString::number((*mStlink->mDevice)["flash_size"])+"KB");
 
         return true;
     }

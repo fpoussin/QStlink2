@@ -30,16 +30,14 @@ This file is part of QSTLink2.
 const quint16 USB_ST_VID = 0x0483;
 const quint16 USB_STLINK_PID = 0x3744;
 const quint16 USB_STLINKv2_PID = 0x3748;
+const quint16 USB_NUCLEO_PID = 0x374b;
 const quint8 USB_CONFIGURATION = 1;   /* The sole configuration. */
 const quint8 USB_PIPE_IN = 0x81;   /* Bulk output endpoint for responses */
 const quint8 USB_PIPE_OUT = 0x02;	   /* Bulk input endpoint for commands */
 const quint8 USB_PIPE_ERR = 0x83;	   /* An apparently-unused bulk endpoint. */
 const quint16 USB_TIMEOUT_MSEC = 300;
 const QString USB_STLINK_GUID = "DBCE1CD9-A320-4b51-A365-A0C3F3C5FB29";
-#ifdef WIN32
-const GUID OSR_DEVICE_INTERFACE =
-{ 0xDBCE1CD9, 0xA320, 0x4b51, { 0xA3, 0x65, 0xA0, 0xC3, 0xF3, 0xC5, 0xFB, 0x29 } };
-#endif
+const QString USB_NUCLEO_GUID = "8326506F-7260-4854-9C03-26E416F04494";
 
 namespace STLink {
     namespace Status {
@@ -182,6 +180,8 @@ signals:
 public slots:
     qint32 connect();
     void disconnect();
+    void setSTLinkIDs(void);
+    void setNucleoIDs(void);
     bool isConnected();
     void clearBuffer();
     void resetMCU();

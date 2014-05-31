@@ -26,7 +26,7 @@ win32:CONFIG += winusb
 
 TEMPLATE = app
 TARGET = qstlink2
-VERSION = 1.1.2
+VERSION = 1.1.3
 
 message(Version $$VERSION)
 

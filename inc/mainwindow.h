@@ -47,7 +47,7 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
-    transferThread *tfThread;
+    transferThread *mTfThread;
 
 public slots:
     bool Connect();
