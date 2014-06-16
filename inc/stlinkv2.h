@@ -34,6 +34,7 @@ const quint16 USB_NUCLEO_PID = 0x374b;
 const quint8 USB_CONFIGURATION = 1;   /* The sole configuration. */
 const quint8 USB_PIPE_IN = 0x81;   /* Bulk output endpoint for responses */
 const quint8 USB_PIPE_OUT = 0x02;	   /* Bulk input endpoint for commands */
+const quint8 USB_PIPE_OUT_NUCLEO = 0x01;	   /* Bulk input endpoint for commands */
 const quint8 USB_PIPE_ERR = 0x83;	   /* An apparently-unused bulk endpoint. */
 const quint16 USB_TIMEOUT_MSEC = 300;
 const QString USB_STLINK_GUID = "DBCE1CD9-A320-4b51-A365-A0C3F3C5FB29";

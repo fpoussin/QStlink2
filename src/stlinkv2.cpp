@@ -43,6 +43,12 @@ stlinkv2::~stlinkv2()
 
 qint32 stlinkv2::connect()
 {
+    if (mUsb->getPid() == USB_STLINKv2_PID)
+        mUsb->setEndPoints(USB_PIPE_IN, USB_PIPE_OUT);
+
+    else if (mUsb->getPid() == USB_NUCLEO_PID)
+        mUsb->setEndPoints(USB_PIPE_IN, USB_PIPE_OUT_NUCLEO);
+
     qint32 open = mUsb->open();
     if ((open >= 0)) {
         mUsb->read(&mRecvBuf, 2048); // We clean the usb buffer
