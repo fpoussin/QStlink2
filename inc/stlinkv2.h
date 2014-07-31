@@ -97,6 +97,7 @@ namespace STM32 {
         const quint32 F1_HIGH = 0x414;
         const quint32 L1_MEDIUM = 0x416;
         const quint32 F1_CONN = 0x418;
+        const quint32 F4_HD = 0x419;
         const quint32 F1_VL_MEDIUM = 0x420;
         const quint32 F1_VL_HIGH = 0x428;
         const quint32 F1_XL = 0x430;

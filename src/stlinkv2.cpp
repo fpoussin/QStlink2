@@ -170,7 +170,7 @@ quint32 stlinkv2::readFlashSize()
 
     this->readMem32((*mDevice)["flash_size_reg"]);
     (*mDevice)["flash_size"] = qFromLittleEndian<quint32>((uchar*)mRecvBuf.constData());
-    if (mChipId == STM32::ChipID::F4) {
+    if (mChipId == STM32::ChipID::F4 || mChipId == STM32::ChipID::F4_HD) {
         (*mDevice)["flash_size"] = (*mDevice)["flash_size"] >> 16;
     }
     else {
@@ -404,7 +404,7 @@ bool stlinkv2::setSTRT()
     PrintFuncName();
     quint32 mask = 0;
 
-    if (mChipId == STM32::ChipID::F4) {
+    if (mChipId == STM32::ChipID::F4 || mChipId == STM32::ChipID::F4_HD) {
         mask |= (1 << STM32::Flash::F4_CR_STRT);
     }
     else {
@@ -471,7 +471,7 @@ void stlinkv2::writeMem32(quint32 addr, QByteArray &buf)
             usleep(100000); // 100ms
         }
         // Check if write succeeded
-        if ((*mDevice)["chip_id"] == STM32::ChipID::F4) {
+        if ((*mDevice)["chip_id"] == STM32::ChipID::F4 || (*mDevice)["chip_id"] == STM32::ChipID::F4_HD) {
             if (this->readFlashSR() & 242)
                 qCritical() << "Flash write failed!";
         }
