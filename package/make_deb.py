@@ -63,7 +63,11 @@ if __name__ == "__main__":
   args = parser.parse_args()
   
   if (not args.release and not args.all) or (not args.source and not args.bin):
+    print " "
     parser.print_help()
+    print " "
+    print "You will need debuild, cdbs and dh_make to generate packages."
+    print " "
     sys.exit(1)
 
   if not args.all and args.release not in releases:
