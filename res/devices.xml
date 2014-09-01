@@ -86,7 +86,16 @@
       <loader>loader_l1.bin</loader>
     </device>
 
-      <device type="STM32F05x" coretype="CM0">
+    <device type="STM32F03x" coretype="CM0">
+      <core_id>0x0bb11477</core_id>
+      <chip_id>0x444</chip_id>
+      <flash_size_reg>0x1FFFF7CC</flash_size_reg>
+      <flash_int_reg>0x40022000</flash_int_reg>
+      <sram_size>0x1000</sram_size>
+      <loader>loader_f0.bin</loader>
+    </device>
+
+    <device type="STM32F05x" coretype="CM0">
       <core_id>0x0bb11477</core_id>
       <chip_id>0x440</chip_id>
       <flash_size_reg>0x1FFFF7CC</flash_size_reg>
