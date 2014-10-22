@@ -21,7 +21,7 @@
 
 QT += core gui xml
 contains(QT_MAJOR_VERSION, 5) { QT += widgets }
-win32:CONFIG += console
+#win32:CONFIG += console
 win32:CONFIG += winusb
 
 TEMPLATE = app
