@@ -4,7 +4,7 @@ import sys,os, re, argparse, iso8601, shutil
 from subprocess import call, check_output, Popen
 from xml.etree import ElementTree as ET
 
-releases = ["precise","saucy", "trusty", "utopic"]
+releases = ["precise","vivid", "trusty", "utopic"]
 build_for = []
 
 parser = argparse.ArgumentParser()
