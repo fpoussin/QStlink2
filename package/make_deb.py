@@ -3,8 +3,9 @@
 import sys,os, re, argparse, iso8601, shutil
 from subprocess import call, check_output, Popen
 from xml.etree import ElementTree as ET
+import random, string
 
-releases = ["precise","vivid", "trusty", "utopic"]
+releases = ["precise", "vivid", "trusty", "utopic"]
 build_for = []
 
 parser = argparse.ArgumentParser()
@@ -13,6 +14,7 @@ parser.add_argument('-a', '--all', help='Build for all releases', action="store_
 parser.add_argument('-s', '--source', help='Build signed source package', action="store_true")
 parser.add_argument('-b', '--bin', help='Build local binary package', action="store_true")
 parser.add_argument('-p', '--ppa', help='Send source package to PPA', action="store_true")
+parser.add_argument('-R', '--revision', help='Revision number', default=0, type=int)
 
 def makeChangelog(release, dest, rev):
 
@@ -20,7 +22,7 @@ def makeChangelog(release, dest, rev):
   #~ tmp = f.read()
   #~ f.close()
   
-  pass
+  return
   
 def copySrc(release, dest, rev):
   
@@ -88,7 +90,7 @@ if __name__ == "__main__":
   
   for release in build_for:
   
-    folder_name = 'qstlink2-'+str(ver)+'~'+release
+    folder_name = 'qstlink2-'+str(ver)+"~"+str(args.revision)+'~'+release
     print "Package version:" , folder_name
     
     copySrc(release, folder_name, ver)
@@ -97,7 +99,7 @@ if __name__ == "__main__":
     if args.source:
       makeSrc(folder_name)
       if args.ppa:
-        sendSrc('qstlink2_'+str(ver)+'~'+release)
+        sendSrc(folder_name.replace('-','_'))
     if args.bin:
       makeBin(folder_name)
       
