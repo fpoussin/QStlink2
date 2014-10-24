@@ -131,7 +131,7 @@
       <loader>loader_f1.bin</loader>
     </device>
 
-    <device type="STM32F103 (Low Density)" coretype="CM3">
+    <device type="STM32F10x (Low Density)" coretype="CM3">
       <core_id>0x1ba01477</core_id>
       <chip_id>0x412</chip_id>
       <flash_size_reg>0x1FFFF7E0</flash_size_reg>
@@ -140,7 +140,7 @@
       <loader>loader_f1.bin</loader>
     </device>
 
-    <device type="STM32F103 (Medium Density)" coretype="CM3">
+    <device type="STM32F10x (Medium Density)" coretype="CM3">
       <core_id>0x1ba01477</core_id>
       <chip_id>0x410</chip_id>
       <flash_size_reg>0x1FFFF7E0</flash_size_reg>
@@ -149,7 +149,7 @@
       <loader>loader_f1.bin</loader>
     </device>
 
-    <device type="STM32F103 (High Density)" coretype="CM3">
+    <device type="STM32F10x (High Density)" coretype="CM3">
       <core_id>0x1ba01477</core_id>
       <chip_id>0x414</chip_id>
       <flash_size_reg>0x1FFFF7E0</flash_size_reg>
@@ -158,7 +158,16 @@
       <loader>loader_f1.bin</loader>
     </device>
 
-    <device type="STM32F105 (Connectivity)" coretype="CM3">
+    <device type="STM32F10x (XL Density)" coretype="CM3">
+      <core_id>0x1ba01477</core_id>
+      <chip_id>0x430</chip_id>
+      <flash_size_reg>0x1FFFF7E0</flash_size_reg>
+      <flash_int_reg>0x40022000</flash_int_reg>
+      <sram_size>0x4000</sram_size>
+      <loader>loader_f1.bin</loader>
+    </device>
+
+    <device type="STM32F10x (Connectivity)" coretype="CM3">
       <core_id>0x1ba01477</core_id>
       <chip_id>0x418</chip_id>
       <flash_size_reg>0x1FFFF7E0</flash_size_reg>
