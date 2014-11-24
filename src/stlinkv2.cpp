@@ -460,9 +460,10 @@ bool stlinkv2::isBusy()
 void stlinkv2::writeMem32(quint32 addr, QByteArray &buf)
 {
     PrintFuncName() << " Writing" << buf.size() << "bytes to" << "0x"+QString::number(addr, 16).toUpper();
-    if (buf.size() % 4 != 0) {
-        qCritical() << "Data is not 32 bit aligned!";
-        return;
+    uint remain = buf.size() % 4;
+    if (remain != 0) {
+        qWarning() << "Data is not 32 bit aligned! Padding with" << QString::number(remain) << "Bytes";
+        buf.append(QByteArray(remain, 0));
     }
 
     // Any writing to flash while busy = ART processor hangs
