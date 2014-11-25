@@ -7,5 +7,6 @@
         <file>bin/loader_f30.bin</file>
         <file>bin/loader_f37.bin</file>
         <file>bin/loader_l1.bin</file>
+        <file>bin/loader_f1_low_med.bin</file>
     </qresource>
 </RCC>
