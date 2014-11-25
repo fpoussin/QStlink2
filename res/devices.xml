@@ -137,7 +137,7 @@
       <flash_size_reg>0x1FFFF7E0</flash_size_reg>
       <flash_int_reg>0x40022000</flash_int_reg>
       <sram_size>0x4000</sram_size>
-      <loader>loader_f1.bin</loader>
+      <loader>loader_f1_low_med.bin</loader>
     </device>
 
     <device type="STM32F10x (Medium Density)" coretype="CM3">
@@ -146,7 +146,7 @@
       <flash_size_reg>0x1FFFF7E0</flash_size_reg>
       <flash_int_reg>0x40022000</flash_int_reg>
       <sram_size>0x4000</sram_size>
-      <loader>loader_f1.bin</loader>
+      <loader>loader_f1_low_med.bin</loader>
     </device>
 
     <device type="STM32F10x (High Density)" coretype="CM3">

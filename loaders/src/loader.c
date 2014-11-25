@@ -18,7 +18,7 @@
 #if defined(STM32F0)
 	#include <stm32f0xx.h>
 	#include <stm32f0xx_flash.h>
-#elif defined(STM32F1)
+#elif defined(STM32F1_LOW_MED) ||defined(STM32F1)
 	#include <stm32f10x.h>
 	#include <stm32f10x_flash.h>
 #elif defined(STM32F2)
@@ -72,6 +72,11 @@
 #elif defined(STM32L1)
 	#define FLASH_STEP 4
 	#define FLASH_PGM FLASH_FastProgramWord
+	#define FLASH_PAGE_SIZE         ((uint32_t)0x00000400)   /* FLASH Page Size */
+	uint32_t GetPage(uint32_t Address);
+#elif defined(STM32F1_LOW_MED)
+	#define FLASH_STEP 4
+	#define FLASH_PGM FLASH_ProgramWord
 	#define FLASH_PAGE_SIZE         ((uint32_t)0x00000400)   /* FLASH Page Size */
 	uint32_t GetPage(uint32_t Address);
 #else

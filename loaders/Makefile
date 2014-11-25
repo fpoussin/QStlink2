@@ -9,7 +9,7 @@ STARTUP=src/crt0.c
 CFLAGS=-Wall -Iinc/ -Os -g -nostdlib -mthumb -DTHUMB -nostartfiles -fomit-frame-pointer -falign-functions=16 -ffunction-sections -fdata-sections -fno-common -flto
 LDFLAGS=-Tinc/link.ld -Wl,--gc-sections
 
-all: loader_f0.bin loader_f1.bin loader_f2.bin loader_f30.bin loader_f37.bin loader_f4.bin loader_l1.bin
+all: loader_f0.bin loader_f1_low_med.bin loader_f1.bin loader_f2.bin loader_f30.bin loader_f37.bin loader_f4.bin loader_l1.bin
  
 %.bin: %.elf
 	$(OBJCOPY) -O binary elf/$^ bin/$@
@@ -17,6 +17,9 @@ all: loader_f0.bin loader_f1.bin loader_f2.bin loader_f30.bin loader_f37.bin loa
 
 loader_f0.elf: $(STARTUP) $(CODE) src/stm32f0xx_flash.c
 	$(CC) -o elf/$@ $(CFLAGS) -DSTM32F0 -mcpu=cortex-m0 $(LDFLAGS) $^
+	
+loader_f1_low_med.elf: $(STARTUP) $(CODE) src/stm32f10x_flash.c
+	$(CC) -o elf/$@ $(CFLAGS) -DSTM32F1_LOW_MED -DSTM32F10X_MD -mcpu=cortex-m3 $(LDFLAGS) $^
 	
 loader_f1.elf: $(STARTUP) $(CODE) src/stm32f10x_flash.c
 	$(CC) -o elf/$@ $(CFLAGS) -DSTM32F1 -DSTM32F10X_MD -mcpu=cortex-m3 $(LDFLAGS) $^
