@@ -24,11 +24,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     mUi->setupUi(this);
     mUi->b_disconnect->setEnabled(false);
-    mUi->gb_top->setEnabled(false);
-    mUi->b_send->setEnabled(false);
-    mUi->b_receive->setEnabled(false);
-    mUi->b_verify->setEnabled(false);
-    mUi->b_repeat->setEnabled(false);
+    this->lockUI(true);
     mStlink = new stlinkv2();
     mDevices = new DeviceList(this);
     mTfThread = new transferThread();
@@ -37,7 +33,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     if (mDevices->IsLoaded()) {
 
-        mUi->gb_top->setEnabled(true);
         this->log(QString::number(mDevices->getDevicesCount())+" Device descriptions loaded.");
         QObject::connect(mUi->b_quit,SIGNAL(clicked()),this,SLOT(Quit()));
         QObject::connect(mUi->b_qt,SIGNAL(clicked()),qApp,SLOT(aboutQt()));
@@ -137,14 +132,8 @@ bool MainWindow::Connect()
         else
             this->setModeSWD();
         this->getStatus();
-        mUi->b_connect->setEnabled(false);
-        mUi->b_disconnect->setEnabled(true);
         if (this->getMCU()) {
-            mUi->gb_bottom->setEnabled(true);
-            mUi->b_send->setEnabled(true);
-            mUi->b_receive->setEnabled(true);
-            mUi->b_verify->setEnabled(true);
-            mUi->b_repeat->setEnabled(true);
+            this->lockUI(true);
             return true;
         }
         else
@@ -159,13 +148,7 @@ void MainWindow::Disconnect()
     mStlink->disconnect();
     this->log("Disconnected.");
     qInformal() << "Disconnected.";
-    mUi->b_disconnect->setEnabled(false);
-    mUi->b_connect->setEnabled(true);
-    mUi->gb_bottom->setEnabled(false);
-    mUi->b_send->setEnabled(false);
-    mUi->b_receive->setEnabled(false);
-    mUi->b_verify->setEnabled(false);
-    mUi->b_repeat->setEnabled(false);
+    this->lockUI(true);
 }
 
 void MainWindow::log(const QString &s)
@@ -177,6 +160,18 @@ void MainWindow::lockUI(bool enabled)
 {
     mUi->gb_top->setEnabled(!enabled);
     mUi->gb_bottom->setEnabled(!enabled);
+
+    mUi->b_connect->setEnabled(enabled);
+    mUi->b_disconnect->setEnabled(!enabled);
+    mUi->gb_bottom->setEnabled(!enabled);
+    mUi->b_send->setEnabled(!enabled);
+    mUi->b_receive->setEnabled(!enabled);
+    mUi->b_verify->setEnabled(!enabled);
+    mUi->b_repeat->setEnabled(!enabled);
+    mUi->b_halt->setEnabled(!enabled);
+    mUi->b_reset->setEnabled(!enabled);
+    mUi->b_run->setEnabled(!enabled);
+    mUi->b_hardReset->setEnabled(!enabled);
 }
 
 void MainWindow::updateProgress(quint32 p)
