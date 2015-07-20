@@ -1,18 +1,19 @@
 #! /usr/bin/python
 
 import sys,os, re, argparse, iso8601, shutil
-from subprocess import call, check_output, Popen
+from subprocess import call, check_output, Popen, PIPE
 from xml.etree import ElementTree as ET
 import random, string
 
-releases = ["precise", "vivid", "trusty", "utopic"]
+releases = ["vivid", "trusty", "utopic"]
 build_for = []
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-r', '--release', help='The Ubuntu release')
 parser.add_argument('-a', '--all', help='Build for all releases', action="store_true")
 parser.add_argument('-s', '--source', help='Build signed source package', action="store_true")
-parser.add_argument('-b', '--bin', help='Build local binary package', action="store_true")
+parser.add_argument('-lb', '--bin', help='Build local binary package', action="store_true")
+parser.add_argument('-b', '--sbuild', help='Build binary package with sbuild', action="store_true")
 parser.add_argument('-p', '--ppa', help='Send source package to PPA', action="store_true")
 parser.add_argument('-R', '--revision', help='Revision number', default=0, type=int)
 
@@ -23,6 +24,15 @@ def makeChangelog(release, dest, rev):
   #~ f.close()
   
   return
+
+def run_cmd(cmd, do_print=True, **kwargs):
+    p = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE, **kwargs)
+    if do_print:
+        lines_iterator = iter(p.stdout.readline, b"")
+        for line in lines_iterator:
+            print(line.strip())  # yield line
+    else:
+        p.wait()
   
 def copySrc(release, dest, rev):
   
@@ -51,30 +61,34 @@ def copySrc(release, dest, rev):
   
 def makeSrc(dest):
   print "Building Source package"
-  print check_output(["cd "+dest+"; debuild -j4 -S -sa"], shell=True)
+  run_cmd(["cd "+dest+"; debuild -j4 -S -sa"])
   
 def makeBin(dest):
   print "Building binary package"
-  print check_output(["cd "+dest+"; debuild -j4 -b -uc -us"], shell=True)
+  run_cmd(["cd "+dest+"; debuild -j4 -b -uc -us"])
+  
+def makeSBuild(dest):
+  print "Building binary package (sbuild)"
+  run_cmd(["sbuild -vd {0} -c {0}-amd64-shm -j4 {1}".format(args.release, dest)])
 
 def sendSrc(ver):
-  print check_output(["dput ppa:fpoussin/ppa "+ver+"_source.changes"], shell=True)
+  run_cmd(["dput ppa:fpoussin/ppa "+ver+"_source.changes"])
 
 if __name__ == "__main__":
 
   args = parser.parse_args()
   
-  if (not args.release and not args.all) or (not args.source and not args.bin):
+  if (not args.release and not args.all) or (not args.source and not args.bin and not args.sbuild):
     print " "
     parser.print_help()
     print " "
     print "You will need debuild, cdbs and dh_make to generate packages."
     print " "
-    sys.exit(1)
+    exit(1)
 
   if not args.all and args.release not in releases:
     print "Invalid Ubuntu release, please chose among:", ", ".join(releases)
-    sys.exit(1)
+    exit(1)
   
   if args.all:
     build_for = releases[:]
@@ -84,7 +98,7 @@ if __name__ == "__main__":
   ver = check_output(["grep \"VERSION =\" ../QStlink2.pro | awk '{ print $3 }' "], shell=True).replace('\n','')
   if not ver:
     print "Could not fetch last version"
-    sys.exit(1)
+    exit(1)
 
   print "Last version:" , ver
   
@@ -100,8 +114,13 @@ if __name__ == "__main__":
       makeSrc(folder_name)
       if args.ppa:
         sendSrc(folder_name.replace('-','_'))
+    if args.sbuild:
+      if not args.source:  # Need to make sources first
+	  makeSrc(folder_name)
+      makeSBuild(folder_name)
     if args.bin:
       makeBin(folder_name)
       
     print check_output(["rm -rf "+folder_name], shell=True)
+    check_output(["schroot -e --all-sessions"], shell=True)
   

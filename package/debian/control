@@ -2,12 +2,12 @@ Source: qstlink2
 Section: devel
 Priority: extra
 Maintainer: Fabien Poussin <fabien.poussin@gmail.com>
-Build-Depends: debhelper (>= 8.0.0), cdbs, libqt4-dev, qt4-qmake, libusb-1.0-0-dev
+Build-Depends: debhelper (>= 8.0.0), cdbs, qtbase5-dev, qt5-qmake, qt5-default, libusb-1.0-0-dev
 Standards-Version: 3.9.5
 Homepage: http://code.google.com/p/qstlink2/
 
 Package: qstlink2
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, libqt4-core, libqt4-gui, libqt4-xml, libusb-1.0-0
+Depends: ${shlibs:Depends}, ${misc:Depends}, libqt5core5a, libqt5gui5, libqt5xml5, libusb-1.0-0
 Description: ST-Link V2 Client based on QT.
  QSTLink2 is a multi-platform ST-Link V2 Client based on QT.
