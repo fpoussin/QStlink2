@@ -26,11 +26,7 @@ transferThread::transferThread(QObject *parent) :
 void transferThread::run()
 {
     if (mWrite) {
-
-//        if ((*this->stlink->device)["chip_id"] == STM32::ChipID::F4)
-//            this->send(m_filename);
-//        else
-            this->sendWithLoader(mFilename);
+        this->sendWithLoader(mFilename);
         if (mVerify)
             this->verify(mFilename);
     }
@@ -68,12 +64,11 @@ void transferThread::sendWithLoader(const QString &filename)
     mStop = false;
     mStlink->hardResetMCU(); // We stop the MCU
     quint32 step_size = 2048;
-    if ((*mStlink->mDevice)["sram_size"] > 0)
-        step_size = (*mStlink->mDevice)["sram_size"]-2048;
+    if ((*mStlink->mDevice)["buffer_size"] > 0)
+        step_size = (*mStlink->mDevice)["buffer_size"]-2048; // Minus the loader's 2k
     const quint32 from = (*mStlink->mDevice)["flash_base"];
     const quint32 to = (*mStlink->mDevice)["flash_base"]+file.size();
     qInformal() << "Writing from" << "0x"+QString::number(from, 16) << "to" << "0x"+QString::number(to, 16);
-//    QByteArray buf;
     quint32 progress, oldprogress, read;
     char *buf2 = new char[step_size];
 
@@ -90,7 +85,7 @@ void transferThread::sendWithLoader(const QString &filename)
     const quint32 bkp1 = mStlink->readRegister(15);
     qDebug() << "Current PC reg" << QString::number(bkp1, 16);
 
-    if (bkp1 < (*mStlink->mDevice)["sram_base"] || bkp1 > (*mStlink->mDevice)["sram_base"]+(*mStlink->mDevice)["sram_size"]) {
+    if (bkp1 < (*mStlink->mDevice)["sram_base"] || bkp1 > (*mStlink->mDevice)["sram_base"]+(*mStlink->mDevice)["buffer_size"]) {
 
         qCritical() << "Current PC is not in the RAM area" << QString::number((*mStlink->mDevice)["sram_base"], 16);
         return;

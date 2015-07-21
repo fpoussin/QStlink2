@@ -147,13 +147,13 @@ void MainWindow::Disconnect()
     this->log("Disconnecting...");
     mStlink->disconnect();
     this->log("Disconnected.");
-    qInformal() << "Disconnected.";
     this->lockUI(true);
 }
 
 void MainWindow::log(const QString &s)
 {
     mUi->t_log->appendPlainText(s);
+    qInformal() << s;
 }
 
 void MainWindow::lockUI(bool enabled)
@@ -450,8 +450,6 @@ bool MainWindow::getMCU()
         mUi->le_chipid->setText("0x"+QString::number((*mStlink->mDevice)["chip_id"], 16));
         mUi->le_flashbase->setText("0x"+QString::number((*mStlink->mDevice)["flash_base"], 16));
         //this->ui->le_flashsize->setText(QString::number((*this->stlink->device)["flash_size"]/1024)+"KB");
-        mUi->le_ramsize->setText(QString::number((*mStlink->mDevice)["sram_size"]/1024)+"KB");
-        mUi->le_rambase->setText("0x"+QString::number((*mStlink->mDevice)["sram_base"], 16));
 
         mUi->le_stlver->setText(QString::number(mStlink->mVersion.stlink));
         mUi->le_jtagver->setText(QString::number(mStlink->mVersion.jtag));
