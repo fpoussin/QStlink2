@@ -69,7 +69,19 @@ def makeBin(dest):
   
 def makeSBuild(dest):
   print "Building binary package (sbuild)"
-  run_cmd(["sbuild -vd {0} -c {0}-amd64-shm -j4 {1}".format(args.release, dest)])
+  chroots = check_output(["schroot -l | grep -E 'chroot:.*{0}'".format(args.release)], shell=True).replace("chroot:", "")
+  chroot = None
+  for c in chroots.split():
+    chroot = c.strip()
+    if "shm" in c:
+      break
+  if chroot:
+    print "Using chroot:", chroot
+    run_cmd(["sbuild -vd {0} -c {1} -j4 {2}".format(args.release, chroot, dest)])
+  else:
+    print "No valid chroot found! Here is the list:"
+    print chroots
+    exit(1)
 
 def sendSrc(ver):
   run_cmd(["dput ppa:fpoussin/ppa "+ver+"_source.changes"])
