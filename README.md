@@ -23,12 +23,14 @@ Ubuntu PPA:
 
 *Build dependencies for Qt4:*
  - libusb-1.0
+ - QtUSB (included)
  - qt4-qmake
  - qt4-dev
  - libqt4-gui
 
 *Build dependencies for Qt5:*
  - libusb-1.0
+ - QtUSB (included)
  - qt5-qmake
  - qtbase5-dev
  - libqt5gui5
@@ -54,6 +56,7 @@ I recommend that you build/download a static version of Qt for Windows.
 *Dependencies:*
  - MSVC 2008 or better
  - WinUsb (WDK)
+ - QtUSB (included)
  - Qt 5.2 or better recommended
 
 *Build steps:*
