@@ -21,13 +21,13 @@ Ubuntu PPA:
 
 **Building on Linux**
 
-Build dependencies for Qt4:
+*Build dependencies for Qt4:*
  - libusb-1.0
  - qt4-qmake
  - qt4-dev
  - libqt4-gui
 
-Build dependencies for Qt5:
+*Build dependencies for Qt5:*
  - libusb-1.0
  - qt5-qmake
  - qtbase5-dev
@@ -50,6 +50,11 @@ You might need to install windows driver SDK (WDK) to get WinUSB libs/headers.
 You can also build from Qt Creator
 
 I recommend that you build/download a static version of Qt for Windows.
+
+*Dependencies:*
+ - MSVC 2008 or better
+ - WinUsb (WDK)
+ - Qt 5.2 or better recommended
 
 *Build steps:*
 
