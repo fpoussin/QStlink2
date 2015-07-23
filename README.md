@@ -42,21 +42,21 @@ Ubuntu PPA:
 
     git clone git@github.com:fpoussin/QStlink2.git
     git submodule update --init
-    qmake
+    qt4-qmake # or qt5-qmake
     make
     sudo make install  # Optional
 
 
 **Building in Windows**
 
-You will need to run these commands from MSVC's CLI (I use MSVC2010)
+You will need to run these commands from MSVC's CLI (I use MSVC2012 express)
 You might need to install windows driver SDK (WDK) to get WinUSB libs/headers.
 You can also build from Qt Creator
 
 I recommend that you build/download a static version of Qt for Windows.
 
 *Dependencies:*
- - MSVC 2008 or better
+ - MSVC 2008 or better (community/express editions work fine)
  - WinUsb (WDK)
  - QtUSB (included)
  - Qt 5.2 SDK or better recommended
