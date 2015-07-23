@@ -1,4 +1,3 @@
-
 **QSTLink2**
 ========
 
@@ -33,7 +32,8 @@ Build dependencies for Qt5:
  - qt5-qmake
  - qtbase5-dev
  - libqt5gui5
-
+ 
+*Build steps:*
 
     git clone git@github.com:fpoussin/QStlink2.git
     git submodule init
@@ -41,6 +41,7 @@ Build dependencies for Qt5:
     qmake
     make
     sudo make install  # Optional
+
 
 **Building in Windows**
 
@@ -50,8 +51,11 @@ You can also build from Qt Creator
 
 I recommend that you build/download a static version of Qt for Windows.
 
+*Build steps:*
+
     git clone git@github.com:fpoussin/QStlink2.git
     git submodule init
     git submodule update
     qmake
     nmake
+
