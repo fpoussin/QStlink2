@@ -35,19 +35,25 @@ static QElapsedTimer timer;
         (void)context;
         switch (type) {
         case QtFatalMsg: // Always print!
-                fprintf(stderr, "%d - Fatal: %s\n", (int)timer.elapsed(), localMsg.constData());
+                fprintf(stderr, "%lld - Fatal: %s\n", timer.elapsed(), localMsg.constData());
                 abort();
         case QtCriticalMsg:
             if (verbose_level >= 1)
-                fprintf(stderr, "%d - Error: %s\n", (int)timer.elapsed(), localMsg.constData());
+                fprintf(stderr, "%lld - Error: %s\n", timer.elapsed(), localMsg.constData());
             break;
-        case QtInfoMsg: // Since there is no "Info" level, we use qWarning which we alias with #define...
+#if QT_VERSION >= 0x050500
+        case QtWarningMsg: // Since there is no "Info" level before 5.5.0, we use qWarning which we alias with #define...
             if (verbose_level >= 2)
-                fprintf(stdout, "%d - Info: %s\n", (int)timer.elapsed(), localMsg.constData());
+                fprintf(stderr, "%lld - Warning: %s\n", timer.elapsed(), localMsg.constData());
+            break;
+#endif
+        case QtInfoMsg: // Since there is no "Info" level before 5.5.0, we use qWarning which we alias with #define...
+            if (verbose_level >= 2)
+                fprintf(stdout, "%lld - Info: %s\n", timer.elapsed(), localMsg.constData());
             break;
         case QtDebugMsg:
             if (verbose_level >= 5)
-                fprintf(stdout, "%d - Debug: %s\n", (int)timer.elapsed(), localMsg.constData());
+                fprintf(stdout, "%lld - Debug: %s\n", timer.elapsed(), localMsg.constData());
             break;
         }
     }
@@ -56,19 +62,19 @@ static QElapsedTimer timer;
     {
         switch (type) {
         case QtFatalMsg: // Always print!
-                fprintf(stderr, "%u - Fatal: %s\n", (quint32)timer.elapsed(), msg);
+                fprintf(stderr, "%lld - Fatal: %s\n", timer.elapsed(), msg);
                 abort();
         case QtCriticalMsg:
             if (verbose_level >= 1)
-                fprintf(stderr, "%u - Error: %s\n", (quint32)timer.elapsed(), msg);
+                fprintf(stderr, "%lld - Error: %s\n", timer.elapsed(), msg);
             break;
         case QtInfoMsg: // Since there is no "Info" level, we use qWarning which we alias with #define...
             if (verbose_level >= 2)
-                fprintf(stdout, "%u - Info: %s\n", (quint32)timer.elapsed(), msg);
+                fprintf(stdout, "%lld - Info: %s\n", timer.elapsed(), msg);
             break;
         case QtDebugMsg:
             if (verbose_level >= 5)
-                fprintf(stdout, "%u - Debug: %s\n", (quint32)timer.elapsed(), msg);
+                fprintf(stdout, "%lld - Debug: %s\n", timer.elapsed(), msg);
             break;
         }
     }
@@ -82,14 +88,20 @@ void showHelp()
         return;
     QString help = help_file.readAll();
     help_file.close();
-    qInformal() << help.remove(QRegExp("(<[^>]+>)|\t\b")); // Clearing HTML tags.
-    qInformal() << "Version:" << __QSTL_VER__;
+    qInfo() << help.remove(QRegExp("(<[^>]+>)|\t\b")); // Clearing HTML tags.
+    qInfo() << "Version:" << __QSTL_VER__;
 }
 
-bool shortParam(const QString &str, char p)
+bool checkParam(QString str, char s, QString l)
 {
     // We check is does not start with '--' and contains the letter we look for.
-    return (str.startsWith('-') && !str.startsWith("--") && str.contains(p));
+    if(str.startsWith('-') && !str.startsWith("--") && str.contains(s))
+        return true;
+    // If it starts with '--' we check the name is correct
+    if(str.startsWith("--") && str.remove("--") == l)
+        return true;
+
+    return false;
 }
 
 int main(int argc, char *argv[])
@@ -105,23 +117,23 @@ int main(int argc, char *argv[])
                 continue;
 
             if (!str.contains(path_reg)) {
-                 if (str.contains('h') || str == "--help") {
+                 if (checkParam(str, 'h', "help")) {
                     showHelp();
                     return 0;
                  }
-                 if (shortParam(str, 'q') || str == "--quiet")
+                 if (checkParam(str, 'q', "quiet"))
                     verbose_level = 0;
-                 if (shortParam(str, 'v') || str == "--verbose")
+                 if (checkParam(str, 'v', "verbose"))
                     verbose_level = 5;
-                 if (shortParam(str, 'c') || str == "--cli")
+                 if (checkParam(str, 'c', "cli"))
                     show = false;
-                 if (shortParam(str, 'e') || str == "--erase")
+                 if (checkParam(str, 'e', "erase"))
                     erase = true;
-                 if (shortParam(str, 'w') || str == "--write")
+                 if (checkParam(str, 'w', "write"))
                     write_flash = true;
-                 if (shortParam(str, 'r') || str == "--read")
+                 if (checkParam(str, 'r', "read"))
                     read_flash = true;
-                 if (shortParam(str, 'V') || str == "--verify")
+                 if (checkParam(str, 'V', "verify"))
                     verify = true;
             }
          }
@@ -150,10 +162,10 @@ int main(int argc, char *argv[])
     else {
         if (!path.isEmpty()) {
 
-            qInformal() << "File Path:" << path;
-            qInformal() << "Erase:" << erase;
-            qInformal() << "Write:" << write_flash;
-            qInformal() << "Verify:" << verify;
+            qInfo() << "File Path:" << path;
+            qInfo() << "Erase:" << erase;
+            qInfo() << "Write:" << write_flash;
+            qInfo() << "Verify:" << verify;
             if (!w->Connect()) {
                 return 1;
             }
@@ -175,7 +187,7 @@ int main(int argc, char *argv[])
             return 0;
             }
         else if (erase) {
-            qInformal() << "Only erasing flash";
+            qInfo() << "Only erasing flash";
             if (!w->Connect())
                 return 1;
             w->eraseFlash();

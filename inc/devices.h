@@ -31,7 +31,7 @@ class Device : public QObject
     Q_OBJECT
 public:
     explicit Device(QObject *parent = 0);
-    explicit Device(Device *device); // Copy contructor
+    explicit Device(const Device *device); // Copy contructor
     quint32 operator[] (QString x) const { return mMap[x]; }
     quint32& operator[] (QString x) { return mMap[x]; }
     bool contains(QString x) { return mMap.contains(x); }

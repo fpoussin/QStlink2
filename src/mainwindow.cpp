@@ -153,7 +153,7 @@ void MainWindow::Disconnect()
 void MainWindow::log(const QString &s)
 {
     mUi->t_log->appendPlainText(s);
-    qInformal() << s;
+    qInfo() << s;
 }
 
 void MainWindow::lockUI(bool enabled)
@@ -444,7 +444,7 @@ bool MainWindow::getMCU()
 
     if (mDevices->search(mStlink->mChipId)) {
         mStlink->mDevice = mDevices->mCurDevice;
-        qInformal() << "Device type: " << mStlink->mDevice->mType;
+        qInfo() << "Device type: " << mStlink->mDevice->mType;
 
         mUi->le_type->setText(mStlink->mDevice->mType);
         mUi->le_chipid->setText("0x"+QString::number((*mStlink->mDevice)["chip_id"], 16));

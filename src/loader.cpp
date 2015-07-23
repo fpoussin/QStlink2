@@ -12,7 +12,7 @@ loader::loader(QObject *parent) :
 bool loader::loadBin(const QString &path) {
 
     const QString _path = ":/bin/"+path;
-    qInformal() << "Loader" << _path;
+    qInfo() << "Loader" << _path;
 
     QFile file(_path);
 

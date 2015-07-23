@@ -23,7 +23,7 @@ Device::Device(QObject *parent) :
     mLoaderFile = "UNKNOWN";
 }
 
-Device::Device(Device *device)
+Device::Device(const Device *device)
 {
     mType = device->mType;
     mMap = device->mMap;
@@ -48,7 +48,7 @@ DeviceList::DeviceList(QObject *parent) :
 
     /* Load from resource */
     if (!file.open(QIODevice::ReadOnly)) {
-        qInformal() << "Could not open the devices.xml file. Using internal data.";
+        qInfo() << "Could not open the devices.xml file. Using internal data.";
 
         file.setFileName(":/devices.xml");
     }
@@ -58,7 +58,7 @@ DeviceList::DeviceList(QObject *parent) :
         return;
     }
     file.close();
-    qInformal() << "Devices list loaded.";
+    qInfo() << "Devices list loaded.";
 
     mDefaultDevice = new Device(this);
     bool isInt;

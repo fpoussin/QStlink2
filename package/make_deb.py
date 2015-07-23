@@ -1,7 +1,7 @@
 #! /usr/bin/python
 
 import sys,os, re, argparse, iso8601, shutil
-from subprocess import call, check_output, Popen, PIPE
+from subprocess import call, check_output, Popen, PIPE, STDOUT
 from xml.etree import ElementTree as ET
 import random, string
 
@@ -26,7 +26,7 @@ def makeChangelog(release, dest, rev):
   return
 
 def run_cmd(cmd, do_print=True, **kwargs):
-    p = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE, **kwargs)
+    p = Popen(cmd, shell=True, stdout=PIPE, stderr=STDOUT, **kwargs)
     if do_print:
         lines_iterator = iter(p.stdout.readline, b"")
         for line in lines_iterator:

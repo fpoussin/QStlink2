@@ -124,7 +124,7 @@ quint32 stlinkv2::getCoreID()
     PrintFuncName();
     this->DebugCommand(STLink::Cmd::Dbg::ReadCoreID, 0, 4);
     mCoreId = qFromLittleEndian<quint32>((uchar*)mRecvBuf.constData());
-    qInformal() << "CoreID:" << QString::number(mCoreId, 16);
+    qInfo() << "CoreID:" << QString::number(mCoreId, 16);
     return mCoreId;
 }
 
@@ -137,11 +137,11 @@ quint32 stlinkv2::getChipID()
 
     if (mCoreId == Cortex::CoreID::M0_R0) {
         this->readMem32(Cortex::Reg::CM0_CHIPID);
-        qInformal() << "CM0 Searching at" << QString::number(Cortex::Reg::CM0_CHIPID, 16);
+        qInfo() << "CM0 Searching at" << QString::number(Cortex::Reg::CM0_CHIPID, 16);
     }
     else {
         this->readMem32(Cortex::Reg::CM3_CHIPID);
-        qInformal() << "CM3/4 Searching at" << QString::number(Cortex::Reg::CM3_CHIPID, 16);
+        qInfo() << "CM3/4 Searching at" << QString::number(Cortex::Reg::CM3_CHIPID, 16);
     }
     mChipId = qFromLittleEndian<quint32>((uchar*)mRecvBuf.constData());
     mChipId &= 0xFFF;
@@ -150,7 +150,7 @@ quint32 stlinkv2::getChipID()
       qDebug() << "STM32F4 rev 0 errata";
       mChipId = STM32::ChipID::F4;
     }
-    qInformal() << "ChipID:" << QString::number(mChipId, 16);
+    qInfo() << "ChipID:" << QString::number(mChipId, 16);
     return mChipId;
 }
 
@@ -161,7 +161,7 @@ quint32 stlinkv2::getRevID()
     this->readMem32(Cortex::Reg::CM3_CHIPID);
     mRevId = mRecvBuf.at(2) | (mRecvBuf.at(3) << 8);
 
-    qInformal() << "RevID:" << QString::number(mRevId, 16);
+    qInfo() << "RevID:" << QString::number(mRevId, 16);
     return mRevId;
 }
 quint32 stlinkv2::readFlashSize()
@@ -176,7 +176,7 @@ quint32 stlinkv2::readFlashSize()
     else {
         (*mDevice)["flash_size"] &= 0xFFFF;
     }
-    qInformal() << "Flash size:" << (*mDevice)["flash_size"] << "KB";
+    qInfo() << "Flash size:" << (*mDevice)["flash_size"] << "KB";
     return (*mDevice)["flash_size"];
 }
 
@@ -239,7 +239,7 @@ bool stlinkv2::eraseFlash()
         return false;
 
     // We set the STRT flag in order to start the mass erase
-    qInformal() << "Erasing flash... This might take some time.";
+    qInfo() << "Erasing flash... This might take some time.";
     this->setSTRT();
     while(this->isBusy()) { // then we wait for completion
         usleep(500000); // 500ms
