@@ -1,7 +1,8 @@
 **QSTLink2**
 ========
 
-**Description**
+**Description**  
+
 QSTLink2 is a cross-platform STLinkV2 GUI.
 
 It can perform the following actions:
