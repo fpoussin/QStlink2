@@ -34,6 +34,7 @@ Build dependencies for Qt5:
  - qtbase5-dev
  - libqt5gui5
 
+
     git clone git@github.com:fpoussin/QStlink2.git
     git submodule init
     git submodule update
