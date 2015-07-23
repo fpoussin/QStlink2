@@ -38,8 +38,7 @@ Ubuntu PPA:
 *Build steps:*
 
     git clone git@github.com:fpoussin/QStlink2.git
-    git submodule init
-    git submodule update
+    git submodule update --init
     qmake
     make
     sudo make install  # Optional
@@ -62,8 +61,7 @@ I recommend that you build/download a static version of Qt for Windows.
 *Build steps:*
 
     git clone git@github.com:fpoussin/QStlink2.git
-    git submodule init
-    git submodule update
+    git submodule update --init
     qmake
     nmake
 
