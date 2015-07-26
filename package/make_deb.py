@@ -5,7 +5,7 @@ from subprocess import call, check_output, Popen, PIPE, STDOUT
 from xml.etree import ElementTree as ET
 import random, string
 
-releases = ["vivid", "trusty", "utopic"]
+releases = ["vivid", "trusty", "wily"]
 build_for = []
 
 parser = argparse.ArgumentParser()
