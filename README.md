@@ -49,14 +49,15 @@ Ubuntu PPA:
 
 **Building in Windows**
 
-You will need to run these commands from MSVC's CLI (I use MSVC2012 express)
+You will need to run these commands from MSVC's CLI (I use MSVC2015 community)
 You might need to install windows driver SDK (WDK) to get WinUSB libs/headers.
-You can also build from Qt Creator
+You can also build from Qt Creator, which is a lot easier.
 
-I recommend that you build/download a static version of Qt for Windows.
+I recommend that you build/download a static version of Qt 5 for Windows.  
+You can find a guide here: https://github.com/fpoussin/Qt5-MSVC-Static
 
 *Dependencies:*
- - MSVC 2008 or better (community/express editions work fine)
+ - MSVC 2010 or better (community/express editions work fine)
  - WinUsb (WDK)
  - QtUSB (included)
  - Qt 5.2 SDK or better recommended
