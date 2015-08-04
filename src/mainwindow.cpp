@@ -133,7 +133,7 @@ bool MainWindow::Connect()
             this->setModeSWD();
         this->getStatus();
         if (this->getMCU()) {
-            this->lockUI(false);
+            this->lockUI(true);
             return true;
         }
         else

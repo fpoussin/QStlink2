@@ -26,7 +26,7 @@ win32:CONFIG += winusb
 
 TEMPLATE = app
 TARGET = qstlink2
-VERSION = 1.2.0
+VERSION = 1.2.1
 
 message(Version $$VERSION)
 
@@ -54,7 +54,7 @@ HEADERS  += inc/mainwindow.h \
     inc/compat.h \
     inc/loader.h
 
-include(QtUsb/QtUsb.pri)
+include(QtUsb/src/QtUsb.pri)
 
 win32 {
     TARGET = qstlink2_$${VERSION}

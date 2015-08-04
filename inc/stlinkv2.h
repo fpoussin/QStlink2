@@ -167,14 +167,13 @@ class stlinkv2 : public QThread
 public:
     explicit stlinkv2(QObject *parent = 0);
     ~stlinkv2();
-    Device *mDevice;
-    quint32 mCoreId;
-    quint32 mChipId;
-    quint32 mRevId;
-    QByteArray mCmdBuf;
-    QByteArray mRecvBuf;
-    QByteArray mSendBuf;
+    bool isLocked();
+    bool isBusy();
+    bool isConnected();
+
     STVersion mVersion;
+    Device *mDevice;
+    quint32 mChipId;
 
 signals:
     void bufferPct(quint32 p);
@@ -184,7 +183,7 @@ public slots:
     void disconnect();
     void setSTLinkIDs(void);
     void setNucleoIDs(void);
-    bool isConnected();
+
     void clearBuffer();
     void resetMCU();
     void hardResetMCU();
@@ -198,12 +197,12 @@ public slots:
     bool writeRegister(quint32 val, quint8 index);
     quint32 readRegister(quint8 index);
     void writePC(quint32 val);
-    bool isLocked();
+
     bool eraseFlash();
     bool unlockFlash();
     bool lockFlash();
     bool unlockFlashOpt();
-    bool isBusy();
+
     bool setFlashProgramming(bool val);
     bool setMassErase(bool val);
     bool setSTRT();
@@ -222,7 +221,16 @@ public slots:
     void getLoaderParams();
 
 private:
-    QUsb *mUsb;
+    QUsbManager *mUsbMgr;
+    QUsbDevice *mUsbDevice;
+    QtUsb::FilterList mUsbDeviceList;
+
+    quint32 mCoreId;
+    quint32 mRevId;
+    QByteArray mCmdBuf;
+    QByteArray mRecvBuf;
+    QByteArray mSendBuf;
+
     qint32 Command(quint8 st_cmd0, quint8 st_cmd1, quint32 resp_len);
     qint32 DebugCommand(quint8 st_cmd1, quint8 st_cmd2, quint32 resp_len);
     quint32 readFlashSR();
@@ -232,7 +240,7 @@ private:
     qint8 mModeId;
     bool mConnected;
     QString regPrint(quint32 reg) const;
-    loader mLoader;
+    LoaderData mLoader;
 };
 
 #endif // STLINKV2_H

@@ -33,11 +33,11 @@ namespace Loader {
 
 }
 
-class loader : public QObject
+class LoaderData : public QObject
 {
     Q_OBJECT
 public:
-    explicit loader(QObject *parent = 0);
+    explicit LoaderData(QObject *parent = 0);
     bool loadBin(QString const &path);
     QByteArray& refData(void);
     

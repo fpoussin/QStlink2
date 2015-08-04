@@ -21,37 +21,62 @@ This file is part of QSTLink2.
 stlinkv2::stlinkv2(QObject *parent) :
     QThread(parent)
 {
-    mUsb = new QUsb;
+    mUsbDevice = new QUsbDevice;
+    mUsbMgr = new QUsbManager;
     mModeId = -1;
     mCoreId = 0;
     mChipId = 0;
     mVersion.stlink = 0;
     mConnected = false;
-    mUsb->setDebug(false);
-    mUsb->setGuid(USB_STLINK_GUID);
-    mUsb->setDeviceIds(USB_STLINKv2_PID, USB_ST_VID);
-    mUsb->setEndPoints(USB_PIPE_IN, USB_PIPE_OUT);
-    mUsb->setConfiguration(USB_CONFIGURATION);
-    mUsb->setTimeout(USB_TIMEOUT_MSEC);
+
+    QtUsb::DeviceConfig cfg;
+    QtUsb::DeviceFilter f1, f2;
+
+    f1.guid = USB_STLINK_GUID;
+    f1.pid = USB_STLINKv2_PID;
+    f1.vid = USB_ST_VID;
+
+    f2 = f1;
+    f2.guid = USB_NUCLEO_GUID;
+    f2.pid = USB_NUCLEO_PID;
+
+    cfg.readEp = USB_PIPE_OUT;
+    cfg.writeEp = USB_PIPE_IN;
+    cfg.config = USB_CONFIGURATION;
+    cfg.alternate = 0;
+    cfg.interface = 1;
+
+    mUsbMgr->addDevice(f1);
+    mUsbMgr->addDevice(f2);
+
+    mUsbDevice->setConfig(cfg);
+    mUsbDevice->setFilter(f1);
+    mUsbDevice->setDebug(false);
+    mUsbDevice->setTimeout(USB_TIMEOUT_MSEC);
 }
 
 stlinkv2::~stlinkv2()
 {
     this->disconnect();
-    delete mUsb;
+    delete mUsbDevice;
+    delete mUsbMgr;
 }
 
 qint32 stlinkv2::connect()
 {
-    if (mUsb->getPid() == USB_STLINKv2_PID)
-        mUsb->setEndPoints(USB_PIPE_IN, USB_PIPE_OUT);
+    if (mUsbDevice->getPid() == USB_STLINKv2_PID)
+    {
+        mUsbDevice->setEndPoints(USB_PIPE_IN, USB_PIPE_OUT);
+    }
 
-    else if (mUsb->getPid() == USB_NUCLEO_PID)
-        mUsb->setEndPoints(USB_PIPE_IN, USB_PIPE_OUT_NUCLEO);
+    else if (mUsbDevice->getPid() == USB_NUCLEO_PID)
+    {
+        mUsbDevice->setEndPoints(USB_PIPE_IN, USB_PIPE_OUT_NUCLEO);
+    }
 
-    qint32 open = mUsb->open();
+    qint32 open = mUsbDevice->open();
     if ((open >= 0)) {
-        mUsb->read(&mRecvBuf, 2048); // We clean the usb buffer
+        mUsbDevice->read(&mRecvBuf, 2048); // We clean the usb buffer
         mConnected = true;
     }
     return open;
@@ -61,20 +86,20 @@ void stlinkv2::disconnect()
 {
 //    this->DebugCommand(STLink::Cmd::Dbg::Exit, 0, 2);
     this->Command(STLink::Cmd::Reset, 0x80, 8);
-    mUsb->close();
+    mUsbDevice->close();
     mConnected = false;
 }
 
 void stlinkv2::setSTLinkIDs()
 {
-    mUsb->setGuid(USB_STLINK_GUID);
-    mUsb->setDeviceIds(USB_STLINKv2_PID, USB_ST_VID);
+    mUsbDevice->setGuid(USB_STLINK_GUID);
+    mUsbDevice->setDeviceIds(USB_STLINKv2_PID, USB_ST_VID);
 }
 
 void stlinkv2::setNucleoIDs()
 {
-    mUsb->setGuid(USB_NUCLEO_GUID);
-    mUsb->setDeviceIds(USB_NUCLEO_PID, USB_ST_VID);
+    mUsbDevice->setGuid(USB_NUCLEO_GUID);
+    mUsbDevice->setDeviceIds(USB_NUCLEO_PID, USB_ST_VID);
 }
 
 bool stlinkv2::isConnected()
@@ -88,7 +113,7 @@ void stlinkv2::clearBuffer()
     QByteArray tmp;
     mCmdBuf.clear();
     mRecvBuf.clear();
-    mUsb->read(&tmp, 128);
+    mUsbDevice->read(&tmp, 128);
 }
 
 stlinkv2::STVersion stlinkv2::getVersion()
@@ -509,7 +534,7 @@ qint32 stlinkv2::readMem32(quint32 addr, quint16 len)
     mCmdBuf.append((const char*)_len, sizeof(_len)); //length the data we are requesting
     this->SendCommand();
     mRecvBuf.clear();
-    return mUsb->read(&mRecvBuf, len);
+    return mUsbDevice->read(&mRecvBuf, len);
 }
 
 qint32 stlinkv2::Command(quint8 st_cmd0, quint8 st_cmd1, quint32 resp_len)
@@ -519,7 +544,7 @@ qint32 stlinkv2::Command(quint8 st_cmd0, quint8 st_cmd1, quint32 resp_len)
 
     this->SendCommand();
     if (resp_len > 0)
-        return mUsb->read(&mRecvBuf, resp_len);
+        return mUsbDevice->read(&mRecvBuf, resp_len);
     return 0;
 }
 
@@ -536,7 +561,7 @@ qint32 stlinkv2::DebugCommand(quint8 st_cmd1, quint8 st_cmd2, quint32 resp_len)
 //        qCritical() << "Error: " << res;
 
     if (resp_len > 0)
-        return mUsb->read(&mRecvBuf, resp_len);
+        return mUsbDevice->read(&mRecvBuf, resp_len);
     return res;
 }
 
@@ -551,7 +576,7 @@ bool stlinkv2::writeRegister(quint32 val, quint8 index) // Not working on F4 ?
     mCmdBuf.append((const char*)tval, sizeof(tval));
     this->SendCommand();
     QByteArray tmp;
-    mUsb->read(&tmp, 2);
+    mUsbDevice->read(&tmp, 2);
 
     const quint32 tmpval = this->readRegister(index);
     if (tmpval != val) {
@@ -571,7 +596,7 @@ quint32 stlinkv2::readRegister(quint8 index)
     this->SendCommand();
 
     QByteArray tmp;
-    mUsb->read(&tmp, 4);
+    mUsbDevice->read(&tmp, 4);
     return qFromLittleEndian<quint32>((const uchar*)tmp.constData());
 }
 
@@ -594,7 +619,7 @@ qint32 stlinkv2::SendCommand()
 //    while (this->cmd_buf.size() < 16)
 //        this->cmd_buf.append((char)0);
 
-    ret = mUsb->write(&mCmdBuf, mCmdBuf.size());
+    ret = mUsbDevice->write(&mCmdBuf, mCmdBuf.size());
     mCmdBuf.clear();
     if (ret > 0) {
 //        qDebug() << "Command sent successfully.";
