@@ -26,12 +26,12 @@ This file is part of QSTLink2.
 #include <QMap>
 #include <compat.h>
 
-class Device : public QObject
+class DeviceInfo : public QObject
 {
     Q_OBJECT
 public:
-    explicit Device(QObject *parent = 0);
-    explicit Device(const Device *device); // Copy contructor
+    explicit DeviceInfo(QObject *parent = 0);
+    explicit DeviceInfo(const DeviceInfo *device); // Copy contructor
     quint32 operator[] (QString x) const { return mMap[x]; }
     quint32& operator[] (QString x) { return mMap[x]; }
     bool contains(QString x) { return mMap.contains(x); }
@@ -42,21 +42,21 @@ private:
     QMap<QString, quint32> mMap;
 };
 
-class DeviceList : public QObject
+class DeviceInfoList : public QObject
 {
     Q_OBJECT
 public:
-    explicit DeviceList(QObject *parent = 0);
+    explicit DeviceInfoList(QObject *parent = 0);
     bool IsLoaded() const;
     quint16 getDevicesCount() const;
     bool search(const quint32 chip_id); // returns the location of the device in the QVector.
-    Device *mCurDevice;
+    DeviceInfo *mCurDevice;
 
 private:
     QDomDocument *mDoc;
     bool mLoaded;
-    QVector<Device*> mDevices;
-    Device *mDefaultDevice;
+    QVector<DeviceInfo*> mDevices;
+    DeviceInfo *mDefaultDevice;
 };
 
 #endif // DEVICES_H

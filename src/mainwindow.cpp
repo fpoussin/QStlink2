@@ -26,7 +26,7 @@ MainWindow::MainWindow(QWidget *parent) :
     mUi->b_disconnect->setEnabled(false);
     this->lockUI(true);
     mStlink = new stlinkv2();
-    mDevices = new DeviceList(this);
+    mDevices = new DeviceInfoList(this);
     mTfThread = new transferThread();
 
     mLastAction = ACTION_NONE;

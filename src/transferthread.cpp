@@ -19,7 +19,7 @@ This file is part of QSTLink2.
 transferThread::transferThread(QObject *parent) :
     QThread(parent)
 {
-    qDebug() << "New Transfer Thread";
+    qDebug("New Transfer Thread");
     mStop = false;
 }
 
@@ -54,7 +54,8 @@ void transferThread::setParams(stlinkv2 *stlink, QString filename, bool write, b
 
 void transferThread::sendWithLoader(const QString &filename)
 {
-    qInfo() << "Using loader";
+    qInfo("Using loader");
+    QString tmpStr;
     QFile file(filename);
     if (!file.open(QIODevice::ReadOnly)) {
         qCritical("Could not open the file.");
@@ -68,7 +69,7 @@ void transferThread::sendWithLoader(const QString &filename)
         step_size = (*mStlink->mDevice)["buffer_size"]-2048; // Minus the loader's 2k
     const quint32 from = (*mStlink->mDevice)["flash_base"];
     const quint32 to = (*mStlink->mDevice)["flash_base"]+file.size();
-    qInfo() << "Writing from" << "0x"+QString::number(from, 16) << "to" << "0x"+QString::number(to, 16);
+    qInfo("Writing from %08x to %08x", from, to);
     quint32 progress, oldprogress, read;
     char *buf2 = new char[step_size];
 
@@ -83,11 +84,11 @@ void transferThread::sendWithLoader(const QString &filename)
     }
 
     const quint32 bkp1 = mStlink->readRegister(15);
-    qDebug() << "Current PC reg" << QString::number(bkp1, 16);
+    qDebug("Current PC reg at %08x", bkp1);
 
     if (bkp1 < (*mStlink->mDevice)["sram_base"] || bkp1 > (*mStlink->mDevice)["sram_base"]+(*mStlink->mDevice)["buffer_size"]) {
 
-        qCritical() << "Current PC is not in the RAM area" << QString::number((*mStlink->mDevice)["sram_base"], 16);
+        qCritical("Current PC is not in the RAM area: %08x", (*mStlink->mDevice)["sram_base"]);
         return;
     }
 
@@ -100,14 +101,14 @@ void transferThread::sendWithLoader(const QString &filename)
             break;
 
         if (file.atEnd()) {
-            qDebug() << "End Of File";
+            qDebug("End Of File");
             break;
         }
 
         memset(buf2, 0, step_size);
         if ((read = file.read(buf2, step_size)) <= 0)
             break;
-        qDebug() << "Read" << read << "Bytes from disk";
+        qDebug("Read Bytes %u from disk", read);
         QByteArray buf(buf2, read);
 
         const quint32 addr = (*mStlink->mDevice)["flash_base"]+i;
@@ -131,30 +132,30 @@ void transferThread::sendWithLoader(const QString &filename)
                 progress = (loader_pos*100)/file.size();
                 if (progress > oldprogress && progress <= 100) { // Push only if number has increased
                     emit sendProgress(progress);
-                    qInfo() << "Progress:"<< QString::number(progress)+"%";
+                    qInfo("Progress: %u%%", progress);
                 }
 
-                emit sendStatus("Transferred "+QString::number(i/1024)+"/"+QString::number(file.size()/1024)+"KB");
+                emit sendStatus(tmpStr.sprintf("Transferred %u/%uKB", i/1024, file.size()));
                 usleep(20000); // 20ms
                 if (mStop) break;
         }
 
         status = mStlink->getLoaderStatus();
         if (status & Loader::Masks::ERR) {
-            qCritical() << "Loader reported an error!";
+            qCritical("Loader reported an error!");
             break;
         }
 
         if (status & Loader::Masks::DEL) {
             emit sendLoaderStatus("Erased");
-            qInfo() << "Page(s) deleted";
+            qInfo("Page(s) deleted");
         }
     }
     emit sendLoaderStatus("Idle");
     file.close();
     delete buf2;
 
-    qDebug() << "Current PC reg" << QString::number(mStlink->readRegister(15), 16);
+    qDebug("Current PC reg %08x", mStlink->readRegister(15));
 
     emit sendProgress(100);
     emit sendStatus("Transfer done");
@@ -171,6 +172,7 @@ void transferThread::sendWithLoader(const QString &filename)
 void transferThread::receive(const QString &filename)
 {
     QFile file(filename);
+    QString tmpStr;
     if (!file.open(QIODevice::ReadWrite)) {
         qCritical("Could not save the file.");
         return;
@@ -182,7 +184,7 @@ void transferThread::receive(const QString &filename)
     const quint32 from = (*mStlink->mDevice)["flash_base"];
     const quint32 to = (*mStlink->mDevice)["flash_base"]+from;
     const quint32 flash_size = (*mStlink->mDevice)["flash_size"]*1024;
-    qInfo() << "Reading from" << QString::number(from, 16) << "to" << QString::number(to, 16);
+    qInfo("Reading from %08x to %08x", from, to);
     quint32 addr, progress, oldprogress;
 
     progress = 0;
@@ -194,19 +196,19 @@ void transferThread::receive(const QString &filename)
         addr = (*mStlink->mDevice)["flash_base"]+i;
         if (mStlink->readMem32(addr, buf_size) < 0)
             break;
-        qDebug() << "Wrote" << file.write(mStlink->mRecvBuf) << "Bytes to disk";
+        qDebug("Wrote %d Bytes to disk", file.write(mStlink->mRecvBuf));
         oldprogress = progress;
         progress = (i*100)/flash_size;
         if (progress > oldprogress) { // Push only if number has increased
             emit sendProgress(progress);
-            qInfo() << "Progress:"<< QString::number(progress)+"%";
+            qInfo("Progress: %u%%", progress);
         }
-        emit sendStatus("Transfered "+QString::number(i/1024)+" kilobytes out of "+QString::number(flash_size/1024));
+        emit sendStatus(tmpStr.sprintf("Transferred %u/%uKB", i/1024,flash_size/1024));
     }
     file.close();
     emit sendProgress(100);
     emit sendStatus("Transfer done");
-    qInfo() << "Transfer done";
+    qInfo("Transfer done");
     mStlink->runMCU();
     emit sendLock(false);
 }
@@ -214,6 +216,7 @@ void transferThread::receive(const QString &filename)
 void transferThread::verify(const QString &filename)
 {
     QFile file(filename);
+    QString tmpStr;
     if (!file.open(QIODevice::ReadOnly)) {
         qCritical("Could not open the file.");
         return;
@@ -224,7 +227,7 @@ void transferThread::verify(const QString &filename)
     quint32 buf_size = 2048;
     quint32 from = (*mStlink->mDevice)["flash_base"];
     quint32 to = (*mStlink->mDevice)["flash_base"]+file.size();
-    qInfo() << "Reading from" << QString::number(from, 16) << "to" << QString::number(to, 16);
+    qInfo("Reading from %08x to %08x", from, to);
     quint32 addr, progress, oldprogress;
     QByteArray tmp;
 
@@ -248,11 +251,10 @@ void transferThread::verify(const QString &filename)
 
             QString stmp, sbuf;
             for (int b=0;b<tmp.size();b++) {
-                stmp.append(QString().sprintf("%02X ", (uchar)tmp.at(b)));
-                sbuf.append(QString().sprintf("%02X ", (uchar)mStlink->mRecvBuf.at(b)));
+                stmp.append(tmpStr.sprintf("%02X ", (uchar)tmp.at(b)));
+                sbuf.append(tmpStr.sprintf("%02X ", (uchar)mStlink->mRecvBuf.at(b)));
             }
-            qCritical() << "Verification failed at 0x"+QString::number(addr, 16) <<
-                           "\r\n Expecting:" << stmp << "\r\n       Got:" << sbuf;
+            qCritical("Verification failed at %08X \r\n Expecting: %s\r\n       Got:%s", addr, stmp, sbuf);
             mStlink->runMCU();
             emit sendLock(false);
             return;
@@ -261,14 +263,14 @@ void transferThread::verify(const QString &filename)
         progress = (i*100)/file.size();
         if (progress > oldprogress) { // Push only if number has increased
             emit sendProgress(progress);
-            qInfo() << "Progress:"<< QString::number(progress)+"%";
+            qInfo("Progress: %u%%", progress);
         }
-        emit sendStatus("Verified "+QString::number(i/1024)+" kilobytes out of "+QString::number(file.size()/1024));
+        emit sendStatus(tmpStr.sprintf("Verified %u/%uKB", i/1024, file.size()));
     }
     file.close();
     emit sendProgress(100);
     emit sendStatus("Verification OK");
-    qInfo() << "Verification OK";
+    qInfo("Verification OK");
     mStlink->runMCU();
     emit sendLock(false);
 }

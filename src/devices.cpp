@@ -16,20 +16,20 @@ This file is part of QSTLink2.
 */
 #include "devices.h"
 
-Device::Device(QObject *parent) :
+DeviceInfo::DeviceInfo(QObject *parent) :
     QObject(parent)
 {
     mType = "UNKNOWN";
     mLoaderFile = "UNKNOWN";
 }
 
-Device::Device(const Device *device)
+DeviceInfo::DeviceInfo(const DeviceInfo *device)
 {
     mType = device->mType;
     mMap = device->mMap;
 }
 
-DeviceList::DeviceList(QObject *parent) :
+DeviceInfoList::DeviceInfoList(QObject *parent) :
     QObject(parent)
 {
     mLoaded = false;
@@ -60,7 +60,7 @@ DeviceList::DeviceList(QObject *parent) :
     file.close();
     qInfo() << "Devices list loaded.";
 
-    mDefaultDevice = new Device(this);
+    mDefaultDevice = new DeviceInfo(this);
     bool isInt;
     QDomElement docElem = mDoc->documentElement();
     QDomNode n = docElem.firstChild();
@@ -101,7 +101,7 @@ DeviceList::DeviceList(QObject *parent) :
             if (e.tagName() == "devices") {
                 QDomNodeList devices = e.childNodes();
                 for (int a = 0;a < devices.count(); a++) {
-                    mDevices.append(new Device(mDefaultDevice)); // Copy from the default device.
+                    mDevices.append(new DeviceInfo(mDefaultDevice)); // Copy from the default device.
 
 
                     QDomElement device = devices.at(a).toElement();
@@ -130,12 +130,12 @@ DeviceList::DeviceList(QObject *parent) :
     return;
 }
 
-bool DeviceList::IsLoaded() const {
+bool DeviceInfoList::IsLoaded() const {
 
     return mLoaded;
 }
 
-bool DeviceList::search(const quint32 chip_id) {
+bool DeviceInfoList::search(const quint32 chip_id) {
     qDebug() << "Looking for:" << QString::number(chip_id, 16);
     for (int i=0; i < mDevices.count(); i++) {
         if ((*mDevices.at(i))["chip_id"] == chip_id) {
@@ -149,12 +149,12 @@ bool DeviceList::search(const quint32 chip_id) {
     return false;
 }
 
-quint16 DeviceList::getDevicesCount() const {
+quint16 DeviceInfoList::getDevicesCount() const {
 
     return mDevices.count();
 }
 
-QString Device::repr(void) const {
+QString DeviceInfo::repr(void) const {
 
     QMapIterator<QString, quint32> i(mMap);
     QString tmp("\r\n");

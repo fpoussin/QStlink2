@@ -22,10 +22,10 @@ This file is part of QSTLink2.
 #include <QFile>
 #include <QByteArray>
 #include <QtEndian>
-#include <devices.h>
-#include <compat.h>
-#include <loader.h>
 #include <QUsb>
+#include <compat.h>
+#include <devices.h>
+#include <loader.h>
 
 const quint16 USB_ST_VID = 0x0483;
 const quint16 USB_STLINK_PID = 0x3744;
@@ -172,7 +172,7 @@ public:
     bool isConnected();
 
     STVersion mVersion;
-    Device *mDevice;
+    DeviceInfo *mDevice;
     quint32 mChipId;
 
 signals:

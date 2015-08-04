@@ -67,7 +67,7 @@ private:
     Ui::MainWindow *mUi;
     Dialog mDialog;
     stlinkv2 *mStlink;
-    DeviceList *mDevices;
+    DeviceInfoList *mDevices;
     QString mFilename;
     QString mUsername;
     quint32 mLastAction;
