@@ -40,8 +40,8 @@ stlinkv2::stlinkv2(QObject *parent) :
     f2.guid = USB_NUCLEO_GUID;
     f2.pid = USB_NUCLEO_PID;
 
-    cfg.readEp = USB_PIPE_OUT;
-    cfg.writeEp = USB_PIPE_IN;
+    cfg.readEp = USB_PIPE_IN;
+    cfg.writeEp = USB_PIPE_OUT;
     cfg.config = USB_CONFIGURATION;
     cfg.alternate = 0;
     cfg.interface = 1;
@@ -64,19 +64,9 @@ stlinkv2::~stlinkv2()
 
 qint32 stlinkv2::connect()
 {
-    if (mUsbDevice->getPid() == USB_STLINKv2_PID)
-    {
-        mUsbDevice->setEndPoints(USB_PIPE_IN, USB_PIPE_OUT);
-    }
-
-    else if (mUsbDevice->getPid() == USB_NUCLEO_PID)
-    {
-        mUsbDevice->setEndPoints(USB_PIPE_IN, USB_PIPE_OUT_NUCLEO);
-    }
-
     qint32 open = mUsbDevice->open();
     if ((open >= 0)) {
-        mUsbDevice->read(&mRecvBuf, 2048); // We clean the usb buffer
+        mRecvBuf = mUsbDevice->read(2048); // We clean the usb buffer
         mConnected = true;
     }
     return open;
@@ -92,14 +82,35 @@ void stlinkv2::disconnect()
 
 void stlinkv2::setSTLinkIDs()
 {
-    mUsbDevice->setGuid(USB_STLINK_GUID);
-    mUsbDevice->setDeviceIds(USB_STLINKv2_PID, USB_ST_VID);
+    QtUsb::DeviceConfig cfg = mUsbDevice->getConfig();
+    QtUsb::DeviceFilter filt;
+
+    cfg.readEp = USB_PIPE_IN;
+    cfg.writeEp = USB_PIPE_OUT;
+    mUsbDevice->setConfig(cfg);
+
+    filt.guid = USB_STLINK_GUID;
+    filt.vid = USB_ST_VID;
+    filt.pid = USB_STLINKv2_PID;
+    filt.cfg = cfg;
+    mUsbDevice->setFilter(filt);
 }
 
 void stlinkv2::setNucleoIDs()
 {
-    mUsbDevice->setGuid(USB_NUCLEO_GUID);
-    mUsbDevice->setDeviceIds(USB_NUCLEO_PID, USB_ST_VID);
+    QtUsb::DeviceConfig cfg = mUsbDevice->getConfig();
+    QtUsb::DeviceFilter filt;
+
+    cfg.readEp = USB_PIPE_IN;
+    cfg.writeEp = USB_PIPE_OUT_NUCLEO;
+    mUsbDevice->setConfig(cfg);
+
+
+    filt.guid = USB_NUCLEO_GUID;
+    filt.vid = USB_ST_VID;
+    filt.pid = USB_NUCLEO_PID;
+    filt.cfg = cfg;
+    mUsbDevice->setFilter(filt);
 }
 
 bool stlinkv2::isConnected()
@@ -113,7 +124,7 @@ void stlinkv2::clearBuffer()
     QByteArray tmp;
     mCmdBuf.clear();
     mRecvBuf.clear();
-    mUsbDevice->read(&tmp, 128);
+    tmp = mUsbDevice->read(128);
 }
 
 stlinkv2::STVersion stlinkv2::getVersion()
