@@ -234,8 +234,8 @@ private:
     bool mConnected;
     LoaderData mLoader;
 
-    qint32 Command(quint8 st_cmd0, quint8 st_cmd1, quint32 resp_len);
-    qint32 DebugCommand(quint8 st_cmd1, quint8 st_cmd2, quint32 resp_len);
+    qint32 Command(QByteArray* buf, quint8 st_cmd0, quint8 st_cmd1, quint32 resp_len);
+    qint32 DebugCommand(QByteArray* buf, quint8 st_cmd1, quint8 st_cmd2, quint32 resp_len);
     quint32 readFlashSR();
     quint32 readFlashCR();
     quint32 writeFlashCR(quint32 mask, bool value);

@@ -75,7 +75,8 @@ qint32 stlinkv2::connect()
 void stlinkv2::disconnect()
 {
 //    this->DebugCommand(STLink::Cmd::Dbg::Exit, 0, 2);
-    this->Command(STLink::Cmd::Reset, 0x80, 8);
+    QByteArray buf;
+    this->Command(&buf, STLink::Cmd::Reset, 0x80, 8);
     mUsbDevice->close();
     mConnected = false;
 }
@@ -127,9 +128,10 @@ void stlinkv2::clearBuffer()
 stlinkv2::STVersion stlinkv2::getVersion()
 {
     PrintFuncName();
-    this->Command(STLink::Cmd::GetVersion, 0x80, 6);
-    char b0 = mRecvBuf.at(0);
-    char b1 = mRecvBuf.at(1);
+    QByteArray buf;
+    this->Command(&buf, STLink::Cmd::GetVersion, 0x80, 6);
+    char b0 = buf.at(0);
+    char b1 = buf.at(1);
     mVersion.stlink = (b0 & 0xf0) >> 4;
     mVersion.jtag = ((b0 & 0x0f) << 2) | ((b1 & 0xc0) >> 6);
     mVersion.swim = b1 & 0x3f;
@@ -139,8 +141,9 @@ stlinkv2::STVersion stlinkv2::getVersion()
 quint8 stlinkv2::getMode()
 {
     PrintFuncName();
-    if (this->Command(STLink::Cmd::GetCurrentMode, 0, 2)) {
-        return mModeId = mRecvBuf.at(0);
+    QByteArray buf;
+    if (this->Command(&buf, STLink::Cmd::GetCurrentMode, 0, 2)) {
+        return mModeId = buf.at(0);
     }
     return mModeId;
 }
@@ -148,15 +151,17 @@ quint8 stlinkv2::getMode()
 quint8 stlinkv2::getStatus()
 {
     PrintFuncName();
-    this->DebugCommand(STLink::Cmd::Dbg::GetStatus, 0, 2);
-    return mRecvBuf.at(0);
+    QByteArray buf;
+    this->DebugCommand(&buf, STLink::Cmd::Dbg::GetStatus, 0, 2);
+    return buf.at(0);
 }
 
 quint32 stlinkv2::getCoreID()
 {
     PrintFuncName();
-    this->DebugCommand(STLink::Cmd::Dbg::ReadCoreID, 0, 4);
-    mCoreId = qFromLittleEndian<quint32>((uchar*)mRecvBuf.constData());
+    QByteArray buf;
+    this->DebugCommand(&buf, STLink::Cmd::Dbg::ReadCoreID, 0, 4);
+    mCoreId = qFromLittleEndian<quint32>((uchar*)buf.constData());
     qInfo() << "CoreID:" << QString::number(mCoreId, 16);
     return mCoreId;
 }
@@ -164,19 +169,20 @@ quint32 stlinkv2::getCoreID()
 quint32 stlinkv2::getChipID()
 {
     PrintFuncName();
+    QByteArray buf;
 
     if (mCoreId == 0xFFFFFFFF || mCoreId == 0x00000000)
         return 0;
 
     if (mCoreId == Cortex::CoreID::M0_R0) {
-        this->readMem32(Cortex::Reg::CM0_CHIPID);
+        this->readMem32(&buf, Cortex::Reg::CM0_CHIPID);
         qInfo() << "CM0 Searching at" << QString::number(Cortex::Reg::CM0_CHIPID, 16);
     }
     else {
-        this->readMem32(Cortex::Reg::CM3_CHIPID);
+        this->readMem32(&buf, Cortex::Reg::CM3_CHIPID);
         qInfo() << "CM3/4 Searching at" << QString::number(Cortex::Reg::CM3_CHIPID, 16);
     }
-    mChipId = qFromLittleEndian<quint32>((uchar*)mRecvBuf.constData());
+    mChipId = qFromLittleEndian<quint32>((uchar*)buf.constData());
     mChipId &= 0xFFF;
     // CM4 rev0 fix
     if (((mChipId & 0xFFF) == STM32::ChipID::F2) && (mCoreId == Cortex::CoreID::M4_R0)) {
@@ -190,9 +196,10 @@ quint32 stlinkv2::getChipID()
 quint32 stlinkv2::getRevID()
 {
     PrintFuncName();
+    QByteArray buf;
 
-    this->readMem32(Cortex::Reg::CM3_CHIPID);
-    mRevId = mRecvBuf.at(2) | (mRecvBuf.at(3) << 8);
+    this->readMem32(&buf, Cortex::Reg::CM3_CHIPID);
+    mRevId = buf.at(2) | (buf.at(3) << 8);
 
     qInfo() << "RevID:" << QString::number(mRevId, 16);
     return mRevId;
@@ -200,9 +207,10 @@ quint32 stlinkv2::getRevID()
 quint32 stlinkv2::readFlashSize()
 {
     PrintFuncName();
+    QByteArray buf;
 
-    this->readMem32((*mDevice)["flash_size_reg"]);
-    (*mDevice)["flash_size"] = qFromLittleEndian<quint32>((uchar*)mRecvBuf.constData());
+    this->readMem32(&buf, (*mDevice)["flash_size_reg"]);
+    (*mDevice)["flash_size"] = qFromLittleEndian<quint32>((uchar*)buf.constData());
     if (mChipId == STM32::ChipID::F4 || mChipId == STM32::ChipID::F4_HD) {
         (*mDevice)["flash_size"] = (*mDevice)["flash_size"] >> 16;
     }
@@ -216,57 +224,65 @@ quint32 stlinkv2::readFlashSize()
 void stlinkv2::setModeJTAG()
 {
     PrintFuncName();
+    QByteArray buf;
     this->getMode();
 //    if (mode_id != STLINK_DEV_DEBUG_MODE)
     this->setExitModeDFU();
-    this->DebugCommand(STLink::Cmd::Dbg::EnterMode, STLink::Cmd::Dbg::EnterJTAG, 0);
+    this->DebugCommand(&buf, STLink::Cmd::Dbg::EnterMode, STLink::Cmd::Dbg::EnterJTAG, 0);
 }
 
 void stlinkv2::setModeSWD()
 {
     PrintFuncName();
+    QByteArray buf;
     this->getMode();
 //    if (mode_id != STLINK_DEV_DEBUG_MODE)
     this->setExitModeDFU();
-    this->DebugCommand(STLink::Cmd::Dbg::EnterMode, STLink::Cmd::Dbg::EnterSWD, 0);
+    this->DebugCommand(&buf, STLink::Cmd::Dbg::EnterMode, STLink::Cmd::Dbg::EnterSWD, 0);
 }
 
 void stlinkv2::setExitModeDFU()
 {
     PrintFuncName();
-    this->Command(STLink::Cmd::DFUCommand, STLink::Cmd::DFUExit, 0);
+    QByteArray buf;
+    this->Command(&buf, STLink::Cmd::DFUCommand, STLink::Cmd::DFUExit, 0);
 }
 
 void stlinkv2::resetMCU()
 {
     PrintFuncName();
-    this->DebugCommand(STLink::Cmd::Dbg::ResetSys, 0, 2);
+    QByteArray buf;
+    this->DebugCommand(&buf, STLink::Cmd::Dbg::ResetSys, 0, 2);
 }
 
 void stlinkv2::hardResetMCU()
 {
     PrintFuncName();
+    QByteArray buf;
 //    this->DebugCommand(STLinkDebugExit, 0, 2);
 //    this->setExitModeDFU();
-    this->Command(STLink::Cmd::Reset, 0, 8);
-    this->DebugCommand(STLink::Cmd::Dbg::HardReset, 0x02, 2);
+    this->Command(&buf, STLink::Cmd::Reset, 0, 8);
+    this->DebugCommand(&buf, STLink::Cmd::Dbg::HardReset, 0x02, 2);
 }
 
 void stlinkv2::runMCU()
 {
     PrintFuncName();
-    this->DebugCommand(STLink::Cmd::Dbg::RunCore, 0, 2);
+    QByteArray buf;
+    this->DebugCommand(&buf, STLink::Cmd::Dbg::RunCore, 0, 2);
 }
 
 void stlinkv2::haltMCU()
 {
     PrintFuncName();
-    this->DebugCommand(STLink::Cmd::Dbg::StepCore, 0, 2);
+    QByteArray buf;
+    this->DebugCommand(&buf, STLink::Cmd::Dbg::StepCore, 0, 2);
 }
 
 bool stlinkv2::eraseFlash()
 {
     PrintFuncName();
+    QByteArray buf;
     // We set the mass erase flag
     if (!this->setMassErase(true))
         return false;
@@ -289,18 +305,19 @@ bool stlinkv2::unlockFlash()
 {
 //    if (this->isLocked()) {
         PrintFuncName();
-        uchar buf[4];
+        QByteArray buf;
+        uchar endian_buf[4];
 
         const quint32 addr = (*mDevice)["flash_int_reg"] + (*mDevice)["KEYR_OFFSET"];
 
-        qToLittleEndian(STM32::Flash::KEY1, buf);
-        mSendBuf.append((const char*)buf, sizeof(buf));
-        this->writeMem32(addr,  mSendBuf);
+        qToLittleEndian(STM32::Flash::KEY1, endian_buf);
+        buf.append((const char*)endian_buf, sizeof(endian_buf));
+        this->writeMem32(addr,  buf);
 
-        mSendBuf.clear();
-        qToLittleEndian(STM32::Flash::KEY2, buf);
-        mSendBuf.append((const char*)buf, sizeof(buf));
-        this->writeMem32(addr,  mSendBuf);
+        buf.clear();
+        qToLittleEndian(STM32::Flash::KEY2, endian_buf);
+        buf.append((const char*)endian_buf, sizeof(endian_buf));
+        this->writeMem32(addr,  buf);
 
         if (this->isLocked()) {
             qCritical() << "Failed to unlock flash!" ;
@@ -314,14 +331,15 @@ bool stlinkv2::lockFlash()
 {
     if (!this->isLocked()) {
         PrintFuncName();
-        uchar buf[4];
+        QByteArray buf;
+        uchar endian_buf[4];
         quint32 addr, lock;
         quint32 fcr = this->readFlashCR();
         lock = fcr | (1 << (*mDevice)["CR_LOCK"]);
         addr = (*mDevice)["flash_int_reg"] + (*mDevice)["CR_OFFSET"];
-        qToLittleEndian(lock, buf);
-        mSendBuf.append((const char*)buf, sizeof(buf));
-        this->writeMem32(addr,  mSendBuf);
+        qToLittleEndian(lock, endian_buf);
+        buf.append((const char*)endian_buf, sizeof(endian_buf));
+        this->writeMem32(addr,  buf);
         if (!this->isLocked()) {
             qCritical() << "Failed to lock flash!" ;
             return false;
@@ -531,6 +549,7 @@ void stlinkv2::writeMem32(quint32 addr, QByteArray &buf)
 qint32 stlinkv2::readMem32(QByteArray* buf, quint32 addr, quint16 len)
 {
     PrintFuncName() << QString().sprintf(" Reading at %08X", addr);
+    Q_CHECK_PTR(buf);
     if (len % 4 != 0)
         return 0;
     mCmdBuf.append(STLink::Cmd::DebugCommand);
@@ -545,90 +564,95 @@ qint32 stlinkv2::readMem32(QByteArray* buf, quint32 addr, quint16 len)
     return mUsbDevice->read(&mRecvBuf, len);
 }
 
-qint32 stlinkv2::Command(quint8 st_cmd0, quint8 st_cmd1, quint32 resp_len)
+qint32 stlinkv2::Command(QByteArray* buf, quint8 st_cmd0, quint8 st_cmd1, quint32 resp_len)
 {
-    QByteArray cmd, recv;
+    Q_CHECK_PTR(buf);
+    QByteArray cmd;
     cmd.append(st_cmd0);
     cmd.append(st_cmd1);
 
-    this->SendCommand();
+    this->SendCommand(cmd);
     if (resp_len > 0)
     {
-        recv = mUsbDevice->read(resp_len);
-        return recv.size();
+        *buf = mUsbDevice->read(resp_len);
+        return buf->size();
     }
     return 0;
 }
 
-qint32 stlinkv2::DebugCommand(quint8 st_cmd1, quint8 st_cmd2, quint32 resp_len)
+qint32 stlinkv2::DebugCommand(QByteArray* buf, quint8 st_cmd1, quint8 st_cmd2, quint32 resp_len)
 {
-    mCmdBuf.append(STLink::Cmd::DebugCommand);
-    mCmdBuf.append(st_cmd1);
-    mCmdBuf.append(st_cmd2);
+    Q_CHECK_PTR(buf);
+    QByteArray cmd;
+    cmd.append(STLink::Cmd::DebugCommand);
+    cmd.append(st_cmd1);
+    cmd.append(st_cmd2);
 
-    qint32 res = this->SendCommand();
+    qint32 res = this->SendCommand(cmd);
 //    if (res > 0)
 //        qDebug() << res << " Bytes sent";
 //    else
 //        qCritical() << "Error: " << res;
 
     if (resp_len > 0)
-        return mUsbDevice->read(&mRecvBuf, resp_len);
+    {
+        *buf = mUsbDevice->read(resp_len);
+        return buf->size();
+    }
     return res;
 }
 
 bool stlinkv2::writeRegister(quint32 val, quint8 index) // Not working on F4 ?
 {
     PrintFuncName();
-    mCmdBuf.append(STLink::Cmd::DebugCommand);
-    mCmdBuf.append(STLink::Cmd::Dbg::WriteReg);
-    mCmdBuf.append(index);
+    QByteArray cmd, tmp;
+    cmd.append(STLink::Cmd::DebugCommand);
+    cmd.append(STLink::Cmd::Dbg::WriteReg);
+    cmd.append(index);
     uchar tval[4];
     qToLittleEndian(val, tval);
-    mCmdBuf.append((const char*)tval, sizeof(tval));
-    this->SendCommand();
-    QByteArray tmp;
-    mUsbDevice->read(&tmp, 2);
+    cmd.append((const char*)tval, sizeof(tval));
+    this->SendCommand(cmd);
+    tmp = mUsbDevice->read(2);
 
     const quint32 tmpval = this->readRegister(index);
     if (tmpval != val) {
-        qCritical() << "Failed to set register" << index << "at" << "0x"+QString::number(val, 16) << "current val is" << "0x"+QString::number(tmpval, 16);
+        qCritical("Failed to set register %d to %08X, current value is %08x", index, val, tmpval);
         return false;
     }
-    qDebug() << "Set register" << index << "at" << "0x"+QString::number(val, 16);
+    qDebug("Set register %d to %08X", index, val);
     return true;
 }
 
 quint32 stlinkv2::readRegister(quint8 index)
 {
     PrintFuncName();
-    mCmdBuf.append(STLink::Cmd::DebugCommand);
-    mCmdBuf.append(STLink::Cmd::Dbg::ReadReg);
-    mCmdBuf.append(index);
-    this->SendCommand();
+    QByteArray cmd, tmp;
+    cmd.append(STLink::Cmd::DebugCommand);
+    cmd.append(STLink::Cmd::Dbg::ReadReg);
+    cmd.append(index);
+    this->SendCommand(cmd);
 
-    QByteArray tmp;
-    mUsbDevice->read(&tmp, 4);
+    tmp = mUsbDevice->read(4);
     return qFromLittleEndian<quint32>((const uchar*)tmp.constData());
 }
 
 void stlinkv2::writePC(quint32 val) // Not working
 {
     PrintFuncName();
-    mCmdBuf.append(STLink::Cmd::DebugCommand);
-    mCmdBuf.append(STLink::Cmd::Dbg::WriteRegPC);
-    mCmdBuf.append((quint8)0x07);
+    QByteArray cmd;
+    cmd.append(STLink::Cmd::DebugCommand);
+    cmd.append(STLink::Cmd::Dbg::WriteRegPC);
+    cmd.append((quint8)0x07);
     uchar tval[4];
     qToLittleEndian(val, tval);
-    mCmdBuf.append((const char*)tval, sizeof(tval));
-    this->SendCommand();
+    cmd.append((const char*)tval, sizeof(tval));
+    this->SendCommand(cmd);
 }
 
 qint32 stlinkv2::SendCommand(const QByteArray& cmd)
 {
     qint32 ret = 0;
-
-    Q_CHECK_PTR(cmd);
 
     ret = mUsbDevice->write(cmd);
     if (ret > 0) {
