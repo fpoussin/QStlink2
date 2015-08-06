@@ -18,16 +18,17 @@ This file is part of QSTLink2.
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <stlinkv2.h>
-#include <devices.h>
 #include <QString>
 #include <QFileDialog>
 #include <QFile>
 #include <QByteArray>
-#include <dialog.h>
-#include <transferthread.h>
-#include <compat.h>
 #include <QMessageBox>
+
+#include "stlinkv2.h"
+#include "devices.h"
+#include "dialog.h"
+#include "transferthread.h"
+#include "compat.h"
 
 namespace Ui {
     class MainWindow;

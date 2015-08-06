@@ -192,7 +192,7 @@ public slots:
     void setModeJTAG();
     void setModeSWD();
     void setExitModeDFU();
-    qint32 readMem32(quint32 addr, quint16 len = 4);
+    qint32 readMem32(QByteArray *buf, quint32 addr, quint16 len = 4);
     void writeMem32(quint32 addr, QByteArray &buf);
     bool writeRegister(quint32 val, quint8 index);
     quint32 readRegister(quint8 index);
@@ -227,20 +227,20 @@ private:
 
     quint32 mCoreId;
     quint32 mRevId;
-    QByteArray mCmdBuf;
-    QByteArray mRecvBuf;
-    QByteArray mSendBuf;
+    //QByteArray mCmdBuf;
+    //QByteArray mRecvBuf;
+    //QByteArray mSendBuf;
+    qint8 mModeId;
+    bool mConnected;
+    LoaderData mLoader;
 
     qint32 Command(quint8 st_cmd0, quint8 st_cmd1, quint32 resp_len);
     qint32 DebugCommand(quint8 st_cmd1, quint8 st_cmd2, quint32 resp_len);
     quint32 readFlashSR();
     quint32 readFlashCR();
     quint32 writeFlashCR(quint32 mask, bool value);
-    qint32 SendCommand();
-    qint8 mModeId;
-    bool mConnected;
+    qint32 SendCommand(const QByteArray &cmd);
     QString regPrint(quint32 reg) const;
-    LoaderData mLoader;
 };
 
 #endif // STLINKV2_H

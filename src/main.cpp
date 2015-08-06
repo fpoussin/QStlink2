@@ -19,7 +19,7 @@ This file is part of QSTLink2.
 #include <QStringList>
 #include <QDebug>
 #include <QFile>
-#include <compat.h>
+#include "compat.h"
 
 bool show = true;
 bool write_flash = false, read_flash = false, erase = false, verify = false;
@@ -42,7 +42,7 @@ static QElapsedTimer timer;
                 fprintf(stderr, "%lld - Error: %s\n", timer.elapsed(), localMsg.constData());
             break;
 #if QT_VERSION >= 0x050500
-        case QtWarningMsg: // Since there is no "Info" level before 5.5.0, we use qWarning which we alias with #define...
+        case QtWarningMsg:
             if (verbose_level >= 2)
                 fprintf(stderr, "%lld - Warning: %s\n", timer.elapsed(), localMsg.constData());
             break;

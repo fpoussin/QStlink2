@@ -6,7 +6,7 @@
 #include <QFile>
 #include <QByteArray>
 #include <QDebug>
-#include <compat.h>
+#include "compat.h"
 
 namespace Loader {
 

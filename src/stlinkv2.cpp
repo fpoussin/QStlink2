@@ -66,7 +66,7 @@ qint32 stlinkv2::connect()
 {
     qint32 open = mUsbDevice->open();
     if ((open >= 0)) {
-        mRecvBuf = mUsbDevice->read(2048); // We clean the usb buffer
+        this->clearBuffer();
         mConnected = true;
     }
     return open;
@@ -121,10 +121,7 @@ bool stlinkv2::isConnected()
 void stlinkv2::clearBuffer()
 {
     PrintFuncName();
-    QByteArray tmp;
-    mCmdBuf.clear();
-    mRecvBuf.clear();
-    tmp = mUsbDevice->read(128);
+    mUsbDevice->read(1024);
 }
 
 stlinkv2::STVersion stlinkv2::getVersion()
@@ -379,7 +376,7 @@ quint32 stlinkv2::readFlashSR()
 
     readMem32((*mDevice)["flash_int_reg"] + (*mDevice)["SR_OFFSET"], sizeof(quint32));
     res =  qFromLittleEndian<quint32>((const uchar*)mRecvBuf.constData());
-    qDebug() << "Flash status register:" << "0x"+QString::number(res, 16) << regPrint(res);
+    qDebug() << "Flash status register: 0x"+QString::number(res, 16) << regPrint(res);
     return res;
 }
 
@@ -407,7 +404,7 @@ quint32 stlinkv2::writeFlashCR(quint32 mask, bool value)
         val = fcr | mask ; // We append bits (OR)
     else
         val = fcr & ~mask; // We remove bits (NOT AND)
-    qDebug() << "Flash control register new value:" << "0x"+QString::number(val, 16) << regPrint(val);
+    qDebug() << "Flash control register new value: 0x"+QString::number(val, 16) << regPrint(val);
 
     addr = (*mDevice)["flash_int_reg"] + (*mDevice)["CR_OFFSET"];
 
@@ -477,7 +474,7 @@ void stlinkv2::setProgramSize(quint8 size)
 
     mask |= (bit2 << STM32::Flash::CR_PGSIZE);
     mask |= (bit1 << (STM32::Flash::CR_PGSIZE+1));
-    qDebug() << "Program Size Mask:" << "0x"+QString::number(mask, 16);
+    qDebug() << "Program Size Mask: 0x"+QString::number(mask, 16);
     this->writeFlashCR(mask, true);
 }
 
@@ -495,7 +492,7 @@ bool stlinkv2::isBusy()
 
 void stlinkv2::writeMem32(quint32 addr, QByteArray &buf)
 {
-    PrintFuncName() << " Writing" << buf.size() << "bytes to" << "0x"+QString::number(addr, 16).toUpper();
+    PrintFuncName() << " Writing" << buf.size() << "bytes to 0x"+QString::number(addr, 16).toUpper();
     uint remain = buf.size() % 4;
     if (remain != 0) {
         qWarning() << "Data is not 32 bit aligned! Padding with" << QString::number(remain) << "Bytes";
@@ -531,9 +528,9 @@ void stlinkv2::writeMem32(quint32 addr, QByteArray &buf)
     buf.clear();
 }
 
-qint32 stlinkv2::readMem32(quint32 addr, quint16 len)
+qint32 stlinkv2::readMem32(QByteArray* buf, quint32 addr, quint16 len)
 {
-    PrintFuncName() << " Reading at" << "0x"+QString::number(addr, 16).toUpper();
+    PrintFuncName() << QString().sprintf(" Reading at %08X", addr);
     if (len % 4 != 0)
         return 0;
     mCmdBuf.append(STLink::Cmd::DebugCommand);
@@ -550,12 +547,16 @@ qint32 stlinkv2::readMem32(quint32 addr, quint16 len)
 
 qint32 stlinkv2::Command(quint8 st_cmd0, quint8 st_cmd1, quint32 resp_len)
 {
-    mCmdBuf.append(st_cmd0);
-    mCmdBuf.append(st_cmd1);
+    QByteArray cmd, recv;
+    cmd.append(st_cmd0);
+    cmd.append(st_cmd1);
 
     this->SendCommand();
     if (resp_len > 0)
-        return mUsbDevice->read(&mRecvBuf, resp_len);
+    {
+        recv = mUsbDevice->read(resp_len);
+        return recv.size();
+    }
     return 0;
 }
 
@@ -623,17 +624,15 @@ void stlinkv2::writePC(quint32 val) // Not working
     this->SendCommand();
 }
 
-qint32 stlinkv2::SendCommand()
+qint32 stlinkv2::SendCommand(const QByteArray& cmd)
 {
     qint32 ret = 0;
 
-//    while (this->cmd_buf.size() < 16)
-//        this->cmd_buf.append((char)0);
+    Q_CHECK_PTR(cmd);
 
-    ret = mUsbDevice->write(&mCmdBuf, mCmdBuf.size());
-    mCmdBuf.clear();
+    ret = mUsbDevice->write(cmd);
     if (ret > 0) {
-//        qDebug() << "Command sent successfully.";
+
     }
     else {
         PrintError();
@@ -678,12 +677,12 @@ bool stlinkv2::setLoaderBuffer(const quint32 addr, const QByteArray& buf) {
     this->readMem32(PARAMS+OFFSET_LEN);
     const quint32 len = qFromLittleEndian<quint32>((uchar*)mRecvBuf.constData());
 
-    qDebug() << "Data destination and length:" << "0x"+QString::number(dest, 16) << len;
+    qDebug() << "Data destination and length: 0x"+QString::number(dest, 16) << len;
 
     if ((dest != addr) || ((quint32)buf.size() != len)) {
 
         qCritical() << "Failed to set loader settings!";
-        qCritical() << "Expected data destination and length:" << "0x"+QString::number(addr, 16) << buf.size();
+        qCritical() << "Expected data destination and length: 0x"+QString::number(addr, 16) << buf.size();
         return false;
     }
 
@@ -737,7 +736,7 @@ void stlinkv2::getLoaderParams() {
     this->readMem32(PARAMS+OFFSET_TEST);
     const quint32 test = qFromLittleEndian<quint32>((uchar*)mRecvBuf.constData());
 
-    qDebug() << "Data destination and length:" << "0x"+QString::number(dest, 16) << len << "test:" << "0x"+QString::number(test, 16);
+    qDebug() << "Data destination and length: 0x"+QString::number(dest, 16) << len << "test: 0x"+QString::number(test, 16);
 }
 
 QString stlinkv2::regPrint(quint32 reg) const
