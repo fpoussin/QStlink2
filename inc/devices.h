@@ -39,8 +39,10 @@ class DeviceInfo : public QObject
 public:
     explicit DeviceInfo(QObject *parent = 0);
     explicit DeviceInfo(const DeviceInfo *device); // Copy contructor
-    quint32 operator[] (QString x) const { return mMap[x]; }
-    quint32& operator[] (QString x) { return mMap[x]; }
+    quint32 operator[] (QString k) const { return mMap[k]; }
+    quint32& operator[] (QString k) { return mMap[k]; }
+    quint32 value (QString k) { return mMap.value(k); }
+    void insert (QString k, quint32 v) { mMap.insert(k, v); }
     bool contains(QString x) { return mMap.contains(x); }
     QString repr(void) const;
     QString mType;

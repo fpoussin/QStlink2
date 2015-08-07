@@ -73,7 +73,7 @@ DeviceInfoList::DeviceInfoList(QObject *parent) :
                 for (int i = 0;i < childs.count();i++) {
                     QDomElement el = childs.at(i).toElement();
                     qDebug() << e.tagName() << "->" << el.tagName();
-                    (*mDefaultDevice)[el.tagName()] = (quint32)el.text().toUInt(&isInt, 16);
+                    mDefaultDevice->insert(el.tagName(), el.text().toUInt(&isInt, 16));
                     if (!isInt)
                         qCritical() << el.tagName() << "Failed to parse number!";
                 }
@@ -84,7 +84,7 @@ DeviceInfoList::DeviceInfoList(QObject *parent) :
                     QDomElement el = regs.at(a).toElement();
                     qDebug() << el.tagName() << "->" << el.text().toUInt(0, 16);
 
-                    (*mDefaultDevice)[el.tagName()] = (quint32)el.text().toUInt(&isInt, 16);
+                    mDefaultDevice->insert(el.tagName(), el.text().toUInt(&isInt, 16));
                     if (!isInt)
                         qCritical() << el.tagName() << "Failed to parse number!";
                 }
@@ -111,7 +111,7 @@ DeviceInfoList::DeviceInfoList(QObject *parent) :
                     for (int i = 0;i < childs.count();i++) {
                         QDomElement el = childs.at(i).toElement();
                         qDebug() << device.tagName() << "->" << device.attribute("type") << "->" << el.tagName() ;
-                        (*mDevices.last())[el.tagName()] = (quint32)el.text().toUInt(&isInt, 16);
+                        mDevices.last()->insert(el.tagName(), el.text().toUInt(&isInt, 16));
                         if (!isInt && el.tagName() != "loader")
                             qCritical() << el.tagName() << "Failed to parse number!";
 
@@ -136,16 +136,16 @@ bool DeviceInfoList::IsLoaded() const {
 }
 
 bool DeviceInfoList::search(const quint32 chip_id) {
-    qDebug() << "Looking for:" << QString::number(chip_id, 16);
+    qDebug("Looking for: %08X", chip_id);
     for (int i=0; i < mDevices.count(); i++) {
-        if ((*mDevices.at(i))["chip_id"] == chip_id) {
+        if (mDevices.at(i)->value("chip_id") == chip_id) {
             mCurDevice = mDevices.at(i);
-            qDebug() << "Found chipID";
+            qDebug("Found chipID");
             qDebug() << mCurDevice->repr();
             return true;
         }
     }
-    qCritical() << "Did not find chipID!";
+    qCritical("Did not find chipID!");
     return false;
 }
 

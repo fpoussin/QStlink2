@@ -193,7 +193,7 @@ public slots:
     void setModeSWD();
     void setExitModeDFU();
     qint32 readMem32(QByteArray *buf, quint32 addr, quint16 len = 4);
-    void writeMem32(quint32 addr, QByteArray &buf);
+    void writeMem32(quint32 addr, const QByteArray &buf);
     bool writeRegister(quint32 val, quint8 index);
     quint32 readRegister(quint8 index);
     void writePC(quint32 val);
