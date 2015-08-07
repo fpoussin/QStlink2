@@ -171,17 +171,17 @@ int main(int argc, char *argv[])
             }
             if (write_flash) {
                 w->Send(path);
-                while (w->mTfThread->isRunning()) { usleep(100000); }
+                while (w->mTfThread->isRunning()) { QThread::msleep(100); }
             }
             else if (read_flash) {
                 w->Receive(path);
-                while (w->mTfThread->isRunning()) { usleep(100000); }
+                while (w->mTfThread->isRunning()) { QThread::msleep(100); }
             }
             if (verify) {
                 w->Verify(path);
-                while (w->mTfThread->isRunning()) { usleep(100000); }
+                while (w->mTfThread->isRunning()) { QThread::msleep(100); }
             }
-            usleep(300000); //300 msec
+            QThread::msleep(300);
             w->Disconnect();
             w->close();
             return 0;

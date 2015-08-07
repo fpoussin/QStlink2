@@ -291,7 +291,7 @@ bool stlinkv2::eraseFlash()
     qInfo() << "Erasing flash... This might take some time.";
     this->setSTRT();
     while(this->isBusy()) { // then we wait for completion
-        usleep(500000); // 500ms
+        QThread::msleep(500);
     }
 
     // We remove the mass erase flag
@@ -520,7 +520,7 @@ void stlinkv2::writeMem32(quint32 addr, QByteArray &buf)
     // Any writing to flash while busy = ART processor hangs
     if (addr >= (*mDevice)["flash_base"] && addr <= (*mDevice)["flash_base"]+((*mDevice)["flash_size"]*1024)) {
         while(this->isBusy()) {
-            usleep(100000); // 100ms
+            QThread::msleep(100);
         }
         // Check if write succeeded
         if ((*mDevice)["chip_id"] == STM32::ChipID::F4 || (*mDevice)["chip_id"] == STM32::ChipID::F4_HD) {

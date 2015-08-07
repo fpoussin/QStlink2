@@ -329,7 +329,7 @@ void MainWindow::HaltMCU()
 {
     this->log("Halting MCU...");
     mStlink->haltMCU();
-    usleep(100000);
+    QThread::msleep(100);
     this->getStatus();
 }
 
@@ -337,7 +337,7 @@ void MainWindow::RunMCU()
 {
     this->log("Resuming MCU...");
     mStlink->runMCU();
-    usleep(100000);
+    QThread::msleep(100);
     this->getStatus();
 }
 
@@ -345,7 +345,7 @@ void MainWindow::ResetMCU()
 {
     this->log("Reseting MCU...");
     mStlink->resetMCU();
-    usleep(100000);
+    QThread::msleep(100);
     this->getStatus();
 }
 
@@ -353,7 +353,7 @@ void MainWindow::HardReset()
 {
     this->log("Hard Reset...");
     mStlink->hardResetMCU();
-    usleep(100000);
+    QThread::msleep(100);
     this->getStatus();
 }
 
@@ -363,7 +363,7 @@ void MainWindow::setModeJTAG()
         return;
     this->log("Changing mode to JTAG...");
     mStlink->setModeJTAG();
-    usleep(100000);
+    QThread::msleep(100);
     this->getMode();
 }
 
@@ -373,7 +373,7 @@ void MainWindow::setModeSWD()
         return;
     this->log("Changing mode to SWD...");
     mStlink->setModeSWD();
-    usleep(100000);
+    QThread::msleep(100);
     this->getMode();
 }
 

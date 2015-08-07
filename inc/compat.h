@@ -18,7 +18,6 @@ This file is part of QSTLink2.
 #define COMPAT_H
 #include <stdio.h>
 #include <QApplication>
-#include <QTextStream>
 
 #if QT_VERSION >= 0x040700
     #include <QElapsedTimer> // QElapsedTimer was introduced in QT 4.7
@@ -28,10 +27,6 @@ This file is part of QSTLink2.
 #else
     #include <QTime>
     #define QElapsedTimer QTime
-#endif
-
-#ifdef WIN32
-    #define usleep(num) Sleep(num/1000)
 #endif
 
 #if QT_VERSION < 0x050500

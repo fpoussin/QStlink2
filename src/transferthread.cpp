@@ -79,7 +79,7 @@ void transferThread::sendWithLoader(const QString &filename)
     mStlink->runMCU(); // Will stop at the loop beginning
 
     while (mStlink->getStatus() == STLink::Status::CORE_RUNNING) { // Wait for the breakpoint
-            usleep(100000); // 100ms
+            QThread::msleep(100);
             if (mStop) break;
     }
 
@@ -136,7 +136,7 @@ void transferThread::sendWithLoader(const QString &filename)
                 }
 
                 emit sendStatus(tmpStr.sprintf("Transferred %u/%uKB", i/1024, file.size()));
-                usleep(20000); // 20ms
+                QThread::msleep(20);
                 if (mStop) break;
         }
 
