@@ -74,7 +74,7 @@ void transferThread::sendWithLoader(const QString &filename)
     char *buf2 = new char[step_size];
 
     mStlink->resetMCU();
-    mStlink->clearBuffer();
+    mStlink->flush();
     mStlink->sendLoader();
     mStlink->runMCU(); // Will stop at the loop beginning
 
@@ -93,7 +93,7 @@ void transferThread::sendWithLoader(const QString &filename)
     }
 
     progress = 0;
-    mStlink->clearBuffer();
+    mStlink->flush();
     quint32 status = 0, loader_pos = 0;
     for (int i=0; i<=file.size(); i+=step_size) {
 
@@ -172,6 +172,7 @@ void transferThread::sendWithLoader(const QString &filename)
 void transferThread::receive(const QString &filename)
 {
     QFile file(filename);
+    QByteArray buffer;
     QString tmpStr;
     if (!file.open(QIODevice::ReadWrite)) {
         qCritical("Could not save the file.");
@@ -181,22 +182,23 @@ void transferThread::receive(const QString &filename)
     mStop = false;
     mStlink->hardResetMCU(); // We stop the MCU
     const quint32 buf_size = 2048;
-    const quint32 from = (*mStlink->mDevice)["flash_base"];
-    const quint32 to = (*mStlink->mDevice)["flash_base"]+from;
-    const quint32 flash_size = (*mStlink->mDevice)["flash_size"]*1024;
+    const quint32 from = mStlink->mDevice->value("flash_base");
+    const quint32 to = mStlink->mDevice->value("flash_base")+from;
+    const quint32 flash_size = mStlink->mDevice->value("flash_size")*1024;
     qInfo("Reading from %08x to %08x", from, to);
     quint32 addr, progress, oldprogress;
 
     progress = 0;
-    mStlink->clearBuffer();
+    mStlink->flush();
     for (quint32 i=0; i<flash_size; i+=buf_size)
     {
         if (mStop)
             break;
-        addr = (*mStlink->mDevice)["flash_base"]+i;
-        if (mStlink->readMem32(addr, buf_size) < 0)
+        buffer.clear();
+        addr = mStlink->mDevice->value("flash_base")+i;
+        if (mStlink->readMem32(&buffer, addr, buf_size) < 0)
             break;
-        qDebug("Wrote %d Bytes to disk", file.write(mStlink->mRecvBuf));
+        qDebug("Wrote %d Bytes to disk", file.write(buffer));
         oldprogress = progress;
         progress = (i*100)/flash_size;
         if (progress > oldprogress) { // Push only if number has increased
@@ -217,6 +219,7 @@ void transferThread::verify(const QString &filename)
 {
     QFile file(filename);
     QString tmpStr;
+    QByteArray usb_buffer, file_buffer;
     if (!file.open(QIODevice::ReadOnly)) {
         qCritical("Could not open the file.");
         return;
@@ -225,34 +228,34 @@ void transferThread::verify(const QString &filename)
     mStop = false;
     mStlink->hardResetMCU(); // We stop the MCU
     quint32 buf_size = 2048;
-    quint32 from = (*mStlink->mDevice)["flash_base"];
-    quint32 to = (*mStlink->mDevice)["flash_base"]+file.size();
+    quint32 from =  mStlink->mDevice->value("flash_base");
+    quint32 to =  mStlink->mDevice->value("flash_base")+file.size();
     qInfo("Reading from %08x to %08x", from, to);
     quint32 addr, progress, oldprogress;
-    QByteArray tmp;
 
     progress = 0;
-    mStlink->clearBuffer();
+    mStlink->flush();
     for (quint32 i=0; i<file.size(); i+=buf_size)
     {
         if (mStop)
             break;
 
-        tmp = file.read(buf_size);
-        addr = (*mStlink->mDevice)["flash_base"]+i;
-        if (mStlink->readMem32(addr, tmp.size()) < 0) // Read same amount of data as from file.
+        file_buffer = file.read(buf_size);
+        addr =  mStlink->mDevice->value("flash_base")+i;
+        usb_buffer.clear();
+        if (mStlink->readMem32(&usb_buffer, addr, file_buffer.size()) < 0) // Read same amount of data as from file.
             break;
 
-        if (mStlink->mRecvBuf != tmp) {
+        if (usb_buffer != file_buffer) {
 
             file.close();
             emit sendProgress(100);
             emit sendStatus("Verification failed at 0x"+QString::number(addr, 16));
 
             QString stmp, sbuf;
-            for (int b=0;b<tmp.size();b++) {
-                stmp.append(tmpStr.sprintf("%02X ", (uchar)tmp.at(b)));
-                sbuf.append(tmpStr.sprintf("%02X ", (uchar)mStlink->mRecvBuf.at(b)));
+            for (int b=0;b<file_buffer.size();b++) {
+                stmp.append(tmpStr.sprintf("%02X ", (uchar)file_buffer.at(b)));
+                sbuf.append(tmpStr.sprintf("%02X ", (uchar)usb_buffer.at(b)));
             }
             qCritical("Verification failed at %08X \r\n Expecting: %s\r\n       Got:%s", addr, stmp, sbuf);
             mStlink->runMCU();

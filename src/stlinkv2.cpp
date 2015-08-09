@@ -66,7 +66,7 @@ qint32 stlinkv2::connect()
 {
     qint32 open = mUsbDevice->open();
     if ((open >= 0)) {
-        this->clearBuffer();
+        this->flush();
         mConnected = true;
     }
     return open;
@@ -119,7 +119,7 @@ bool stlinkv2::isConnected()
     return mConnected;
 }
 
-void stlinkv2::clearBuffer()
+void stlinkv2::flush()
 {
     PrintFuncName();
     mUsbDevice->read(1024);
@@ -511,7 +511,7 @@ bool stlinkv2::isBusy()
     return res;
 }
 
-void stlinkv2::writeMem32(quint32 addr, const QByteArray &buf)
+void stlinkv2::writeMem32(quint32 addr, QByteArray buf)
 {
     PrintFuncName() << " Writing" << buf.size() << "bytes to 0x"+QString::number(addr, 16).toUpper();
     QByteArray cmdbuf;
@@ -551,18 +551,19 @@ qint32 stlinkv2::readMem32(QByteArray* buf, quint32 addr, quint16 len)
 {
     PrintFuncName() << QString().sprintf(" Reading at %08X", addr);
     Q_CHECK_PTR(buf);
+    QByteArray cmd_buf;
     if (len % 4 != 0)
         return 0;
-    mCmdBuf.append(STLink::Cmd::DebugCommand);
-    mCmdBuf.append(STLink::Cmd::Dbg::ReadMem32bit);
+    cmd_buf.append(STLink::Cmd::DebugCommand);
+    cmd_buf.append(STLink::Cmd::Dbg::ReadMem32bit);
     uchar cmd[4], _len[2];
     qToLittleEndian(addr, cmd);
     qToLittleEndian(len, _len);
-    mCmdBuf.append((const char*)cmd, sizeof(cmd));
-    mCmdBuf.append((const char*)_len, sizeof(_len)); //length the data we are requesting
-    this->SendCommand();
-    mRecvBuf.clear();
-    return mUsbDevice->read(&mRecvBuf, len);
+    cmd_buf.append((const char*)cmd, sizeof(cmd));
+    cmd_buf.append((const char*)_len, sizeof(_len)); //length the data we are requesting
+    this->SendCommand(cmd_buf);
+    *buf = mUsbDevice->read(len);
+    return buf->size();
 }
 
 qint32 stlinkv2::Command(QByteArray* buf, quint8 st_cmd0, quint8 st_cmd1, quint32 resp_len)
