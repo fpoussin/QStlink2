@@ -80,6 +80,7 @@ void transferThread::sendWithLoader(const QString &filename)
         emit sendLog("Failed to send loader!");
         return;
     }
+    emit sendLog("Loader uploaded");
 
     mStlink->runMCU(); // The loader will stop at the beginning of the loop
 
@@ -257,7 +258,8 @@ void transferThread::verify(const QString &filename)
                 stmp.append(tmpStr.sprintf("%02X ", (uchar)file_buffer.at(b)));
                 sbuf.append(tmpStr.sprintf("%02X ", (uchar)usb_buffer.at(b)));
             }
-            qCritical("Verification failed at %08X \r\n Expecting: %s\r\n       Got:%s", addr, stmp, sbuf);
+            qCritical("Verification failed at %08X \r\n Expecting: %s\r\n       Got:%s",
+                      addr, stmp.toStdString().c_str(), sbuf.toStdString().c_str());
             mStlink->runMCU();
             emit sendLock(false);
             return;

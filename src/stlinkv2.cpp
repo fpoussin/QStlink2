@@ -518,9 +518,9 @@ qint32 stlinkv2::writeMem32(quint32 addr, const QByteArray& buf)
     PrintFuncName() << QString().sprintf("Writing %d bytes to 0x%08X", buf.size(), addr);
     QByteArray cmdbuf, sendbuf(buf);
 
-    uint remain = buf.size() % 4;
+    int remain = buf.size() % 4;
     if (remain != 0) {
-        qWarning("Data is not 32 bit aligned! Padding with %u Bytes", remain);
+        qWarning("Data is not 32 bit aligned! Padding with %d Bytes", remain);
         sendbuf.append(QByteArray(remain, 0));
     }
 
@@ -557,7 +557,7 @@ qint32 stlinkv2::readMem32(QByteArray* buf, quint32 addr, quint16 len)
     Q_CHECK_PTR(buf);
     QByteArray cmd_buf;
     if (len % 4 != 0)
-        return 0;
+        len += len % 4;
     cmd_buf.append(STLink::Cmd::DebugCommand);
     cmd_buf.append(STLink::Cmd::Dbg::ReadMem32bit);
     uchar cmd[4], _len[2];
@@ -704,26 +704,38 @@ bool stlinkv2::setLoaderBuffer(const quint32 addr, const QByteArray& buf) {
 
     using namespace Loader::Addr;
     uchar ar_tmp[4];
+    QByteArray write_buf, read_buf;
+    quint32 buffer_size = buf.size();
+
     qToLittleEndian(addr, ar_tmp);
-    QByteArray tmp((const char*)ar_tmp, 4);
-    QByteArray read_buf;
-    this->writeMem32(PARAMS+OFFSET_DEST, tmp);
+    write_buf = QByteArray((const char*)ar_tmp, 4);
+    if (this->writeMem32(PARAMS+OFFSET_DEST, write_buf) < 0)
+    {
+        qCritical("Failed to set loader write address!");
+        return false;
+    }
 
-    qToLittleEndian(buf.size(), ar_tmp);
-    tmp = QByteArray((const char*)ar_tmp, 4);
-    this->writeMem32(PARAMS+OFFSET_LEN, tmp);
+    qToLittleEndian(buffer_size, ar_tmp);
+    write_buf = QByteArray((const char*)ar_tmp, 4);
+    if (this->writeMem32(PARAMS+OFFSET_LEN, write_buf) < 0)
+    {
+        qCritical("Failed to set loader write length!");
+        return false;
+    }
 
+    read_buf.clear();
     this->readMem32(&read_buf, PARAMS+OFFSET_DEST);
-    const quint32 dest = qFromLittleEndian<quint32>((uchar*)read_buf.constData());
+    const quint32 dest = qFromLittleEndian<quint32>((uchar*)read_buf.data());
+
+    read_buf.clear();
     this->readMem32(&read_buf, PARAMS+OFFSET_LEN);
-    const quint32 len = qFromLittleEndian<quint32>((uchar*)read_buf.constData());
+    const quint32 len = qFromLittleEndian<quint32>((uchar*)read_buf.data());
 
-    qDebug("Data destination and length: 0x%08X - %d", dest, len);
-
-    if ((dest != addr) || ((quint32)buf.size() != len)) {
-
+    if ((dest != addr) || (buffer_size != len))
+    {
         qCritical("Failed to set loader settings!");
         qCritical("Expected data destination and length: 0x%08X - %d", addr, buf.size());
+        qCritical("Current data destination and length: 0x%08X - %d", dest, len);
         return false;
     }
 
@@ -732,14 +744,14 @@ bool stlinkv2::setLoaderBuffer(const quint32 addr, const QByteArray& buf) {
     const int step = 2048;
     for (; i < buf.size()/step; i++) {
 
-        tmp = QByteArray(buf.constData()+(i*step), step);
-        this->writeMem32(BUFFER+(i*step), tmp);
+        write_buf = QByteArray(buf.constData()+(i*step), step);
+        this->writeMem32(BUFFER+(i*step), write_buf);
         emit bufferPct(((step*(i+1))*100)/buf.size());
     }
-    const int mod = buf.size()%step;
-    if (mod>0)  {
-        tmp = QByteArray(buf.constData()+buf.size()-mod, mod);
-        this->writeMem32(BUFFER+(i*step), tmp);
+    const int mod = buf.size() % step;
+    if (mod > 0)  {
+        write_buf = QByteArray(buf.constData()+buf.size()-mod, mod);
+        this->writeMem32(BUFFER+(i*step), write_buf);
     }
     emit bufferPct(100);
     return true;
