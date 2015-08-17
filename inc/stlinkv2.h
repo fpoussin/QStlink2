@@ -196,7 +196,7 @@ public slots:
     void setModeSWD();
     void setExitModeDFU();
     qint32 readMem32(QByteArray *buf, quint32 addr, quint16 len = 4);
-    void writeMem32(quint32 addr, QByteArray buf);
+    qint32 writeMem32(quint32 addr, const QByteArray &buf);
     bool writeRegister(quint32 val, quint8 index);
     quint32 readRegister(quint8 index);
     void writePC(quint32 val);
@@ -217,7 +217,7 @@ public slots:
     quint32 getCoreID();
     quint32 getChipID();
     quint32 getRevID();
-    void sendLoader();
+    bool sendLoader();
     bool setLoaderBuffer(const quint32 addr, const QByteArray& buf);
     quint32 getLoaderStatus();
     quint32 getLoaderPos();

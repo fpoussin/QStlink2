@@ -166,32 +166,32 @@ int main(int argc, char *argv[])
             qInfo() << "Erase:" << erase;
             qInfo() << "Write:" << write_flash;
             qInfo() << "Verify:" << verify;
-            if (!w->Connect()) {
+            if (!w->connect()) {
                 return 1;
             }
             if (write_flash) {
-                w->Send(path);
+                w->send(path);
                 while (w->mTfThread->isRunning()) { QThread::msleep(100); }
             }
             else if (read_flash) {
-                w->Receive(path);
+                w->receive(path);
                 while (w->mTfThread->isRunning()) { QThread::msleep(100); }
             }
             if (verify) {
-                w->Verify(path);
+                w->verify(path);
                 while (w->mTfThread->isRunning()) { QThread::msleep(100); }
             }
             QThread::msleep(300);
-            w->Disconnect();
+            w->disconnect();
             w->close();
             return 0;
             }
         else if (erase) {
             qInfo() << "Only erasing flash";
-            if (!w->Connect())
+            if (!w->connect())
                 return 1;
             w->eraseFlash();
-            w->Disconnect();
+            w->disconnect();
             return 0;
         }
         else if (!show) {

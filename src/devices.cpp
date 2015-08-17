@@ -48,17 +48,17 @@ DeviceInfoList::DeviceInfoList(QObject *parent) :
 
     /* Load from resource */
     if (!file.open(QIODevice::ReadOnly)) {
-        qInfo() << "Could not open the devices.xml file. Using internal data.";
+        qInfo("Could not open the devices.xml file. Using internal data.");
 
         file.setFileName(":/devices.xml");
     }
     if (!mDoc->setContent(&file)) {
         file.close();
-        qCritical() << "Devices list failed to load.";
+        qCritical("Devices list failed to load.");
         return;
     }
     file.close();
-    qInfo() << "Devices list loaded.";
+    qInfo("Devices list loaded.");
 
     mDefaultDevice = new DeviceInfo(this);
     bool isInt;
@@ -136,12 +136,12 @@ bool DeviceInfoList::IsLoaded() const {
 }
 
 bool DeviceInfoList::search(const quint32 chip_id) {
-    qDebug("Looking for: %08X", chip_id);
+    qDebug("Looking for: 0x%03X", chip_id);
     for (int i=0; i < mDevices.count(); i++) {
         if (mDevices.at(i)->value("chip_id") == chip_id) {
             mCurDevice = mDevices.at(i);
             qDebug("Found chipID");
-            qDebug() << mCurDevice->repr();
+            //qDebug() << mCurDevice->repr();
             return true;
         }
     }

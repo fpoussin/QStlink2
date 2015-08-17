@@ -55,9 +55,8 @@ void transferThread::setParams(stlinkv2 *stlink, QString filename, bool write, b
 void transferThread::sendWithLoader(const QString &filename)
 {
     qInfo("Using loader");
-    QString tmpStr;
-    QFile file(filename);
-    if (!file.open(QIODevice::ReadOnly)) {
+    QFile loader_file(filename);
+    if (!loader_file.open(QIODevice::ReadOnly)) {
         qCritical("Could not open the file.");
         return;
     }
@@ -65,18 +64,24 @@ void transferThread::sendWithLoader(const QString &filename)
     mStop = false;
     mStlink->hardResetMCU(); // We stop the MCU
     quint32 step_size = 2048;
-    if ((*mStlink->mDevice)["buffer_size"] > 0)
-        step_size = (*mStlink->mDevice)["buffer_size"]-2048; // Minus the loader's 2k
-    const quint32 from = (*mStlink->mDevice)["flash_base"];
-    const quint32 to = (*mStlink->mDevice)["flash_base"]+file.size();
+    if (mStlink->mDevice->value("buffer_size") > 0)
+        step_size = mStlink->mDevice->value("buffer_size")-2048; // Minus the loader's 2k
+    const quint32 from = mStlink->mDevice->value("flash_base");
+    const quint32 to = mStlink->mDevice->value("flash_base")+loader_file.size();
     qInfo("Writing from %08x to %08x", from, to);
     quint32 progress, oldprogress, read;
     char *buf2 = new char[step_size];
 
     mStlink->resetMCU();
     mStlink->flush();
-    mStlink->sendLoader();
-    mStlink->runMCU(); // Will stop at the loop beginning
+
+    if (!mStlink->sendLoader())
+    {
+        emit sendLog("Failed to send loader!");
+        return;
+    }
+
+    mStlink->runMCU(); // The loader will stop at the beginning of the loop
 
     while (mStlink->getStatus() == STLink::Status::CORE_RUNNING) { // Wait for the breakpoint
             QThread::msleep(100);
@@ -86,32 +91,27 @@ void transferThread::sendWithLoader(const QString &filename)
     const quint32 bkp1 = mStlink->readRegister(15);
     qDebug("Current PC reg at %08x", bkp1);
 
-    if (bkp1 < (*mStlink->mDevice)["sram_base"] || bkp1 > (*mStlink->mDevice)["sram_base"]+(*mStlink->mDevice)["buffer_size"]) {
+    if (bkp1 < mStlink->mDevice->value("sram_base") || bkp1 > mStlink->mDevice->value("sram_base")+mStlink->mDevice->value("buffer_size")) {
 
-        qCritical("Current PC is not in the RAM area: %08x", (*mStlink->mDevice)["sram_base"]);
+        qCritical("Current PC is not in the RAM area: %08x", mStlink->mDevice->value("sram_base"));
         return;
     }
 
     progress = 0;
     mStlink->flush();
     quint32 status = 0, loader_pos = 0;
-    for (int i=0; i<=file.size(); i+=step_size) {
+    for (int i=0; i<=loader_file.size(); i+=step_size) {
 
-        if (mStop)
+        if (mStop || loader_file.atEnd())
             break;
-
-        if (file.atEnd()) {
-            qDebug("End Of File");
-            break;
-        }
 
         memset(buf2, 0, step_size);
-        if ((read = file.read(buf2, step_size)) <= 0)
+        if ((read = loader_file.read(buf2, step_size)) <= 0)
             break;
         qDebug("Read Bytes %u from disk", read);
         QByteArray buf(buf2, read);
 
-        const quint32 addr = (*mStlink->mDevice)["flash_base"]+i;
+        const quint32 addr = mStlink->mDevice->value("flash_base")+i;
 
         emit sendLoaderStatus("Loading");
         if (!mStlink->setLoaderBuffer(addr, buf)) {
@@ -129,13 +129,13 @@ void transferThread::sendWithLoader(const QString &filename)
 //                qDebug() << "Loader position:" << QString::number(loader_pos, 16);
 
                 oldprogress = progress;
-                progress = (loader_pos*100)/file.size();
+                progress = (loader_pos*100)/loader_file.size();
                 if (progress > oldprogress && progress <= 100) { // Push only if number has increased
                     emit sendProgress(progress);
                     qInfo("Progress: %u%%", progress);
                 }
 
-                emit sendStatus(tmpStr.sprintf("Transferred %u/%uKB", i/1024, file.size()));
+                emit sendStatus(QString().sprintf("Transferred %u/%uKB", i/1024, loader_file.size()));
                 QThread::msleep(20);
                 if (mStop) break;
         }
@@ -152,7 +152,7 @@ void transferThread::sendWithLoader(const QString &filename)
         }
     }
     emit sendLoaderStatus("Idle");
-    file.close();
+    loader_file.close();
     delete buf2;
 
     qDebug("Current PC reg %08x", mStlink->readRegister(15));

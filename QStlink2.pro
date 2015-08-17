@@ -21,16 +21,14 @@
 
 QT += core gui xml
 contains(QT_MAJOR_VERSION, 5) { QT += widgets }
-win32:CONFIG += console
+#win32:CONFIG += console
 win32:CONFIG += winusb
-
-message(Building for Qt $$QT_VERSION)
 
 TEMPLATE = app
 TARGET = qstlink2
 VERSION = 1.2.1
 
-message(Version $$VERSION)
+message(Building version $$VERSION for Qt $$QT_VERSION)
 
 VERSTR = '\\"$${VERSION}\\"'  # place quotes around the version string
 DEFINES += __QSTL_VER__=\"$${VERSTR}\" # create a VER macro containing the version string

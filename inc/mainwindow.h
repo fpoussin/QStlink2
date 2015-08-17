@@ -51,15 +51,15 @@ public:
     transferThread *mTfThread;
 
 public slots:
-    bool Connect();
-    void Disconnect();
+    bool connect();
+    void disconnect();
     void updateProgress(quint32 p);
     void updateStatus(const QString &s);
     void updateLoaderStatus(const QString &s);
     void updateLoaderPct(quint32 p);
-    void Send(const QString &path);
-    void Receive(const QString &path);
-    void Verify(const QString &path);
+    void send(const QString &path);
+    void receive(const QString &path);
+    void verify(const QString &path);
     void eraseFlash();
     void showHelp();
     void closeEvent(QCloseEvent *event);
@@ -80,17 +80,17 @@ private slots:
     void getMode();
     bool getMCU();
     void getStatus();
-    void Send();
-    void Receive();
-    void Verify();
-    void Repeat();
-    void ResetMCU();
-    void HardReset();
-    void RunMCU();
-    void HaltMCU();
+    void send();
+    void receive();
+    void verify();
+    void repeat();
+    void resetMCU();
+    void hardReset();
+    void runMCU();
+    void haltMCU();
     void setModeJTAG();
     void setModeSWD();
-    void Quit();
+    void quit();
 
 };
 

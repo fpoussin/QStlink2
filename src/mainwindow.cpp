@@ -34,20 +34,20 @@ MainWindow::MainWindow(QWidget *parent) :
     if (mDevices->IsLoaded()) {
 
         this->log(QString::number(mDevices->getDevicesCount())+" Device descriptions loaded.");
-        QObject::connect(mUi->b_quit,SIGNAL(clicked()),this,SLOT(Quit()));
+        QObject::connect(mUi->b_quit,SIGNAL(clicked()),this,SLOT(quit()));
         QObject::connect(mUi->b_qt,SIGNAL(clicked()),qApp,SLOT(aboutQt()));
-        QObject::connect(mUi->b_connect, SIGNAL(clicked()), this, SLOT(Connect()));
-        QObject::connect(mUi->b_disconnect, SIGNAL(clicked()), this, SLOT(Disconnect()));
-        QObject::connect(mUi->b_send, SIGNAL(clicked()), this, SLOT(Send()));
-        QObject::connect(mUi->b_receive, SIGNAL(clicked()), this, SLOT(Receive()));
-        QObject::connect(mUi->b_verify, SIGNAL(clicked()), this, SLOT(Verify()));
-        QObject::connect(mUi->b_repeat, SIGNAL(clicked()), this, SLOT(Repeat()));
-        QObject::connect(mUi->b_halt, SIGNAL(clicked()), this, SLOT(HaltMCU()));
-        QObject::connect(mUi->b_run, SIGNAL(clicked()), this, SLOT(RunMCU()));
-        QObject::connect(mUi->b_reset, SIGNAL(clicked()), this, SLOT(ResetMCU()));
+        QObject::connect(mUi->b_connect, SIGNAL(clicked()), this, SLOT(connect()));
+        QObject::connect(mUi->b_disconnect, SIGNAL(clicked()), this, SLOT(disconnect()));
+        QObject::connect(mUi->b_send, SIGNAL(clicked()), this, SLOT(send()));
+        QObject::connect(mUi->b_receive, SIGNAL(clicked()), this, SLOT(receive()));
+        QObject::connect(mUi->b_verify, SIGNAL(clicked()), this, SLOT(verify()));
+        QObject::connect(mUi->b_repeat, SIGNAL(clicked()), this, SLOT(repeat()));
+        QObject::connect(mUi->b_halt, SIGNAL(clicked()), this, SLOT(haltMCU()));
+        QObject::connect(mUi->b_run, SIGNAL(clicked()), this, SLOT(runMCU()));
+        QObject::connect(mUi->b_reset, SIGNAL(clicked()), this, SLOT(resetMCU()));
         QObject::connect(mUi->r_jtag, SIGNAL(clicked()), this, SLOT(setModeJTAG()));
         QObject::connect(mUi->r_swd, SIGNAL(clicked()), this, SLOT(setModeSWD()));
-        QObject::connect(mUi->b_hardReset, SIGNAL(clicked()), this, SLOT(HardReset()));
+        QObject::connect(mUi->b_hardReset, SIGNAL(clicked()), this, SLOT(hardReset()));
 
         // Thread
         QObject::connect(mTfThread, SIGNAL(sendProgress(quint32)), this, SLOT(updateProgress(quint32)));
@@ -96,10 +96,10 @@ void MainWindow::showHelp()
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     (void)event;
-    this->Quit();
+    this->quit();
 }
 
-bool MainWindow::Connect()
+bool MainWindow::connect()
 {
     PrintFuncName();
     this->log("Searching Device...");
@@ -140,14 +140,14 @@ bool MainWindow::Connect()
             return true;
         }
         else {
-            this->Disconnect();
+            this->disconnect();
             return false;
         }
     }
     return false;
 }
 
-void MainWindow::Disconnect()
+void MainWindow::disconnect()
 {
     this->log("Disconnecting...");
     mStlink->disconnect();
@@ -199,7 +199,7 @@ void MainWindow::updateLoaderPct(quint32 p)
     mUi->pgb_loader->setValue(p);
 }
 
-void MainWindow::Send()
+void MainWindow::send()
 {
     mFilename.clear();
     mFilename = QFileDialog::getOpenFileName(this, "Open file", "", "Binary Files (*.bin)");
@@ -211,7 +211,7 @@ void MainWindow::Send()
         }
         this->log("Size: "+QString::number(file.size()/1024)+"KB");
 
-        if (file.size() > (*mStlink->mDevice)["flash_size"]*1024) {
+        if (file.size() > mStlink->mDevice->value("flash_size")*1024) {
             if(QMessageBox::question(this, "Flash size exceeded", "The file is bigger than the flash size!\n\nThe flash memory will be erased and the new file programmed, continue?", QMessageBox::Yes|QMessageBox::No) != QMessageBox::Yes){
                 return;
             }
@@ -223,12 +223,12 @@ void MainWindow::Send()
         }
         file.close();
 
-        this->Send(mFilename);
+        this->send(mFilename);
         mLastAction = ACTION_SEND;
     }
 }
 
-void MainWindow::Send(const QString &path)
+void MainWindow::send(const QString &path)
 {
     qDebug("Writing flash");
     this->log("Sending "+path);
@@ -242,7 +242,7 @@ void MainWindow::Send(const QString &path)
     mTfThread->start();
 }
 
-void MainWindow::Receive()
+void MainWindow::receive()
 {
     qDebug("Reading flash");
     mFilename.clear();
@@ -254,12 +254,12 @@ void MainWindow::Receive()
             return;
         }
         file.close();
-        this->Receive(mFilename);
+        this->receive(mFilename);
         mLastAction = ACTION_RECEIVE;
     }
 }
 
-void MainWindow::Receive(const QString &path)
+void MainWindow::receive(const QString &path)
 {
     this->log("Saving to "+path);
     mUi->tabw_info->setCurrentIndex(3);
@@ -271,7 +271,7 @@ void MainWindow::Receive(const QString &path)
     mTfThread->start();
 }
 
-void MainWindow::Verify()
+void MainWindow::verify()
 {
     qDebug("Verify flash");
     mFilename.clear();
@@ -283,23 +283,23 @@ void MainWindow::Verify()
             return;
         }
         file.close();
-        this->Verify(mFilename);
+        this->verify(mFilename);
         mLastAction = ACTION_VERIFY;
     }
 }
 
-void MainWindow::Repeat()
+void MainWindow::repeat()
 {
     switch (mLastAction) {
 
         case ACTION_SEND:
-            this->Send(mFilename);
+            this->send(mFilename);
             break;
         case ACTION_RECEIVE:
-            this->Receive(mFilename);
+            this->receive(mFilename);
             break;
         case ACTION_VERIFY:
-            this->Verify(mFilename);
+            this->verify(mFilename);
             break;
         case ACTION_NONE:
             this->log("Nothing to repeat.");
@@ -309,7 +309,7 @@ void MainWindow::Repeat()
     }
 }
 
-void MainWindow::Verify(const QString &path)
+void MainWindow::verify(const QString &path)
 {
     this->log("Verifying "+path);
     mUi->tabw_info->setCurrentIndex(3);
@@ -330,7 +330,7 @@ void MainWindow::eraseFlash()
     mStlink->eraseFlash();
 }
 
-void MainWindow::HaltMCU()
+void MainWindow::haltMCU()
 {
     this->log("Halting MCU...");
     mStlink->haltMCU();
@@ -338,7 +338,7 @@ void MainWindow::HaltMCU()
     this->getStatus();
 }
 
-void MainWindow::RunMCU()
+void MainWindow::runMCU()
 {
     this->log("Resuming MCU...");
     mStlink->runMCU();
@@ -346,7 +346,7 @@ void MainWindow::RunMCU()
     this->getStatus();
 }
 
-void MainWindow::ResetMCU()
+void MainWindow::resetMCU()
 {
     this->log("Reseting MCU...");
     mStlink->resetMCU();
@@ -354,7 +354,7 @@ void MainWindow::ResetMCU()
     this->getStatus();
 }
 
-void MainWindow::HardReset()
+void MainWindow::hardReset()
 {
     this->log("Hard Reset...");
     mStlink->hardResetMCU();
@@ -382,11 +382,11 @@ void MainWindow::setModeSWD()
     this->getMode();
 }
 
-void MainWindow::Quit()
+void MainWindow::quit()
 {
     this->hide();
     if (mStlink->isConnected())
-        this->Disconnect();
+        this->disconnect();
     qApp->quit();
 }
 
@@ -452,8 +452,8 @@ bool MainWindow::getMCU()
         qInfo() << "Device type: " << mStlink->mDevice->mType;
 
         mUi->le_type->setText(mStlink->mDevice->mType);
-        mUi->le_chipid->setText("0x"+QString::number((*mStlink->mDevice)["chip_id"], 16));
-        mUi->le_flashbase->setText("0x"+QString::number((*mStlink->mDevice)["flash_base"], 16));
+        mUi->le_chipid->setText("0x"+QString::number(mStlink->mDevice->value("chip_id"), 16));
+        mUi->le_flashbase->setText("0x"+QString::number(mStlink->mDevice->value("flash_base"), 16));
         //this->ui->le_flashsize->setText(QString::number((*this->stlink->device)["flash_size"]/1024)+"KB");
 
         mUi->le_stlver->setText(QString::number(mStlink->mVersion.stlink));
@@ -465,12 +465,12 @@ bool MainWindow::getMCU()
         if(!mStlink->mVersion.swim)
             mUi->le_swimver->setToolTip("Not supported");
 
-        (*mStlink->mDevice)["flash_size"] = mStlink->readFlashSize();
-        mUi->le_flashsize->setText(QString::number((*mStlink->mDevice)["flash_size"])+"KB");
+        mStlink->mDevice->insert("flash_size", mStlink->readFlashSize());
+        mUi->le_flashsize->setText(QString::number(mStlink->mDevice->value("flash_size"))+"KB");
 
         return true;
     }
     this->log("Device not found in database!");
-    qCritical() << "Device not found in database!";
+    qCritical("Device not found in database!");
     return false;
 }
