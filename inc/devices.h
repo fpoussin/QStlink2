@@ -26,13 +26,6 @@ This file is part of QSTLink2.
 #include <QMap>
 #include "compat.h"
 
-namespace Device {
-
-    const char* CHIP_ID = "chip_id";
-    const char* FLASH_BASE = "flash_base";
-    const char* SRAM_BASE = "sram_base";
-}
-
 class DeviceInfo : public QObject
 {
     Q_OBJECT

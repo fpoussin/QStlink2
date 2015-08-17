@@ -60,6 +60,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
         // Help
         QObject::connect(mUi->b_help, SIGNAL(clicked()), this, SLOT(showHelp()));
+
+        // Usb stuff
+        QObject::connect(mStlink, SIGNAL(deviceDetected(QString)), this, SLOT(log(QString)));
     }
 
     else {
@@ -133,11 +136,13 @@ bool MainWindow::Connect()
             this->setModeSWD();
         this->getStatus();
         if (this->getMCU()) {
-            this->lockUI(true);
+            this->lockUI(false);
             return true;
         }
-        else
+        else {
+            this->Disconnect();
             return false;
+        }
     }
     return false;
 }

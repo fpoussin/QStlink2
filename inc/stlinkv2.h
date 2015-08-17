@@ -32,13 +32,15 @@ const quint16 USB_STLINK_PID = 0x3744;
 const quint16 USB_STLINKv2_PID = 0x3748;
 const quint16 USB_NUCLEO_PID = 0x374b;
 const quint8 USB_CONFIGURATION = 1;   /* The sole configuration. */
+const quint8 USB_INTERFACE = 0;   /* The interface. */
+const quint8 USB_ALTERNATE = 0;   /* The alternate interface. */
 const quint8 USB_PIPE_IN = 0x81;   /* Bulk output endpoint for responses */
 const quint8 USB_PIPE_OUT = 0x02;	   /* Bulk input endpoint for commands */
 const quint8 USB_PIPE_OUT_NUCLEO = 0x01;	   /* Bulk input endpoint for commands */
 const quint8 USB_PIPE_ERR = 0x83;	   /* An apparently-unused bulk endpoint. */
 const quint16 USB_TIMEOUT_MSEC = 300;
-const QString USB_STLINK_GUID = "DBCE1CD9-A320-4b51-A365-A0C3F3C5FB29";
-const QString USB_NUCLEO_GUID = "8326506F-7260-4854-9C03-26E416F04494";
+const QString USB_STLINK_GUID("DBCE1CD9-A320-4b51-A365-A0C3F3C5FB29");
+const QString USB_NUCLEO_GUID("8326506F-7260-4854-9C03-26E416F04494");
 
 namespace STLink {
     namespace Status {
@@ -177,6 +179,7 @@ public:
 
 signals:
     void bufferPct(quint32 p);
+    void deviceDetected(QString name);
 
 public slots:
     qint32 connect();
@@ -220,6 +223,9 @@ public slots:
     quint32 getLoaderPos();
     void getLoaderParams();
 
+private slots:
+    void scanNewDevices(QtUsb::FilterList list);
+
 private:
     QUsbManager *mUsbMgr;
     QUsbDevice *mUsbDevice;
@@ -227,19 +233,16 @@ private:
 
     quint32 mCoreId;
     quint32 mRevId;
-    //QByteArray mCmdBuf;
-    //QByteArray mRecvBuf;
-    //QByteArray mSendBuf;
     qint8 mModeId;
     bool mConnected;
     LoaderData mLoader;
 
-    qint32 Command(QByteArray* buf, quint8 st_cmd0, quint8 st_cmd1, quint32 resp_len);
-    qint32 DebugCommand(QByteArray* buf, quint8 st_cmd1, quint8 st_cmd2, quint32 resp_len);
+    qint32 command(QByteArray* buf, quint8 st_cmd0, quint8 st_cmd1, quint32 resp_len);
+    qint32 debugCommand(QByteArray* buf, quint8 st_cmd1, quint8 st_cmd2, quint32 resp_len);
     quint32 readFlashSR();
     quint32 readFlashCR();
     quint32 writeFlashCR(quint32 mask, bool value);
-    qint32 SendCommand(const QByteArray &cmd);
+    qint32 sendCommand(const QByteArray &cmd);
     QString regPrint(quint32 reg) const;
 };
 
