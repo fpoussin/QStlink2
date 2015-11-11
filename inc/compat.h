@@ -18,6 +18,7 @@ This file is part of QSTLink2.
 #define COMPAT_H
 #include <stdio.h>
 #include <QApplication>
+#include <QThread>
 
 #if QT_VERSION >= 0x040700
     #include <QElapsedTimer> // QElapsedTimer was introduced in QT 4.7
@@ -36,5 +37,13 @@ This file is part of QSTLink2.
 
 #define PrintError() qCritical ("In %s, at %s:%d", Q_FUNC_INFO, __FILE__, __LINE__)
 #define PrintFuncName() qDebug() << "***[" << Q_FUNC_INFO << "]***"
+
+/* Workaround for Qt 4  */
+class SleepThread : public QThread {
+public:
+   static inline void msleep(unsigned long msecs) {
+       QThread::msleep(msecs);
+   }
+};
 
 #endif // COMPAT_H
