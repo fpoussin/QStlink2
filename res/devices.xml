@@ -137,7 +137,7 @@
     <device type="STM32L4xx" coretype="CM4F">
       <core_id>0x2ba01477</core_id>
       <chip_id>0x415</chip_id>
-      <flash_size_reg>0x1FF800CC</flash_size_reg>
+      <flash_size_reg>0x1FFF75E0</flash_size_reg>
       <flash_int_reg>0x40023C00</flash_int_reg>
       <buffer_size>0x2800</buffer_size>
       <loader>loader_l1.bin</loader>
