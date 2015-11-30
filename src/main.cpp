@@ -110,13 +110,13 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
     quint8 i = 0;
     QStringList args = QCoreApplication::arguments();
-    QRegExp path_reg("[\\/]"); // Checks for a Unix or Windows path.
+    QRegExp args_regex("^(-[a-zA-Z]|--[a-z]+)$"); // Checks for a parameter (-a -B --abc...)
     foreach (const QString &str, args) {
 
             if (!i++) // Skip first one
                 continue;
 
-            if (!str.contains(path_reg)) {
+            if (str.contains(args_regex)) {
                  if (checkParam(str, 'h', "help")) {
                     showHelp();
                     return 0;
@@ -139,17 +139,17 @@ int main(int argc, char *argv[])
          }
 
     if (!show) {
-        if ((!erase) && (args.size() <= 2) && (!args.last().contains(path_reg))) {
+        if ((!erase) && (args.size() <= 2) && args.last().contains(args_regex)) {
             qCritical() << "Invalid options";
             showHelp();
             return 1;
         }
-        else if ((!erase) && (args.size() >= 2) && (!args.last().contains(path_reg))) {
+        else if ((!erase) && (args.size() >= 2) && args.last().contains(args_regex)) {
             qCritical() << "Invalid path:" << args.last();
             showHelp();
             return 1;
         }
-        if (args.last().contains(path_reg))
+        if (!args.last().contains(args_regex))
             path = args.last(); // Path is always the last argument.
     }
     qDebug() << "Verbose level:" << verbose_level;
