@@ -110,7 +110,7 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
     quint8 i = 0;
     QStringList args = QCoreApplication::arguments();
-    QRegExp args_regex("^(-[a-zA-Z]|--[a-z]+)$"); // Checks for a parameter (-a -B --abc...)
+    QRegExp args_regex("^(-[a-zA-Z]+|--[a-z]+)$"); // Checks for a parameter (-a -B --abc...)
     foreach (const QString &str, args) {
 
             if (!i++) // Skip first one
