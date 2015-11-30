@@ -214,6 +214,8 @@ extern funcp_t __fini_array_end;
  */
 extern int loader(void);
 
+extern void stm32_clock_init(void) ;
+
 /**
  * @brief   Early initialization.
  * @details This hook is invoked immediately after the stack initialization
@@ -332,6 +334,8 @@ int main(void) {
     }
   }
 #endif
+  /* Setup clock */
+  //stm32_clock_init();
 
   /* Invoking application main() function.*/
   loader();

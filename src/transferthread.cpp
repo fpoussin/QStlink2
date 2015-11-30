@@ -67,7 +67,7 @@ void transferThread::sendWithLoader(const QString &filename)
     if (mStlink->mDevice->value("buffer_size") > 0)
         step_size = mStlink->mDevice->value("buffer_size")-2048; // Minus the loader's 2k
     const quint32 from = mStlink->mDevice->value("flash_base");
-    const quint32 to = mStlink->mDevice->value("flash_base")+loader_file.size();
+    const quint32 to = mStlink->mDevice->value("flash_base")+loader_file.size()-1;
     qInfo("Writing from %08x to %08x", from, to);
     quint32 progress, oldprogress, read;
     char *buf2 = new char[step_size];
@@ -127,7 +127,7 @@ void transferThread::sendWithLoader(const QString &filename)
         while (mStlink->getStatus() == STLink::Status::CORE_RUNNING) { // Wait for the breakpoint
 
                 loader_pos = mStlink->getLoaderPos()-from;
-//                qDebug() << "Loader position:" << QString::number(loader_pos, 16);
+                qDebug("Loader position: 0x%x", loader_pos+from);
 
                 oldprogress = progress;
                 progress = (loader_pos*100)/loader_file.size();
@@ -136,8 +136,8 @@ void transferThread::sendWithLoader(const QString &filename)
                     qInfo("Progress: %u%%", progress);
                 }
 
-                emit sendStatus(QString().sprintf("Transferred %u/%lldKB", i/1024, loader_file.size()));
-                QThread::msleep(20);
+                emit sendStatus(QString().sprintf("Transferred %u/%lldKB", i/1024, loader_file.size()/1024));
+                QThread::msleep(30);
                 if (mStop) break;
         }
 
@@ -206,7 +206,7 @@ void transferThread::receive(const QString &filename)
             emit sendProgress(progress);
             qInfo("Progress: %u%%", progress);
         }
-        emit sendStatus(tmpStr.sprintf("Transferred %u/%uKB", i/1024,flash_size/1024));
+        emit sendStatus(tmpStr.sprintf("Transferred %u/%uKB", i/1024, flash_size/1024));
     }
     file.close();
     emit sendProgress(100);
@@ -270,7 +270,7 @@ void transferThread::verify(const QString &filename)
             emit sendProgress(progress);
             qInfo("Progress: %u%%", progress);
         }
-        emit sendStatus(tmp_str.sprintf("Verified %u/%lldKB", i/1024, file.size()));
+        emit sendStatus(tmp_str.sprintf("Verified %u/%lldKB", i/1024, file.size()/1024));
     }
     file.close();
     emit sendProgress(100);

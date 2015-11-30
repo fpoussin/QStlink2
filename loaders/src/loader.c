@@ -135,6 +135,8 @@ int loader(void) {
 		mmio32(PARAMS_ADDR+i) = 0;
 	}
 
+    FLASH_SetLatency(FLASH_Latency_0);
+
 	while (1) {
 
 		asm volatile ("bkpt"); // Halt core after init and before writing to flash.
@@ -144,6 +146,7 @@ int loader(void) {
 		PARAMS->STATUS  &= ~MASK_ERR; // Clear error bit
 		PARAMS->STATUS  &= ~MASK_SUCCESS; // Clear success bit
 		PARAMS->STATUS &= ~MASK_DEL; // Clear delete success bit
+        PARAMS->POS = PARAMS->DEST;
 
 		FLASH_Unlock();
 
@@ -156,7 +159,7 @@ int loader(void) {
 			FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR | FLASH_FLAG_PGAERR | FLASH_FLAG_PGPERR|FLASH_FLAG_PGSERR);
 			// Get the number of the start and end sectors
 			const uint32_t StartSector = GetSector(from);
-			const uint32_t EndSector = GetSector(to);
+            const uint32_t EndSector = GetSector(to-1);
 			for (a = StartSector ; a <= EndSector ; a+=8) {
 				if (erased_sectors & (1 << a/8)) continue; // Skip sectors already erased
 				if (FLASH_EraseSector(a, VoltageRange_3) != FLASH_COMPLETE) {
@@ -168,7 +171,7 @@ int loader(void) {
 			}
 		#else
 			FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPERR);
-			uint32_t NbrOfPage = (to - from) / FLASH_PAGE_SIZE;
+            uint32_t NbrOfPage = (to - from - 1) / FLASH_PAGE_SIZE;
 			for (a = 0 ; a <= NbrOfPage ; a++) {
 				if (erased_sectors >= from + (FLASH_PAGE_SIZE * a)) continue; // Skip sectors already erased
 				if (FLASH_ErasePage(from + (FLASH_PAGE_SIZE * a))!= FLASH_COMPLETE) {

@@ -3,7 +3,7 @@ CROSS_COMPILE = arm-none-eabi-
 CC=$(CROSS_COMPILE)gcc
 LD=$(CROSS_COMPILE)ld
 OBJCOPY = $(CROSS_COMPILE)objcopy
-CODE=src/loader.c
+CODE=src/loader.c src/clock.c
 STARTUP=src/crt0.c
 
 CFLAGS=-Wall -Iinc/ -Os -g -nostdlib -mthumb -DTHUMB -nostartfiles -fomit-frame-pointer -falign-functions=16 -ffunction-sections -fdata-sections -fno-common -flto
