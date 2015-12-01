@@ -252,7 +252,7 @@
       <core_id>0x2ba01477</core_id>
       <chip_id>0x439</chip_id>
       <flash_size_reg>0x1FFFF7CC</flash_size_reg>
-      <flash_int_reg>0x40023c00</flash_int_reg>
+      <flash_int_reg>0x40022000</flash_int_reg>
       <buffer_size>0x3800</buffer_size>
       <loader>loader_f30.bin</loader>
     </device>
@@ -261,7 +261,7 @@
       <core_id>0x2ba01477</core_id>
       <chip_id>0x422</chip_id>
       <flash_size_reg>0x1FFFF7CC</flash_size_reg>
-      <flash_int_reg>0x40023c00</flash_int_reg>
+      <flash_int_reg>0x40022000</flash_int_reg>
       <buffer_size>0x8000</buffer_size>
       <loader>loader_f30.bin</loader>
     </device>
@@ -270,7 +270,7 @@
       <core_id>0x2ba01477</core_id>
       <chip_id>0x438</chip_id>
       <flash_size_reg>0x1FFFF7CC</flash_size_reg>
-      <flash_int_reg>0x40023c00</flash_int_reg>
+      <flash_int_reg>0x40022000</flash_int_reg>
       <buffer_size>0x3800</buffer_size>
       <loader>loader_f30.bin</loader>
     </device>
@@ -279,7 +279,7 @@
       <core_id>0x2ba01477</core_id>
       <chip_id>0x446</chip_id>
       <flash_size_reg>0x1FFFF7CC</flash_size_reg>
-      <flash_int_reg>0x40023c00</flash_int_reg>
+      <flash_int_reg>0x40022000</flash_int_reg>
       <buffer_size>0x8000</buffer_size>
       <loader>loader_f30.bin</loader>
     </device>
@@ -288,7 +288,7 @@
       <core_id>0x2ba01477</core_id>
       <chip_id>0x432</chip_id>
       <flash_size_reg>0x1FFFF7CC</flash_size_reg>
-      <flash_int_reg>0x40023c00</flash_int_reg>
+      <flash_int_reg>0x40022000</flash_int_reg>
       <buffer_size>0x6000</buffer_size>
       <loader>loader_f37.bin</loader>
     </device>

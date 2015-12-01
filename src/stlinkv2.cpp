@@ -51,7 +51,7 @@ stlinkv2::stlinkv2(QObject *parent) :
 
     mUsbDevice->setConfig(cfg);
     mUsbDevice->setFilter(f1);
-    mUsbDevice->setDebug(true);
+    mUsbDevice->setDebug(false);
     mUsbDevice->setTimeout(USB_TIMEOUT_MSEC);
 
     QObject::connect(mUsbMgr, SIGNAL(deviceInserted(QtUsb::FilterList)), this, SLOT(scanNewDevices(QtUsb::FilterList)));
@@ -286,8 +286,10 @@ bool stlinkv2::eraseFlash()
     PrintFuncName();
     QByteArray buf;
     // We set the mass erase flag
-    if (!this->setMassErase(true))
+    if (!this->setMassErase(true)) {
+        qWarning("Failed to set mass erase bit");
         return false;
+    }
 
     // We set the STRT flag in order to start the mass erase
     qInfo("Erasing flash... This might take some time.");

@@ -187,7 +187,7 @@ int main(int argc, char *argv[])
             return 0;
             }
         else if (erase) {
-            qInfo() << "Only erasing flash";
+            qInfo("Only erasing flash");
             if (!w->connect())
                 return 1;
             w->eraseFlash();
