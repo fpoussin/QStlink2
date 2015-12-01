@@ -35,7 +35,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
         this->log(QString::number(mDevices->getDevicesCount())+" Device descriptions loaded.");
         QObject::connect(mUi->b_quit,SIGNAL(clicked()),this,SLOT(quit()));
-        QObject::connect(mUi->b_qt,SIGNAL(clicked()),qApp,SLOT(aboutQt()));
         QObject::connect(mUi->b_connect, SIGNAL(clicked()), this, SLOT(connect()));
         QObject::connect(mUi->b_disconnect, SIGNAL(clicked()), this, SLOT(disconnect()));
         QObject::connect(mUi->b_send, SIGNAL(clicked()), this, SLOT(send()));

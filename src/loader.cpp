@@ -5,8 +5,6 @@ LoaderData::LoaderData(QObject *parent) :
 {
 
 
-
-
 }
 
 bool LoaderData::loadBin(const QString &path) {

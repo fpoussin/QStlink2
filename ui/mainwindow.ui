@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>695</width>
+    <width>711</width>
     <height>505</height>
    </rect>
   </property>
@@ -86,6 +86,12 @@
           <property name="enabled">
            <bool>true</bool>
           </property>
+          <property name="minimumSize">
+           <size>
+            <width>70</width>
+            <height>0</height>
+           </size>
+          </property>
           <property name="toolTip">
            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Repeat last action&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
@@ -130,17 +136,6 @@
           <property name="icon">
            <iconset resource="../res/ressources.qrc">
             <normaloff>:/images/icon-questionmark.png</normaloff>:/images/icon-questionmark.png</iconset>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="b_qt">
-          <property name="text">
-           <string/>
-          </property>
-          <property name="icon">
-           <iconset resource="../res/ressources.qrc">
-            <normaloff>:/images/Qt-logo.png</normaloff>:/images/Qt-logo.png</iconset>
           </property>
          </widget>
         </item>
@@ -529,7 +524,7 @@
       <item>
        <widget class="QRadioButton" name="r_jtag">
         <property name="text">
-         <string>JTAG</string>
+         <string>&amp;JTAG</string>
         </property>
        </widget>
       </item>
