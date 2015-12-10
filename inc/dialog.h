@@ -26,16 +26,41 @@ namespace Ui {
     class Dialog;
 }
 
+/**
+ * @brief
+ *
+ */
 class Dialog : public QDialog
 {
     Q_OBJECT
 
 public:
+    /**
+     * @brief
+     *
+     * @param parent
+     */
     explicit Dialog(QWidget *parent = 0);
+    /**
+     * @brief
+     *
+     */
     ~Dialog();
+    /**
+     * @brief
+     *
+     * @param title
+     * @param text
+     */
     void setText(const QString &title, const QString &text);
+    /**
+     * @brief
+     *
+     * @param title
+     * @param html
+     */
     void setHTML(const QString &title, const QString &html);
-    Ui::Dialog *mUi;
+    Ui::Dialog *mUi; /**< TODO: describe */
 };
 
 #endif // DIALOG_H

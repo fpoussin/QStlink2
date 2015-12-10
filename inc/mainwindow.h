@@ -34,10 +34,18 @@ namespace Ui {
     class MainWindow;
 }
 
+/**
+ * @brief
+ *
+ */
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
+    /**
+     * @brief
+     *
+     */
     enum {
         ACTION_NONE = 0,
         ACTION_SEND = 1,
@@ -46,50 +54,187 @@ class MainWindow : public QMainWindow
     };
 
 public:
+    /**
+     * @brief
+     *
+     * @param parent
+     */
     explicit MainWindow(QWidget *parent = 0);
+    /**
+     * @brief
+     *
+     */
     ~MainWindow();
-    transferThread *mTfThread;
+    transferThread *mTfThread; /**< TODO: describe */
 
 public slots:
+    /**
+     * @brief
+     *
+     * @return bool
+     */
     bool connect();
+    /**
+     * @brief
+     *
+     */
     void disconnect();
+    /**
+     * @brief
+     *
+     * @param p
+     */
     void updateProgress(quint32 p);
+    /**
+     * @brief
+     *
+     * @param s
+     */
     void updateStatus(const QString &s);
+    /**
+     * @brief
+     *
+     * @param s
+     */
     void updateLoaderStatus(const QString &s);
+    /**
+     * @brief
+     *
+     * @param p
+     */
     void updateLoaderPct(quint32 p);
+    /**
+     * @brief
+     *
+     * @param path
+     */
     void send(const QString &path);
+    /**
+     * @brief
+     *
+     * @param path
+     */
     void receive(const QString &path);
+    /**
+     * @brief
+     *
+     * @param path
+     */
     void verify(const QString &path);
+    /**
+     * @brief
+     *
+     */
     void eraseFlash();
+    /**
+     * @brief
+     *
+     */
     void showHelp();
+    /**
+     * @brief
+     *
+     * @param event
+     */
     void closeEvent(QCloseEvent *event);
 
 private:
-    Ui::MainWindow *mUi;
-    Dialog mDialog;
-    stlinkv2 *mStlink;
-    DeviceInfoList *mDevices;
-    QString mFilename;
-    QString mUsername;
-    quint32 mLastAction;
+    Ui::MainWindow *mUi; /**< TODO: describe */
+    Dialog mDialog; /**< TODO: describe */
+    stlinkv2 *mStlink; /**< TODO: describe */
+    DeviceInfoList *mDevices; /**< TODO: describe */
+    QString mFilename; /**< TODO: describe */
+    QString mUsername; /**< TODO: describe */
+    quint32 mLastAction; /**< TODO: describe */
 
 private slots:
+    /**
+     * @brief
+     *
+     * @param enabled
+     */
     void lockUI(bool enabled);
+    /**
+     * @brief
+     *
+     * @param s
+     */
     void log(const QString &s);
+    /**
+     * @brief
+     *
+     */
     void getVersion();
+    /**
+     * @brief
+     *
+     */
     void getMode();
+    /**
+     * @brief
+     *
+     * @return bool
+     */
     bool getMCU();
+    /**
+     * @brief
+     *
+     */
     void getStatus();
+    /**
+     * @brief
+     *
+     */
     void send();
+    /**
+     * @brief
+     *
+     */
     void receive();
+    /**
+     * @brief
+     *
+     */
     void verify();
+    /**
+     * @brief
+     *
+     */
     void repeat();
+    /**
+     * @brief
+     *
+     */
     void resetMCU();
+    /**
+     * @brief
+     *
+     */
     void hardReset();
+    /**
+     * @brief
+     *
+     */
     void runMCU();
+    /**
+     * @brief
+     *
+     */
     void haltMCU();
+    /**
+     * @brief
+     *
+     */
     void setModeJTAG();
+    /**
+     * @brief
+     *
+     */
     void setModeSWD();
+    /**
+     * @brief
+     *
+     */
     void quit();
 
 };

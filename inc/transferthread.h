@@ -23,38 +23,108 @@ This file is part of QSTLink2.
 #include <stlinkv2.h>
 #include <compat.h>
 
+/**
+ * @brief
+ *
+ */
 class transferThread : public QThread
 {
     Q_OBJECT
 public:
+    /**
+     * @brief
+     *
+     * @param parent
+     */
     explicit transferThread(QObject *parent = 0);
+    /**
+     * @brief
+     *
+     */
     void run();
+    /**
+     * @brief
+     *
+     * @param mStlink
+     * @param filename
+     * @param write
+     * @param verify
+     */
     void setParams(stlinkv2 *mStlink, QString filename, bool write, bool verify);
 
 signals:
+    /**
+     * @brief
+     *
+     * @param p
+     */
     void sendProgress(quint32 p);
+    /**
+     * @brief
+     *
+     * @param s
+     */
     void sendStatus(const QString &s);
+    /**
+     * @brief
+     *
+     * @param s
+     */
     void sendLoaderStatus(const QString &s);
+    /**
+     * @brief
+     *
+     * @param s
+     */
     void sendError(const QString &s);
+    /**
+     * @brief
+     *
+     * @param enabled
+     */
     void sendLock(bool enabled);
+    /**
+     * @brief
+     *
+     * @param s
+     */
     void sendLog(const QString &s);
 
 public slots:
+    /**
+     * @brief
+     *
+     */
     void halt();
 
 private slots:
 
 private:
+    /**
+     * @brief
+     *
+     * @param filename
+     */
     void sendWithLoader(const QString &filename);
+    /**
+     * @brief
+     *
+     * @param filename
+     */
     void receive(const QString &filename);
+    /**
+     * @brief
+     *
+     * @param filename
+     */
     void verify(const QString &filename);
 
-    QString mFilename;
-    bool mWrite;
-    stlinkv2 *mStlink;
-    bool mStop;
-    bool mErase;
-    bool mVerify;
+    QString mFilename; /**< TODO: describe */
+    bool mWrite; /**< TODO: describe */
+    stlinkv2 *mStlink; /**< TODO: describe */
+    bool mStop; /**< TODO: describe */
+    bool mErase; /**< TODO: describe */
+    bool mVerify; /**< TODO: describe */
 };
 
 #endif // TRANSFERTHREAD_H
