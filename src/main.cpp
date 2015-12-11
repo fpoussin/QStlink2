@@ -89,7 +89,7 @@ void showHelp()
     QString help = help_file.readAll();
     help_file.close();
     qInfo() << help.remove(QRegExp("(<[^>]+>)|\t\b")); // Clearing HTML tags.
-    qInfo() << "Version:" << __QSTL_VER__;
+    qInfo("Version: %s", __QSTL_VER__);
 }
 
 bool checkParam(QString str, char s, QString l)
@@ -140,7 +140,7 @@ int main(int argc, char *argv[])
 
     if (!show) {
         if ((!erase) && (args.size() <= 2) && args.last().contains(args_regex)) {
-            qCritical() << "Invalid options";
+            qCritical("Invalid options");
             showHelp();
             return 1;
         }
@@ -152,7 +152,7 @@ int main(int argc, char *argv[])
         if (!args.last().contains(args_regex))
             path = args.last(); // Path is always the last argument.
     }
-    qDebug() << "Verbose level:" << verbose_level;
+    qDebug("Verbose level: %u", verbose_level);
     qInstallMessageHandler(myMessageOutput);
     MainWindow *w = new MainWindow;
     if (show) {
