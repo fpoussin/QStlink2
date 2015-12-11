@@ -153,6 +153,7 @@ int main(int argc, char *argv[])
             path = args.last(); // Path is always the last argument.
     }
     qDebug("Verbose level: %u", verbose_level);
+    qDebug("Version: %s", __QSTL_VER__);
     qInstallMessageHandler(myMessageOutput);
     MainWindow *w = new MainWindow;
     if (show) {
