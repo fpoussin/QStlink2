@@ -1,6 +1,8 @@
 **QSTLink2**
 ========
 
+[![GitHub version](https://badge.fury.io/gh/fpoussin%2Fqstlink2.svg)](https://badge.fury.io/gh/fpoussin%2Fqstlink2)
+
 **Description**  
 
 QSTLink2 is a cross-platform STLinkV2 GUI.
