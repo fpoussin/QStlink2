@@ -26,7 +26,7 @@ win32:CONFIG += winusb
 
 TEMPLATE = app
 TARGET = qstlink2
-VERSION = 1.2.1
+VERSION = 1.2.2
 
 message(Building version $$VERSION for Qt $$QT_VERSION)
 

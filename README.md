@@ -18,7 +18,6 @@ It can perform the following actions:
 **Downloads**
 
 Windows binaries:  
- - https://drive.google.com/folderview?id=0BzWyTGWIwcYQS0JRQkw2Q3J6R1U&usp=sharing 
  - https://github.com/fpoussin/QStlink2/releases  
 
 Ubuntu PPA: 

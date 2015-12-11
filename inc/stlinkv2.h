@@ -143,6 +143,7 @@ namespace STM32 {
 namespace Cortex {
     namespace CoreID {
         const quint32 M0_R0 = 0x0BB11477; /**< TODO: describe */
+        const quint32 M0_R1 = 0x0BC11477; /**< TODO: describe */
         const quint32 M3_R1 = 0x1BA00477; /**< TODO: describe */
         const quint32 M3_R2 = 0x4BA00477; /**< TODO: describe */
         const quint32 M4_R0 = 0x2BA01477; /**< TODO: describe */

@@ -164,7 +164,7 @@ quint32 stlinkv2::getCoreID()
     QByteArray buf;
     this->debugCommand(&buf, STLink::Cmd::Dbg::ReadCoreID, 0, 4);
     mCoreId = qFromLittleEndian<quint32>((uchar*)buf.constData());
-    qInfo() << "CoreID:" << QString::number(mCoreId, 16);
+    qInfo("CoreID: %03X", mCoreId);
     return mCoreId;
 }
 
@@ -179,6 +179,10 @@ quint32 stlinkv2::getChipID()
     if (mCoreId == Cortex::CoreID::M0_R0) {
         this->readMem32(&buf, Cortex::Reg::CM0_CHIPID);
         qInfo("CM0 Searching at %08X", Cortex::Reg::CM0_CHIPID);
+    }
+    else if (mCoreId == Cortex::CoreID::M0_R1) {
+        this->readMem32(&buf, Cortex::Reg::CM0_CHIPID);
+        qInfo("CM0+ Searching at %08X", Cortex::Reg::CM0_CHIPID);
     }
     else {
         this->readMem32(&buf, Cortex::Reg::CM3_CHIPID);
