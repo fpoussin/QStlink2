@@ -26,7 +26,7 @@ win32:CONFIG += winusb
 
 TEMPLATE = app
 TARGET = qstlink2
-VERSION = 1.2.2
+VERSION = 1.2.3
 
 message(Building version $$VERSION for Qt $$QT_VERSION)
 
@@ -75,7 +75,7 @@ target.path = /usr/bin
 INSTALLS += target
 
 conf.path = /etc/udev/rules.d
-conf.files = 49-stlinkv2.rules
+conf.files = res/49-stlinkv2.rules
 INSTALLS += conf
 
 misc.path = /usr/share/qstlink2
