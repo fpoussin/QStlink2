@@ -367,6 +367,20 @@
       <buffer_size>0x8000</buffer_size>
     </device>
 
+    <device type="STM32F469/479" regtype="STM32F4" coretype="CM4F">
+      <core_id>0x2ba01477</core_id>
+      <chip_id>0x434</chip_id>
+      <flash_size_reg>0x1FFF7A22</flash_size_reg>
+      <flash_int_reg>0x40023c00</flash_int_reg>
+      <loader>loader_f4.bin</loader>
+      <SR_BSY>0x10</SR_BSY>
+      <CR_STRT>0x10</CR_STRT>
+      <CR_LOCK>0x1F</CR_LOCK>
+      <CR_SER>0x1</CR_SER>
+      <CR_PGSIZE>0x8</CR_PGSIZE>
+      <buffer_size>0x8000</buffer_size>
+    </device>
+
     <device type="STM32F7xx" regtype="STM32F4" coretype="CM7">
       <core_id>0x2ba01477</core_id>
       <chip_id>0x449</chip_id>
