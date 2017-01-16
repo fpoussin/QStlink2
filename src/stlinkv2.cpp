@@ -278,6 +278,13 @@ void stlinkv2::runMCU()
     this->debugCommand(&buf, STLink::Cmd::Dbg::RunCore, 0, 2);
 }
 
+void stlinkv2::stepMCU()
+{
+    PrintFuncName();
+    QByteArray buf;
+    this->debugCommand(&buf, STLink::Cmd::Dbg::StepCore, 0, 2);
+}
+
 void stlinkv2::haltMCU()
 {
     PrintFuncName();

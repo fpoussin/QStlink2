@@ -106,6 +106,15 @@ void transferThread::sendWithLoader(const QString &filename)
         if (mStop || loader_file.atEnd())
             break;
 
+        quint32 bkp2 = mStlink->readRegister(15);
+        if (bkp1 != bkp2)
+        {
+            qCritical("PC is not at the correct address: %08x", bkp2);
+            emit sendLog("PC register at the wrong address, aborting!");
+            break;
+        }
+        qDebug("+ Current PC reg at %08x", 2);
+
         memset(buf2, 0, step_size);
         if ((read = loader_file.read(buf2, step_size)) <= 0)
             break;
@@ -124,6 +133,7 @@ void transferThread::sendWithLoader(const QString &filename)
         mStlink->runMCU();
 
         emit sendLoaderStatus("Writing");
+
         while (mStlink->getStatus() == STLink::Status::CORE_RUNNING) { // Wait for the breakpoint
 
                 loader_pos = mStlink->getLoaderPos()-from;

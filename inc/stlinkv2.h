@@ -65,26 +65,26 @@ namespace STLink {
             const quint8 GetCurrentMode = 0xF5; /**< TODO: describe */
             const quint8 Reset = 0xF7; /**< TODO: describe */
         namespace Dbg {
-                const quint8 ReadMem32bit = 0x07; /**< TODO: describe */
-                const quint8 WriteMem32bit = 0x08; /**< TODO: describe */
-                const quint8 WriteMem8bit = 0x0d; /**< TODO: describe */
-                const quint8 EnterMode = 0x20; /**< TODO: describe */
-                const quint8 EnterSWD = 0xA3; /**< TODO: describe */
                 const quint8 EnterJTAG = 0x00; /**< TODO: describe */
-                const quint8 Exit = 0x21; /**< TODO: describe */
-                const quint8 ReadCoreID = 0x22; /**< TODO: describe */
                 const quint8 GetStatus = 0x01; /**< TODO: describe */
                 const quint8 ForceDebug = 0x02; /**< TODO: describe */
                 const quint8 ResetSys = 0x03; /**< TODO: describe */
                 const quint8 ReadAllRegs = 0x04; /**< TODO: describe */
                 const quint8 ReadReg = 0x05; /**< TODO: describe */
                 const quint8 WriteReg = 0x06; /**< TODO: describe */
+                const quint8 ReadMem32bit = 0x07; /**< TODO: describe */
+                const quint8 WriteMem32bit = 0x08; /**< TODO: describe */
                 const quint8 RunCore = 0x09; /**< TODO: describe */
                 const quint8 StepCore = 0x0A; /**< TODO: describe */
-                const quint8 WriteRegPC = 0x34; /**< TODO: describe */
-                const quint8 HardReset = 0x3C; /**< Unsure */
-                const quint8 ReadCoreRegs = 0x3A; /**< All registers fetched at once */
                 const quint8 SetFP = 0x0B; /**< TODO: describe */
+                const quint8 WriteMem8bit = 0x0d; /**< TODO: describe */
+                const quint8 EnterMode = 0x20; /**< TODO: describe */
+                const quint8 Exit = 0x21; /**< TODO: describe */
+                const quint8 ReadCoreID = 0x22; /**< TODO: describe */
+                const quint8 WriteRegPC = 0x34; /**< TODO: describe */
+                const quint8 ReadCoreRegs = 0x3A; /**< All registers fetched at once */
+                const quint8 HardReset = 0x3C; /**< Unsure */
+                const quint8 EnterSWD = 0xA3; /**< TODO: describe */
         }
     }
 }
@@ -272,6 +272,11 @@ public slots:
      *
      */
     void runMCU();
+    /**
+     * @brief
+     *
+     */
+    void stepMCU();
     /**
      * @brief
      *
