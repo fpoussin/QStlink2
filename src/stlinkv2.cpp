@@ -158,8 +158,27 @@ quint8 stlinkv2::getStatus()
 {
     PrintFuncName();
     QByteArray buf;
-    this->debugCommand(&buf, STLink::Cmd::Dbg::GetStatus, 0, 2);
-    return buf.at(0);
+    if (mVersion.api == 1)
+    {
+      this->debugCommand(&buf, STLink::Cmd::Dbg::GetStatus, 0, 2);
+      return buf.at(0);
+    }
+    else
+    {
+       quint32 st;
+       st = this->readDbgRegister(Cortex::Reg::DCB_DCRSR);
+
+       if (st & Cortex::Status::HALT)
+         return STLink::Status::HALTED;
+
+       if (st & Cortex::Status::RESET)
+         return STLink::Status::HALTED;
+
+       if (st == 0)
+         return STLink::Status::UNKNOWN_STATE;
+
+       return STLink::Status::RUNNING;
+    }
 }
 
 quint32 stlinkv2::getCoreID()
