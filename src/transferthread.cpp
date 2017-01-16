@@ -84,7 +84,7 @@ void transferThread::sendWithLoader(const QString &filename)
 
     mStlink->runMCU(); // The loader will stop at the beginning of the loop
 
-    while (mStlink->getStatus() == STLink::Status::CORE_RUNNING) { // Wait for the breakpoint
+    while (mStlink->getStatus() == STLink::Status::RUNNING) { // Wait for the breakpoint
             QThread::msleep(100);
             if (mStop) break;
     }
@@ -134,7 +134,7 @@ void transferThread::sendWithLoader(const QString &filename)
 
         emit sendLoaderStatus("Writing");
 
-        while (mStlink->getStatus() == STLink::Status::CORE_RUNNING) { // Wait for the breakpoint
+        while (mStlink->getStatus() == STLink::Status::RUNNING) { // Wait for the breakpoint
 
                 loader_pos = mStlink->getLoaderPos()-from;
                 qDebug("Loader position: 0x%x", loader_pos+from);

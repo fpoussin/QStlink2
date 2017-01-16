@@ -43,118 +43,146 @@ const QString USB_STLINK_GUID("DBCE1CD9-A320-4b51-A365-A0C3F3C5FB29"); /**< USB 
 const QString USB_NUCLEO_GUID("8326506F-7260-4854-9C03-26E416F04494"); /**< USB Guid for nucleo */
 
 namespace STLink {
-    namespace Status {
-             const quint8 OK = 0x80; /**< OK return value */
-             const quint8 NOK = 0x81; /**< NOK return value */
-             const quint8 CORE_RUNNING = 0x80; /**< Core Running value */
-             const quint8 CORE_HALTED = 0x81; /**< Core Halted value */
-             const quint8 CORE_UNKNOWN_STATE = 2; /**< Not reported, internal use. */
+  namespace Status {
+    const quint8 OK = 0x80; /**< OK return value */
+    const quint8 NOK = 0x81; /**< NOK return value */
+    const quint8 RUNNING = 0x80; /**< Core Running value */
+    const quint8 HALTED = 0x81; /**< Core Halted value */
+    const quint8 UNKNOWN_STATE = 2; /**< Not reported, internal use. */
+  }
+  namespace Mode {
+    const quint8 DFU = 0x00;
+    const quint8 MASS = 0x01;
+    const quint8 DEBUG = 0x02; /**< TODO: describe */
+    const quint8 UNKNOWN = -1; /**< TODO: describe */
+  }
+  namespace Cmd {
+    const quint8 GetVersion = 0xF1; /**< TODO: describe */
+    const quint8 DebugCommand = 0xF2; /**< TODO: describe */
+    const quint8 DFUCommand = 0xF3; /**< TODO: describe */
+    const quint8 DFUExit = 0x07; /**< TODO: describe */
+    const quint8 DFUGetVersion = 0x08; /**< TODO: describe */
+    const quint8 GetCurrentMode = 0xF5; /**< TODO: describe */
+    const quint8 Reset = 0xF7; /**< TODO: describe */
+
+    namespace Dbg {
+      const quint8 EnterJTAG = 0x00; /**< TODO: describe */
+      const quint8 GetStatus = 0x01; /**< TODO: describe */
+      const quint8 ForceDebug = 0x02; /**< TODO: describe */
+      const quint8 ResetSys = 0x03; /**< TODO: describe */
+      const quint8 ReadAllRegs = 0x04; /**< TODO: describe */
+      const quint8 ReadReg = 0x05; /**< TODO: describe */
+      const quint8 WriteReg = 0x06; /**< TODO: describe */
+      const quint8 ReadMem32bit = 0x07; /**< TODO: describe */
+      const quint8 WriteMem32bit = 0x08; /**< TODO: describe */
+      const quint8 RunCore = 0x09; /**< TODO: describe */
+      const quint8 StepCore = 0x0A; /**< TODO: describe */
+      const quint8 SetFP = 0x0B; /**< TODO: describe */
+      const quint8 ReadMem8bit = 0x0c; /**< TODO: describe */
+      const quint8 WriteMem8bit = 0x0d; /**< TODO: describe */
+      const quint8 Enter = 0x20; /**< TODO: describe */
+      const quint8 Exit = 0x21; /**< TODO: describe */
+      const quint8 ReadCoreID = 0x22; /**< TODO: describe */
+      const quint8 EnterSWD = 0xA3; /**< TODO: describe */
     }
-    namespace Mode {
-            const quint8 DFU = 0x00;
-            const quint8 MASS = 0x01;
-            const quint8 DEBUG = 0x02; /**< TODO: describe */
-            const quint8 UNKNOWN = -1; /**< TODO: describe */
+
+    namespace DbgV2 {
+      const quint8 Enter = 0x30; /**< TODO: describe */
+      const quint8 ReadIDCode = 0x31; /**< TODO: describe */
+      const quint8 ResetSys = 0x32; /**< TODO: describe */
+      const quint8 ReadReg = 0x33; /**< TODO: describe */
+      const quint8 WriteReg = 0x34; /**< TODO: describe */
+      const quint8 WriteDbgReg = 0x35; /**< TODO: describe */
+      const quint8 ReadDbgReg = 0x36; /**< TODO: describe */
+      const quint8 ReadAllRegs = 0x3A; /**< All registers fetched at once */
+      const quint8 HardReset = 0x3C; /**< NRST pull down */
     }
-    namespace Cmd {
-            const quint8 GetVersion = 0xF1; /**< TODO: describe */
-            const quint8 DebugCommand = 0xF2; /**< TODO: describe */
-            const quint8 DFUCommand = 0xF3; /**< TODO: describe */
-            const quint8 DFUExit = 0x07; /**< TODO: describe */
-            const quint8 DFUGetVersion = 0x08; /**< TODO: describe */
-            const quint8 GetCurrentMode = 0xF5; /**< TODO: describe */
-            const quint8 Reset = 0xF7; /**< TODO: describe */
-        namespace Dbg {
-                const quint8 EnterJTAG = 0x00; /**< TODO: describe */
-                const quint8 GetStatus = 0x01; /**< TODO: describe */
-                const quint8 ForceDebug = 0x02; /**< TODO: describe */
-                const quint8 ResetSys = 0x03; /**< TODO: describe */
-                const quint8 ReadAllRegs = 0x04; /**< TODO: describe */
-                const quint8 ReadReg = 0x05; /**< TODO: describe */
-                const quint8 WriteReg = 0x06; /**< TODO: describe */
-                const quint8 ReadMem32bit = 0x07; /**< TODO: describe */
-                const quint8 WriteMem32bit = 0x08; /**< TODO: describe */
-                const quint8 RunCore = 0x09; /**< TODO: describe */
-                const quint8 StepCore = 0x0A; /**< TODO: describe */
-                const quint8 SetFP = 0x0B; /**< TODO: describe */
-                const quint8 WriteMem8bit = 0x0d; /**< TODO: describe */
-                const quint8 EnterMode = 0x20; /**< TODO: describe */
-                const quint8 Exit = 0x21; /**< TODO: describe */
-                const quint8 ReadCoreID = 0x22; /**< TODO: describe */
-                const quint8 WriteRegPC = 0x34; /**< TODO: describe */
-                const quint8 ReadCoreRegs = 0x3A; /**< All registers fetched at once */
-                const quint8 HardReset = 0x3C; /**< Unsure */
-                const quint8 EnterSWD = 0xA3; /**< TODO: describe */
-        }
-    }
+  }
 }
 
 namespace STM32 {
-    namespace ChipID {
-        // stm32 chipids, only lower 12 bits...
-        const quint32 F1_MEDIUM = 0x410; /**< TODO: describe */
-        const quint32 F2 = 0x411; /**< TODO: describe */
-        const quint32 F1_LOW = 0x412; /**< TODO: describe */
-        const quint32 F4 = 0x413; /**< TODO: describe */
-        const quint32 F1_HIGH = 0x414; /**< TODO: describe */
-        const quint32 L1_MEDIUM = 0x416; /**< TODO: describe */
-        const quint32 F1_CONN = 0x418; /**< TODO: describe */
-        const quint32 F4_HD = 0x419; /**< TODO: describe */
-        const quint32 F1_VL_MEDIUM = 0x420; /**< TODO: describe */
-        const quint32 F1_VL_HIGH = 0x428; /**< TODO: describe */
-        const quint32 F1_XL = 0x430; /**< TODO: describe */
-    }
-    namespace Flash {
-        const quint32 RDPTR_KEY = 0x00a5; /**< TODO: describe */
-        const quint32 KEY1 = 0x45670123; /**< TODO: describe */
-        const quint32 KEY2 = 0xcdef89ab; /**< TODO: describe */
-        const quint32 OPTKEY1 = 0x08192A3B; /**< TODO: describe */
-        const quint32 OPTKEY2 = 0x4C5D6E7F; /**< TODO: describe */
+  namespace ChipID {
+    // stm32 chipids, only lower 12 bits...
+    const quint32 F1_MEDIUM = 0x410; /**< TODO: describe */
+    const quint32 F2 = 0x411; /**< TODO: describe */
+    const quint32 F1_LOW = 0x412; /**< TODO: describe */
+    const quint32 F4 = 0x413; /**< TODO: describe */
+    const quint32 F1_HIGH = 0x414; /**< TODO: describe */
+    const quint32 L1_MEDIUM = 0x416; /**< TODO: describe */
+    const quint32 F1_CONN = 0x418; /**< TODO: describe */
+    const quint32 F4_HD = 0x419; /**< TODO: describe */
+    const quint32 F1_VL_MEDIUM = 0x420; /**< TODO: describe */
+    const quint32 F1_VL_HIGH = 0x428; /**< TODO: describe */
+    const quint32 F1_XL = 0x430; /**< TODO: describe */
+  }
+  namespace Flash {
+    const quint32 RDPTR_KEY = 0x00a5; /**< TODO: describe */
+    const quint32 KEY1 = 0x45670123; /**< TODO: describe */
+    const quint32 KEY2 = 0xcdef89ab; /**< TODO: describe */
+    const quint32 OPTKEY1 = 0x08192A3B; /**< TODO: describe */
+    const quint32 OPTKEY2 = 0x4C5D6E7F; /**< TODO: describe */
 
-        const quint8 SR_BSY = 0; /**< TODO: describe */
-        const quint8 SR_EOP = 5; /**< TODO: describe */
+    const quint8 SR_BSY = 0; /**< TODO: describe */
+    const quint8 SR_EOP = 5; /**< TODO: describe */
 
-        const quint8 CR_PG = 0; /**< TODO: describe */
-        const quint8 CR_PER = 1; /**< TODO: describe */
-        const quint8 CR_MER = 2; /**< TODO: describe */
-        const quint8 CR_STRT = 6; /**< TODO: describe */
-        const quint8 CR_LOCK = 7; /**< TODO: describe */
-        const quint8 CR_PGSIZE = 8; /**< TODO: describe */
+    const quint8 CR_PG = 0; /**< TODO: describe */
+    const quint8 CR_PER = 1; /**< TODO: describe */
+    const quint8 CR_MER = 2; /**< TODO: describe */
+    const quint8 CR_STRT = 6; /**< TODO: describe */
+    const quint8 CR_LOCK = 7; /**< TODO: describe */
+    const quint8 CR_PGSIZE = 8; /**< TODO: describe */
 
-        //STM32F4
-        const quint8 F4_CR_STRT = 16; /**< TODO: describe */
-        const quint8 F4_CR_LOCK = 31; /**< TODO: describe */
-        const quint8 F4_CR_SER = 1; /**< TODO: describe */
-        const quint8 F4_CR_SNB = 3; /**< TODO: describe */
-        const quint8 F4_CR_SNB_MASK = 0x38; /**< TODO: describe */
-        const quint8 F4_SR_BSY = 16; /**< TODO: describe */
+    //STM32F4
+    const quint8 F4_CR_STRT = 16; /**< TODO: describe */
+    const quint8 F4_CR_LOCK = 31; /**< TODO: describe */
+    const quint8 F4_CR_SER = 1; /**< TODO: describe */
+    const quint8 F4_CR_SNB = 3; /**< TODO: describe */
+    const quint8 F4_CR_SNB_MASK = 0x38; /**< TODO: describe */
+    const quint8 F4_SR_BSY = 16; /**< TODO: describe */
 
-        const quint8 ACR_OFFSET = 0x00; /**< TODO: describe */
-        const quint8 KEYR_OFFSET = 0x04; /**< TODO: describe */
-        const quint8 OPT_KEYR_OFFSET = 0x08; /**< TODO: describe */
-        const quint8 SR_OFFSET = 0x0c; /**< TODO: describe */
-        const quint8 CR_OFFSET = 0x10; /**< TODO: describe */
-        const quint8 AR_OFFSET = 0x14; /**< TODO: describe */
-        const quint8 OBR_OFFSET = 0x1c; /**< TODO: describe */
-        const quint8 WRPR_OFFSET = 0x20; /**< TODO: describe */
-    }
+    const quint8 ACR_OFFSET = 0x00; /**< TODO: describe */
+    const quint8 KEYR_OFFSET = 0x04; /**< TODO: describe */
+    const quint8 OPT_KEYR_OFFSET = 0x08; /**< TODO: describe */
+    const quint8 SR_OFFSET = 0x0c; /**< TODO: describe */
+    const quint8 CR_OFFSET = 0x10; /**< TODO: describe */
+    const quint8 AR_OFFSET = 0x14; /**< TODO: describe */
+    const quint8 OBR_OFFSET = 0x1c; /**< TODO: describe */
+    const quint8 WRPR_OFFSET = 0x20; /**< TODO: describe */
+  }
 }
 
 namespace Cortex {
-    namespace CoreID {
-        const quint32 M0_R0 = 0x0BB11477; /**< TODO: describe */
-        const quint32 M0_R1 = 0x0BC11477; /**< TODO: describe */
-        const quint32 M3_R1 = 0x1BA00477; /**< TODO: describe */
-        const quint32 M3_R2 = 0x4BA00477; /**< TODO: describe */
-        const quint32 M4_R0 = 0x2BA01477; /**< TODO: describe */
-    }
-    namespace Reg {
-        const quint32 CM3_CHIPID = 0xE0042000; /**< TODO: describe */
-        const quint32 CM0_CHIPID = 0x40015800; /**< TODO: describe */
-        const quint32 CM3_CPUID = 0xE000ED00; /**< TODO: describe */
-        const quint32 CM3_FP_CTRL = 0xE0002000; /**< TODO: describe */
-        const quint32 CM3_FP_COMP0 = 0xE0002008; /**< TODO: describe */
-    }
+  namespace Status {
+    const quint32 HALT = (1 << 17); /**< TODO: describe */
+    const quint32 SLEEP = (1 << 18); /**< TODO: describe */
+    const quint32 LOCKUP = (1 << 19); /**< TODO: describe */
+    const quint32 RESET = (1 << 25); /**< TODO: describe */
+  }
+  namespace Control {
+    const quint32 DBGKEY = (0xA05F << 16); /**< TODO: describe */
+    const quint32 DEBUGEN = (1 << 0); /**< TODO: describe */
+    const quint32 HALT = (1 << 1); /**< TODO: describe */
+    const quint32 STEP = (1 << 2); /**< TODO: describe */
+    const quint32 MASKINTS = (1 << 3); /**< TODO: describe */
+  }
+  namespace CoreID {
+    const quint32 M0_R0 = 0x0BB11477; /**< TODO: describe */
+    const quint32 M0_R1 = 0x0BC11477; /**< TODO: describe */
+    const quint32 M3_R1 = 0x1BA00477; /**< TODO: describe */
+    const quint32 M3_R2 = 0x4BA00477; /**< TODO: describe */
+    const quint32 M4_R0 = 0x2BA01477; /**< TODO: describe */
+  }
+  namespace Reg {
+    const quint32 CM3_CHIPID = 0xE0042000; /**< TODO: describe */
+    const quint32 CM0_CHIPID = 0x40015800; /**< TODO: describe */
+    const quint32 CM3_CPUID = 0xE000ED00; /**< TODO: describe */
+    const quint32 CM3_FP_CTRL = 0xE0002000; /**< TODO: describe */
+    const quint32 CM3_FP_COMP0 = 0xE0002008; /**< TODO: describe */
+    const quint32 DCB_DHCSR = 0xE000EDF0; /**< TODO: describe */
+    const quint32 DCB_DCRSR = 0xE000EDF4; /**< TODO: describe */
+    const quint32 DCB_DCRDR = 0xE000EDF8; /**< TODO: describe */
+    const quint32 DCB_DEMCR = 0xE000EDFC; /**< TODO: describe */
+  }
 }
 
 /**
@@ -173,6 +201,7 @@ class stlinkv2 : public QThread
         quint32 stlink; /**< TODO: describe */
         quint32 jtag; /**< TODO: describe */
         quint32 swim; /**< TODO: describe */
+        quint8 api;
     };
 
 public:
@@ -327,10 +356,20 @@ public slots:
     /**
      * @brief
      *
-     * @param val
+     * @param buf
+     * @param addr
+     * @param len
+     * @return qint32
      */
-    void writePC(quint32 val);
-
+    quint32 readDbgRegister(quint32 addr);
+    /**
+     * @brief
+     *
+     * @param addr
+     * @param buf
+     * @return qint32
+     */
+    bool writeDbgRegister(quint32 addr, quint32 val);
     /**
      * @brief
      *

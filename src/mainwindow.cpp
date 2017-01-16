@@ -426,10 +426,10 @@ void MainWindow::getStatus()
     const quint8 status = mStlink->getStatus();
     QString status_str;
     switch (status) {
-        case STLink::Status::CORE_RUNNING:
+        case STLink::Status::RUNNING:
             status_str = "Core Running";
             break;
-        case STLink::Status::CORE_HALTED:
+        case STLink::Status::HALTED:
             status_str = "Core Halted";
             break;
         default:
