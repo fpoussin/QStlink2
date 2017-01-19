@@ -160,7 +160,7 @@ quint8 stlinkv2::getStatus()
 {
     PrintFuncName();
     QByteArray buf;
-    if (mVersion.api == 1)
+    if (mVersion.api == 1 || 1)
     {
       this->debugCommand(&buf, STLink::Cmd::Dbg::GetStatus, 0, 2);
       return buf.at(0);
@@ -168,7 +168,8 @@ quint8 stlinkv2::getStatus()
     else
     {
        quint32 st;
-       st = this->readDbgRegister(Cortex::Reg::DCB_DCRSR);
+       st = this->readDbgRegister(Cortex::Reg::DCB_DHCSR);
+       qDebug("Status: %X", st);
 
        if (st & Cortex::Status::HALT)
          return STLink::Status::HALTED;
@@ -257,7 +258,6 @@ void stlinkv2::setModeJTAG()
 {
     PrintFuncName();
     QByteArray buf;
-    this->getMode();
     this->setExitModeDFU();
     if (mVersion.api == 1)
       this->debugCommand(&buf, STLink::Cmd::Dbg::Enter, STLink::Cmd::Dbg::EnterJTAG, 0);
@@ -269,7 +269,6 @@ void stlinkv2::setModeSWD()
 {
     PrintFuncName();
     QByteArray buf;
-    this->getMode();
     this->setExitModeDFU();
     if (mVersion.api == 1)
       this->debugCommand(&buf, STLink::Cmd::Dbg::Enter, STLink::Cmd::Dbg::EnterSWD, 0);
@@ -281,7 +280,8 @@ void stlinkv2::setExitModeDFU()
 {
     PrintFuncName();
     QByteArray buf;
-    this->command(&buf, STLink::Cmd::DFUCommand, STLink::Cmd::DFUExit, 0);
+    if (this->getMode() == STLink::Mode::DFU)
+        this->command(&buf, STLink::Cmd::DFUCommand, STLink::Cmd::DFUExit, 0);
 }
 
 void stlinkv2::resetMCU()
@@ -310,7 +310,7 @@ void stlinkv2::runMCU()
     if (mVersion.api == 1)
       this->debugCommand(&buf, STLink::Cmd::Dbg::RunCore, 0, 2);
     else {
-        this->writeDbgRegister(Cortex::Reg::DCB_DCRSR, DBGKEY | DEBUGEN);
+        this->writeDbgRegister(Cortex::Reg::DCB_DHCSR, DBGKEY | DEBUGEN);
     }
 }
 
@@ -322,9 +322,9 @@ void stlinkv2::stepMCU()
     if (mVersion.api == 1)
       this->debugCommand(&buf, STLink::Cmd::Dbg::StepCore, 0, 2);
     else {
-      this->writeDbgRegister(Cortex::Reg::DCB_DCRSR, DBGKEY | HALT | MASKINTS | DEBUGEN);
-      this->writeDbgRegister(Cortex::Reg::DCB_DCRSR, DBGKEY | STEP | MASKINTS | DEBUGEN);
-      this->writeDbgRegister(Cortex::Reg::DCB_DCRSR, DBGKEY | HALT | DEBUGEN);
+      this->writeDbgRegister(Cortex::Reg::DCB_DHCSR, DBGKEY | HALT | MASKINTS | DEBUGEN);
+      this->writeDbgRegister(Cortex::Reg::DCB_DHCSR, DBGKEY | STEP | MASKINTS | DEBUGEN);
+      this->writeDbgRegister(Cortex::Reg::DCB_DHCSR, DBGKEY | HALT | DEBUGEN);
     }
 }
 
@@ -336,7 +336,7 @@ void stlinkv2::haltMCU()
     if (mVersion.api == 1)
       this->debugCommand(&buf, STLink::Cmd::Dbg::ForceDebug, 0, 2);
     else {
-      this->writeDbgRegister(Cortex::Reg::DCB_DCRSR, DBGKEY | HALT | DEBUGEN);
+      this->writeDbgRegister(Cortex::Reg::DCB_DHCSR, DBGKEY | HALT | DEBUGEN);
     }
 }
 
@@ -685,16 +685,19 @@ quint32 stlinkv2::readRegister(quint8 index)
 {
     PrintFuncName();
     QByteArray cmd, value;
+    quint8 offset = 0;
     cmd.append(STLink::Cmd::DebugCommand);
     if (mVersion.api == 1)
       cmd.append(STLink::Cmd::Dbg::ReadReg);
-    else
+    else {
       cmd.append(STLink::Cmd::DbgV2::ReadReg);
+      offset = 4;
+    }
     cmd.append(index);
     this->sendCommand(cmd);
 
-    mUsbDevice->read(&value, 4);
-    return qFromLittleEndian<quint32>((const uchar*)value.data());
+    mUsbDevice->read(&value, 4+offset);
+    return qFromLittleEndian<quint32>((const uchar*)value.data()+offset);
 }
 
 quint32 stlinkv2::readDbgRegister(quint32 addr)
@@ -719,18 +722,22 @@ quint32 stlinkv2::readDbgRegister(quint32 addr)
 bool stlinkv2::writeDbgRegister(quint32 addr, quint32 val)
 {
   PrintFuncName();
-  if (mVersion.api == 1) return false;
-
-  QByteArray cmd;
+  QByteArray cmd, value;
   cmd.append(STLink::Cmd::DebugCommand);
-  cmd.append(STLink::Cmd::DbgV2::WriteDbgReg);
+  if (mVersion.api == 1)
+    cmd.append(STLink::Cmd::Dbg::WriteDbgReg);
+  else
+    cmd.append(STLink::Cmd::DbgV2::WriteDbgReg);
   uchar _addr[4], _val[4];
   qToLittleEndian(addr, _addr);
   qToLittleEndian(val, _val);
   cmd.append((const char*)_addr, sizeof(_addr));
   cmd.append((const char*)_val, sizeof(_val));
 
-  return this->sendCommand(cmd) > 0;
+  this->sendCommand(cmd);
+  mUsbDevice->read(&value, 2);
+
+  return value.at(0) == STLink::Status::OK;
 }
 
 qint32 stlinkv2::sendCommand(const QByteArray& cmd)
@@ -774,8 +781,8 @@ bool stlinkv2::sendLoader() {
         return false;
     }
 
-//    this->writeMem32((*this->device)["sram_base"], m_loader.refData());
     this->writeRegister(mDevice->value("sram_base"), 15); // PC register to sram base.
+    qInfo("Sent loader at 0x%08X", mDevice->value("sram_base"));
 
     return true;
 }

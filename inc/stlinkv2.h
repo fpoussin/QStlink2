@@ -80,6 +80,7 @@ namespace STLink {
       const quint8 SetFP = 0x0B; /**< TODO: describe */
       const quint8 ReadMem8bit = 0x0c; /**< TODO: describe */
       const quint8 WriteMem8bit = 0x0d; /**< TODO: describe */
+      const quint8 WriteDbgReg = 0x0f; /**< TODO: describe */
       const quint8 Enter = 0x20; /**< TODO: describe */
       const quint8 Exit = 0x21; /**< TODO: describe */
       const quint8 ReadCoreID = 0x22; /**< TODO: describe */

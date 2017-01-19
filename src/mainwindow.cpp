@@ -128,11 +128,13 @@ bool MainWindow::connect()
         this->log("ST Link V2 / Nucleo found!");
         this->getVersion();
         this->getMode();
+
         mStlink->setExitModeDFU();
         if (mUi->r_jtag->isChecked())
             this->setModeJTAG();
         else
             this->setModeSWD();
+        //this->hardReset();
         this->getStatus();
         if (this->getMCU()) {
             this->lockUI(false);

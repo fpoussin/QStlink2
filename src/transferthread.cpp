@@ -64,8 +64,10 @@ void transferThread::sendWithLoader(const QString &filename)
     mStop = false;
     mStlink->hardResetMCU(); // We stop the MCU
     quint32 step_size = 2048;
-    if (mStlink->mDevice->value("buffer_size") > 0)
-        step_size = mStlink->mDevice->value("buffer_size")-2048; // Minus the loader's 2k
+    const quint32 sram_base = mStlink->mDevice->value("sram_base");
+    const quint32 buffer_size = mStlink->mDevice->value("buffer_size");
+    if (buffer_size > 0)
+        step_size = buffer_size - 2048; // Minus the loader's 2k
     const quint32 from = mStlink->mDevice->value("flash_base");
     const quint32 to = mStlink->mDevice->value("flash_base")+loader_file.size()-1;
     qInfo("Writing from %08x to %08x", from, to);
@@ -73,11 +75,13 @@ void transferThread::sendWithLoader(const QString &filename)
     char *buf2 = new char[step_size];
 
     mStlink->resetMCU();
+    mStlink->haltMCU();
     mStlink->flush();
 
     if (!mStlink->sendLoader())
     {
         emit sendLog("Failed to send loader!");
+        emit sendLock(false);
         return;
     }
     emit sendLog("Loader uploaded");
@@ -86,15 +90,23 @@ void transferThread::sendWithLoader(const QString &filename)
 
     while (mStlink->getStatus() == STLink::Status::RUNNING) { // Wait for the breakpoint
             QThread::msleep(100);
-            if (mStop) break;
+            quint32 tbkp = mStlink->readRegister(15);
+            qDebug("Waiting for breakpoint... at 0x0%08X", tbkp);
+            if (mStop) {
+                emit sendProgress(100);
+                emit sendLock(false);
+                return;
+            }
     }
 
     const quint32 bkp1 = mStlink->readRegister(15);
-    qDebug("Current PC reg at %08x", bkp1);
+    qDebug("PC reg at 0x%08X", bkp1);
 
-    if (bkp1 < mStlink->mDevice->value("sram_base") || bkp1 > mStlink->mDevice->value("sram_base")+mStlink->mDevice->value("buffer_size")) {
+    if (bkp1 < sram_base || bkp1 >  sram_base + buffer_size) {
 
-        qCritical("Current PC is not in the RAM area: %08x", mStlink->mDevice->value("sram_base"));
+        qCritical("Current PC is not in the RAM area: %08x", bkp1);
+        emit sendProgress(100);
+        emit sendLock(false);
         return;
     }
 
