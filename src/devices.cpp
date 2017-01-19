@@ -72,21 +72,21 @@ DeviceInfoList::DeviceInfoList(QObject *parent) :
                 QDomNodeList childs = e.childNodes();
                 for (int i = 0;i < childs.count();i++) {
                     QDomElement el = childs.at(i).toElement();
-                    qDebug() << e.tagName() << "->" << el.tagName();
+                    qDebug("%s -> %s",  e.tagName().toStdString().c_str(), el.tagName().toStdString().c_str());
                     mDefaultDevice->insert(el.tagName(), el.text().toUInt(&isInt, 16));
                     if (!isInt)
-                        qCritical() << el.tagName() << "Failed to parse number!";
+                        qCritical("%s: Failed to parse number!", el.tagName().toStdString().c_str());
                 }
             }
             else if (e.tagName() == "regs_default") {
                 QDomNodeList regs = e.childNodes();
                 for (int a = 0;a < regs.count(); a++) {
                     QDomElement el = regs.at(a).toElement();
-                    qDebug() << el.tagName() << "->" << el.text().toUInt(0, 16);
+                    qDebug("%s -> %X",  el.tagName().toStdString().c_str(), el.text().toUInt(0, 16));
 
                     mDefaultDevice->insert(el.tagName(), el.text().toUInt(&isInt, 16));
                     if (!isInt)
-                        qCritical() << el.tagName() << "Failed to parse number!";
+                        qCritical("%s: Failed to parse number!", el.tagName().toStdString().c_str());
                 }
             }
         }
@@ -110,10 +110,13 @@ DeviceInfoList::DeviceInfoList(QObject *parent) :
                     QDomNodeList childs = device.childNodes();
                     for (int i = 0;i < childs.count();i++) {
                         QDomElement el = childs.at(i).toElement();
-                        qDebug() << device.tagName() << "->" << device.attribute("type") << "->" << el.tagName() ;
+                        qDebug("%s -> %s -> %s",
+                               device.tagName().toStdString().c_str(),
+                               device.attribute("type").toStdString().c_str(),
+                               el.tagName().toStdString().c_str());
                         mDevices.last()->insert(el.tagName(), el.text().toUInt(&isInt, 16));
                         if (!isInt && el.tagName() != "loader")
-                            qCritical() << el.tagName() << "Failed to parse number!";
+                            qCritical("%s: Failed to parse number!", el.tagName().toStdString().c_str());
 
                         if (el.tagName() == "loader") {
                             mDevices.last()->mLoaderFile = el.text();

@@ -141,6 +141,8 @@ stlinkv2::STVersion stlinkv2::getVersion()
     if (mVersion.jtag > 10) mVersion.api = 2;
     else mVersion.api = 1;
 
+    qDebug("API version: %d", mVersion.api);
+
     return mVersion;
 }
 
@@ -187,7 +189,7 @@ quint32 stlinkv2::getCoreID()
     QByteArray buf;
     this->debugCommand(&buf, STLink::Cmd::Dbg::ReadCoreID, 0, 4);
     mCoreId = qFromLittleEndian<quint32>((uchar*)buf.constData());
-    qInfo("CoreID: %03X", mCoreId);
+    qInfo("CoreID: %08X", mCoreId);
     return mCoreId;
 }
 
@@ -195,23 +197,24 @@ quint32 stlinkv2::getChipID()
 {
     PrintFuncName();
     QByteArray buf;
+    quint32 id;
 
     if (mCoreId == 0xFFFFFFFF || mCoreId == 0x00000000)
         return 0;
 
     if (mCoreId == Cortex::CoreID::M0_R0) {
-        this->readMem32(&buf, Cortex::Reg::CM0_CHIPID);
+        id = this->readDbgRegister(Cortex::Reg::CM0_CHIPID);
         qInfo("CM0 Searching at %08X", Cortex::Reg::CM0_CHIPID);
     }
     else if (mCoreId == Cortex::CoreID::M0_R1) {
-        this->readMem32(&buf, Cortex::Reg::CM0_CHIPID);
+        id = this->readDbgRegister(Cortex::Reg::CM0_CHIPID);
         qInfo("CM0+ Searching at %08X", Cortex::Reg::CM0_CHIPID);
     }
     else {
-        this->readMem32(&buf, Cortex::Reg::CM3_CHIPID);
+        id = this->readDbgRegister(Cortex::Reg::CM3_CHIPID);
         qInfo("CM3/4 Searching at %08X", Cortex::Reg::CM3_CHIPID);
     }
-    mChipId = qFromLittleEndian<quint32>((uchar*)buf.data());
+    mChipId = id;
     mChipId &= 0xFFF;
     // CM4 rev0 fix
     if (((mChipId & 0xFFF) == STM32::ChipID::F2) && (mCoreId == Cortex::CoreID::M4_R0)) {
@@ -259,7 +262,7 @@ void stlinkv2::setModeJTAG()
     if (mVersion.api == 1)
       this->debugCommand(&buf, STLink::Cmd::Dbg::Enter, STLink::Cmd::Dbg::EnterJTAG, 0);
     else
-      this->debugCommand(&buf, STLink::Cmd::DbgV2::Enter, STLink::Cmd::Dbg::EnterJTAG, 0);
+      this->debugCommand(&buf, STLink::Cmd::DbgV2::Enter, STLink::Cmd::Dbg::EnterJTAG, 2);
 }
 
 void stlinkv2::setModeSWD()
@@ -271,7 +274,7 @@ void stlinkv2::setModeSWD()
     if (mVersion.api == 1)
       this->debugCommand(&buf, STLink::Cmd::Dbg::Enter, STLink::Cmd::Dbg::EnterSWD, 0);
     else
-      this->debugCommand(&buf, STLink::Cmd::DbgV2::Enter, STLink::Cmd::Dbg::EnterSWD, 0);
+      this->debugCommand(&buf, STLink::Cmd::DbgV2::Enter, STLink::Cmd::Dbg::EnterSWD, 2);
 }
 
 void stlinkv2::setExitModeDFU()
@@ -632,12 +635,17 @@ qint32 stlinkv2::debugCommand(QByteArray* buf, quint8 st_cmd1, quint8 st_cmd2, q
 {
     Q_CHECK_PTR(buf);
     QByteArray cmd;
-    if (mVersion.api == 1)
+    if (mVersion.api == 1) {
       cmd.append(STLink::Cmd::DebugCommand);
-    else
+      cmd.append(st_cmd1);
+      cmd.append(st_cmd2);
+    }
+    else {
       cmd.append(STLink::Cmd::DebugCommand);
-    cmd.append(st_cmd1);
-    cmd.append(st_cmd2);
+      cmd.append(st_cmd1);
+      if (st_cmd2 != 0)
+        cmd.append(st_cmd2);
+    }
 
     qint32 res = this->sendCommand(cmd);
 
@@ -704,8 +712,8 @@ quint32 stlinkv2::readDbgRegister(quint32 addr)
 
   this->sendCommand(cmd);
 
-  mUsbDevice->read(&value, 4);
-  return qFromLittleEndian<quint32>((const uchar*)value.data());
+  mUsbDevice->read(&value, 8);
+  return qFromLittleEndian<quint32>((const uchar*)value.data()+4);
 }
 
 bool stlinkv2::writeDbgRegister(quint32 addr, quint32 val)

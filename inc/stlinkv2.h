@@ -193,6 +193,7 @@ class stlinkv2 : public QThread
 {
     Q_OBJECT
 
+    public:
     /**
      * @brief
      *
@@ -203,8 +204,6 @@ class stlinkv2 : public QThread
         quint32 swim; /**< TODO: describe */
         quint8 api;
     };
-
-public:
     /**
      * @brief
      *

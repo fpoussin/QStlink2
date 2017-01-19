@@ -122,12 +122,12 @@ bool MainWindow::connect()
 #endif
         this->log("USB error: "+QString::number(ret));
         return false;
-
     }
 
     else {
         this->log("ST Link V2 / Nucleo found!");
         this->getVersion();
+        this->getMode();
         mStlink->setExitModeDFU();
         if (mUi->r_jtag->isChecked())
             this->setModeJTAG();
@@ -157,7 +157,7 @@ void MainWindow::disconnect()
 void MainWindow::log(const QString &s)
 {
     mUi->t_log->appendPlainText(s);
-    qInfo() << s;
+    qInfo(s.toStdString().c_str());
 }
 
 void MainWindow::lockUI(bool enabled)
@@ -392,7 +392,11 @@ void MainWindow::quit()
 void MainWindow::getVersion()
 {
     this->log("Fetching version...");
-    mStlink->getVersion();
+    stlinkv2::STVersion v(mStlink->getVersion());
+
+    this->mUi->le_stlver->setText(QString::number(v.stlink));
+    this->mUi->le_jtagver->setText(QString::number(v.jtag));
+    this->mUi->le_swimver->setText(QString::number(v.swim));
 }
 
 void MainWindow::getMode()
