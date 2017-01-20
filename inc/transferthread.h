@@ -117,7 +117,7 @@ private:
      *
      * @param filename
      */
-    void verify(const QString &filename);
+    void verify(const QString &filename, quint32 address = 0);
 
     QString mFilename; /**< TODO: describe */
     bool mWrite; /**< TODO: describe */

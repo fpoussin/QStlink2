@@ -160,7 +160,7 @@ quint8 stlinkv2::getStatus()
 {
     PrintFuncName();
     QByteArray buf;
-    if (mVersion.api == 1 || 1)
+    if (mVersion.api == 1)
     {
       this->debugCommand(&buf, STLink::Cmd::Dbg::GetStatus, 0, 2);
       return buf.at(0);
@@ -595,7 +595,7 @@ qint32 stlinkv2::writeMem32(quint32 addr, const QByteArray& buf)
     this->sendCommand(cmdbuf); // Send the header
 
     // The actual data we are writing is on the second command
-    return this->sendCommand(sendbuf) - remain;
+    return mUsbDevice->write(&sendbuf, sendbuf.size())  - remain;
 }
 
 qint32 stlinkv2::readMem32(QByteArray* buf, quint32 addr, quint16 len)
@@ -743,8 +743,15 @@ bool stlinkv2::writeDbgRegister(quint32 addr, quint32 val)
 qint32 stlinkv2::sendCommand(const QByteArray& cmd)
 {
     qint32 ret = 0;
+    quint8 cmd_size = 16;
+    if (mVersion.api == 1)
+        cmd_size = 10;
+    QByteArray tmp;
+    tmp.fill(0, cmd_size);
+    tmp.prepend(cmd);
+    tmp.resize(cmd_size);
 
-    ret = mUsbDevice->write(&cmd, cmd.size());
+    ret = mUsbDevice->write(&tmp, tmp.size());
     if (ret > 0) {
 
     }
@@ -758,26 +765,49 @@ bool stlinkv2::sendLoader() {
 
     mLoader.loadBin(mDevice->mLoaderFile);
 
-    QByteArray loader_data;
-    int i=0;
+    QByteArray loader_data, check_data;
+    const char *data = mLoader.refData().constData();
+    const int size = mLoader.refData().size();
+    quint32 offset, addr;
     const int step = 128;
     int sent;
-    for (; i < mLoader.refData().size()/step; i++) {
+    int i=0;
+    for (; i < size / step; i++) {
 
-        loader_data = QByteArray(mLoader.refData().constData()+(i*step), step);
-        sent = this->writeMem32(mDevice->value("sram_base")+(i*step), loader_data);
+        offset = (i * step);
+        addr =  mDevice->value("sram_base") + offset;
+        loader_data = QByteArray(data + offset, step);
+        sent = this->writeMem32(addr, loader_data);
+        this->readMem32(&check_data, addr, step);
         if (sent != step)
         {
             qCritical("Loader: Only sent %d out of %d", sent, step);
             return false;
         }
+
+        if (check_data != loader_data)
+        {
+            qCritical("Loader: Upload data corrupt at 0x%08X", addr);
+            return false;
+        }
+        check_data.clear();
     }
-    const int mod = mLoader.refData().size()%step;
-    loader_data = QByteArray(mLoader.refData().constData()+mLoader.refData().size()-mod, mod);
-    sent = this->writeMem32(mDevice->value("sram_base")+(i*step), loader_data);
+    const int mod = size % step;
+    loader_data = QByteArray((data + size) - mod, mod);
+    sent = this->writeMem32(addr, loader_data);
+    this->readMem32(&check_data, addr, sent);
     if (sent != mod)
     {
         qCritical("Loader: Only sent %d out of %d", sent, mod);
+        return false;
+    }
+
+    check_data.resize(loader_data.size());
+    if (check_data != loader_data)
+    {
+        qCritical("Loader: Upload data corrupt at 0x%08X", addr);
+        qCritical() << loader_data;
+        qCritical() << check_data;
         return false;
     }
 

@@ -141,7 +141,13 @@ void transferThread::sendWithLoader(const QString &filename)
             break;
         }
         // Step over breakpoint.
-        mStlink->writeRegister(bkp1+2, 15);
+        if (!mStlink->writeRegister(bkp1+2, 15))
+        {
+            emit sendLog("Failed to set PC register");
+            emit sendProgress(100);
+            emit sendLock(false);
+            return;
+        }
         mStlink->runMCU();
 
         emit sendLoaderStatus("Writing");
@@ -238,7 +244,7 @@ void transferThread::receive(const QString &filename)
     emit sendLock(false);
 }
 
-void transferThread::verify(const QString &filename)
+void transferThread::verify(const QString &filename, quint32 address)
 {
     QFile file(filename);
     QString tmp_str;
@@ -251,8 +257,13 @@ void transferThread::verify(const QString &filename)
     mStop = false;
     mStlink->hardResetMCU(); // We stop the MCU
     quint32 buf_size = 2048;
-    quint32 from =  mStlink->mDevice->value("flash_base");
-    quint32 to =  mStlink->mDevice->value("flash_base")+file.size();
+    quint32 base;
+    if (address > 0)
+        base = address;
+    else
+        base = mStlink->mDevice->value("flash_base");
+    quint32 from = base;
+    quint32 to =  base + file.size();
     qInfo("Reading from %08x to %08x", from, to);
     quint32 addr, progress, oldprogress;
 
@@ -264,7 +275,7 @@ void transferThread::verify(const QString &filename)
             break;
 
         file_buffer = file.read(buf_size);
-        addr =  mStlink->mDevice->value("flash_base")+i;
+        addr =  base+i;
         usb_buffer.clear();
         if (mStlink->readMem32(&usb_buffer, addr, file_buffer.size()) < 0) // Read same amount of data as from file.
             break;

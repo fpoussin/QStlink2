@@ -52,7 +52,8 @@ HEADERS  += inc/mainwindow.h \
     inc/dialog.h \
     inc/transferthread.h \
     inc/compat.h \
-    inc/loader.h
+    inc/loader.h \
+    res/version.h
 
 include(QtUsb/src/QtUsb.pri)
 
@@ -91,3 +92,6 @@ unix:!macx {
     launcher.files = res/qstlink2.desktop
     INSTALLS += launcher
 }
+
+DISTFILES += \
+    res/qstlink2.rc
