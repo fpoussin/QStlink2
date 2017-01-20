@@ -86,12 +86,11 @@ void transferThread::sendWithLoader(const QString &filename)
     }
     emit sendLog("Loader uploaded");
 
-    mStlink->runMCU(); // The loader will stop at the beginning of the loop
-
+    mStlink->runMCU(); // The loader will stop at main()
     while (mStlink->getStatus() == STLink::Status::RUNNING) { // Wait for the breakpoint
             QThread::msleep(100);
             quint32 tbkp = mStlink->readRegister(15);
-            qDebug("Waiting for breakpoint... at 0x0%08X", tbkp);
+            qDebug("Waiting for breakpoint 1... at 0x0%08X", tbkp);
             if (mStop) {
                 emit sendProgress(100);
                 emit sendLock(false);
@@ -100,7 +99,7 @@ void transferThread::sendWithLoader(const QString &filename)
     }
 
     const quint32 bkp1 = mStlink->readRegister(15);
-    qDebug("PC reg at 0x%08X", bkp1);
+    qDebug("Loop breakpoint at 0x%08X", bkp1);
 
     if (bkp1 < sram_base || bkp1 >  sram_base + buffer_size) {
 
@@ -123,9 +122,11 @@ void transferThread::sendWithLoader(const QString &filename)
         {
             qCritical("PC is not at the correct address: %08x", bkp2);
             emit sendLog("PC register at the wrong address, aborting!");
-            break;
+            emit sendProgress(100);
+            emit sendLock(false);
+            return;
         }
-        qDebug("+ Current PC reg at %08x", 2);
+        qDebug("+ Current PC reg at 0x%08x", bkp2);
 
         memset(buf2, 0, step_size);
         if ((read = loader_file.read(buf2, step_size)) <= 0)
@@ -141,7 +142,10 @@ void transferThread::sendWithLoader(const QString &filename)
             break;
         }
         // Step over breakpoint.
-        if (!mStlink->writeRegister(bkp1+2, 15))
+        //mStlink->haltMCU();
+        if (mStlink->getStatus() == STLink::Status::RUNNING)
+            mStlink->haltMCU();
+        if (!mStlink->writeRegister(bkp1 + 2, 15))
         {
             emit sendLog("Failed to set PC register");
             emit sendProgress(100);
@@ -156,6 +160,9 @@ void transferThread::sendWithLoader(const QString &filename)
 
                 loader_pos = mStlink->getLoaderPos()-from;
                 qDebug("Loader position: 0x%x", loader_pos+from);
+
+                quint32 tbkp = mStlink->readRegister(15);
+                qDebug("Waiting for breakpoint 2... at 0x0%08X", tbkp);
 
                 oldprogress = progress;
                 progress = (loader_pos*100)/loader_file.size();

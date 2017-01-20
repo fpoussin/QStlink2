@@ -169,12 +169,8 @@ quint8 stlinkv2::getStatus()
     {
        quint32 st;
        st = this->readDbgRegister(Cortex::Reg::DCB_DHCSR);
-       qDebug("Status: %X", st);
 
        if (st & Cortex::Status::HALT)
-         return STLink::Status::HALTED;
-
-       if (st & Cortex::Status::RESET)
          return STLink::Status::HALTED;
 
        if (st == 0)
