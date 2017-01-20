@@ -159,7 +159,7 @@ void MainWindow::disconnect()
 void MainWindow::log(const QString &s)
 {
     mUi->t_log->appendPlainText(s);
-    qInfo(s.toStdString().c_str());
+    qInfo("%s", s.toStdString().c_str());
 }
 
 void MainWindow::lockUI(bool enabled)
@@ -335,7 +335,7 @@ void MainWindow::haltMCU()
 {
     this->log("Halting MCU...");
     mStlink->haltMCU();
-    SleepThread::msleep(100);
+    QThread::msleep(100);
     this->getStatus();
 }
 
@@ -343,7 +343,7 @@ void MainWindow::runMCU()
 {
     this->log("Resuming MCU...");
     mStlink->runMCU();
-    SleepThread::msleep(100);
+    QThread::msleep(100);
     this->getStatus();
 }
 
@@ -351,7 +351,7 @@ void MainWindow::resetMCU()
 {
     this->log("Reseting MCU...");
     mStlink->resetMCU();
-    SleepThread::msleep(100);
+    QThread::msleep(100);
     this->getStatus();
 }
 
@@ -359,7 +359,7 @@ void MainWindow::hardReset()
 {
     this->log("Hard Reset...");
     mStlink->hardResetMCU();
-    SleepThread::msleep(100);
+    QThread::msleep(100);
     this->getStatus();
 }
 
@@ -369,7 +369,7 @@ void MainWindow::setModeJTAG()
         return;
     this->log("Changing mode to JTAG...");
     mStlink->setModeJTAG();
-    SleepThread::msleep(100);
+    QThread::msleep(100);
     this->getMode();
 }
 
@@ -379,7 +379,7 @@ void MainWindow::setModeSWD()
         return;
     this->log("Changing mode to SWD...");
     mStlink->setModeSWD();
-    SleepThread::msleep(100);
+    QThread::msleep(100);
     this->getMode();
 }
 

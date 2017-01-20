@@ -19,6 +19,7 @@ This file is part of QSTLink2.
 #include <QStringList>
 #include <QDebug>
 #include <QFile>
+#include <QCommandLineParser>
 #include "compat.h"
 
 bool show = true;
@@ -57,101 +58,46 @@ static QElapsedTimer timer;
             break;
         }
     }
-#else
-    static void myMessageOutput(QtMsgType type, const char *msg)
-    {
-        switch (type) {
-        case QtFatalMsg: // Always print!
-                fprintf(stderr, "%lld - Fatal: %s\n", timer.elapsed(), msg);
-                abort();
-        case QtCriticalMsg:
-            if (verbose_level >= 1)
-                fprintf(stderr, "%lld - Error: %s\n", timer.elapsed(), msg);
-            break;
-        case QtInfoMsg: // Since there is no "Info" level, we use qWarning which we alias with #define...
-            if (verbose_level >= 2)
-                fprintf(stdout, "%lld - Info: %s\n", timer.elapsed(), msg);
-            break;
-        case QtDebugMsg:
-            if (verbose_level >= 5)
-                fprintf(stdout, "%lld - Debug: %s\n", timer.elapsed(), msg);
-            break;
-        }
-    }
-    #define qInstallMessageHandler qInstallMsgHandler
 #endif
-
-void showHelp()
-{
-    QFile help_file(":/help.html");
-    if (!help_file.open(QIODevice::ReadOnly))
-        return;
-    QString help = help_file.readAll();
-    help_file.close();
-    qInfo() << help.remove(QRegExp("(<[^>]+>)|\t\b")); // Clearing HTML tags.
-    qInfo("Version: %s", __QSTL_VER__);
-}
-
-bool checkParam(QString str, char s, QString l)
-{
-    // We check is does not start with '--' and contains the letter we look for.
-    if(str.startsWith('-') && !str.startsWith("--") && str.contains(s))
-        return true;
-    // If it starts with '--' we check the name is correct
-    if(str.startsWith("--") && str.remove("--") == l)
-        return true;
-
-    return false;
-}
 
 int main(int argc, char *argv[])
 {
     timer.start();
+    QCoreApplication::setApplicationName("QSTlink2");
+    QCoreApplication::setApplicationVersion(__QSTL_VER__);
     QApplication a(argc, argv);
-    quint8 i = 0;
-    QStringList args = QCoreApplication::arguments();
-    QRegExp args_regex("^(-[a-zA-Z]+|--[a-z]+)$"); // Checks for a parameter (-a -B --abc...)
-    foreach (const QString &str, args) {
 
-            if (!i++) // Skip first one
-                continue;
+    QCommandLineParser parser;
+    parser.setApplicationDescription("STLink V2 GUI");
+    parser.addHelpOption();
+    parser.addOption(QCommandLineOption(QStringList() << "q" << "quiet", QCoreApplication::translate("quiet", "Supress output")));
+    parser.addOption(QCommandLineOption(QStringList() << "d" << "debug", QCoreApplication::translate("debug", "Debug output")));
+    parser.addOption(QCommandLineOption(QStringList() << "c" << "cli", QCoreApplication::translate("cli", "CLI")));
+    parser.addOption(QCommandLineOption(QStringList() << "e" << "erase", QCoreApplication::translate("erase", "Erase memory")));
+    parser.addOption(QCommandLineOption(QStringList() << "r" << "read", QCoreApplication::translate("read", "Read to file")));
+    parser.addOption(QCommandLineOption(QStringList() << "w" << "write", QCoreApplication::translate("Write", "Write file")));
+    parser.addOption(QCommandLineOption(QStringList() << "v" << "verify", QCoreApplication::translate("verify", "Verify file")));
+    parser.addPositionalArgument("file", QCoreApplication::translate("main", "Bin file"));
+    parser.process(a);
 
-            if (str.contains(args_regex)) {
-                 if (checkParam(str, 'h', "help")) {
-                    showHelp();
-                    return 0;
-                 }
-                 if (checkParam(str, 'q', "quiet"))
-                    verbose_level = 0;
-                 if (checkParam(str, 'v', "verbose"))
-                    verbose_level = 5;
-                 if (checkParam(str, 'c', "cli"))
-                    show = false;
-                 if (checkParam(str, 'e', "erase"))
-                    erase = true;
-                 if (checkParam(str, 'w', "write"))
-                    write_flash = true;
-                 if (checkParam(str, 'r', "read"))
-                    read_flash = true;
-                 if (checkParam(str, 'V', "verify"))
-                    verify = true;
-            }
-         }
+    if (parser.isSet("quiet"))
+      verbose_level = 0;
+    else if (parser.isSet("debug"))
+      verbose_level = 5;
+    if (parser.isSet("cli"))
+       show = false;
+    if (parser.isSet("erase"))
+       erase = true;
+    if (parser.isSet("write"))
+       write_flash = true;
+    if (parser.isSet("read"))
+       read_flash = true;
+    if (parser.isSet("verify"))
+       verify = true;
 
-    if (!show) {
-        if ((!erase) && (args.size() <= 2) && args.last().contains(args_regex)) {
-            qCritical("Invalid options");
-            showHelp();
-            return 1;
-        }
-        else if ((!erase) && (args.size() >= 2) && args.last().contains(args_regex)) {
-            qCritical() << "Invalid path:" << args.last();
-            showHelp();
-            return 1;
-        }
-        if (!args.last().contains(args_regex))
-            path = args.last(); // Path is always the last argument.
-    }
+    if (parser.positionalArguments().size() > 0)
+      path = parser.positionalArguments().at(0);
+
     qDebug("Verbose level: %u", verbose_level);
     qDebug("Version: %s", __QSTL_VER__);
     qInstallMessageHandler(myMessageOutput);
@@ -172,17 +118,17 @@ int main(int argc, char *argv[])
             }
             if (write_flash) {
                 w->send(path);
-                while (w->mTfThread->isRunning()) { SleepThread::msleep(100); }
+                while (w->mTfThread->isRunning()) { QThread::msleep(100); }
             }
             else if (read_flash) {
                 w->receive(path);
-                while (w->mTfThread->isRunning()) { SleepThread::msleep(100); }
+                while (w->mTfThread->isRunning()) { QThread::msleep(100); }
             }
             if (verify) {
                 w->verify(path);
-                while (w->mTfThread->isRunning()) { SleepThread::msleep(100); }
+                while (w->mTfThread->isRunning()) { QThread::msleep(100); }
             }
-            SleepThread::msleep(300);
+            QThread::msleep(300);
             w->disconnect();
             w->close();
             return 0;
@@ -193,11 +139,6 @@ int main(int argc, char *argv[])
                 return 1;
             w->eraseFlash();
             w->disconnect();
-            return 0;
-        }
-        else if (!show) {
-            showHelp();
-            w->close();
             return 0;
         }
         return 1;

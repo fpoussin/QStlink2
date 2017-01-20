@@ -25,15 +25,7 @@ Ubuntu PPA:
 
 **Building on Linux**
 
-*Build dependencies for Qt4:*
- - libusb-1.0
- - QtUSB (included)
- - qt4-qmake
- - qt4-dev
- - libqt4-gui
- - libqt4-xml
-
-*Build dependencies for Qt5:*
+*Build dependencies:*
  - libusb-1.0
  - QtUSB (included)
  - qt5-qmake
@@ -45,7 +37,7 @@ Ubuntu PPA:
 
     git clone git@github.com:fpoussin/QStlink2.git
     git submodule update --init
-    qt4-qmake # or qt5-qmake
+    qt5-qmake
     make
     sudo make install  # Optional
 
@@ -63,7 +55,7 @@ You can find a guide here: https://github.com/fpoussin/Qt5-MSVC-Static
  - MSVC 2010 or better (community/express editions work fine)
  - WinUsb (WDK)
  - QtUSB (included)
- - Qt 5.2 SDK or better recommended
+ - Qt 5.2 SDK or newer
 
 *Build steps:*
 

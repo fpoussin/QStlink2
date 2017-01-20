@@ -596,7 +596,7 @@ qint32 stlinkv2::writeMem32(quint32 addr, const QByteArray& buf)
 
 qint32 stlinkv2::readMem32(QByteArray* buf, quint32 addr, quint16 len)
 {
-    PrintFuncName() << QString().sprintf("Reading at %08X", addr);
+    PrintFuncName() << QString().sprintf("Reading %d bytes from %08X", len, addr);
     Q_CHECK_PTR(buf);
     QByteArray cmd_buf;
     if (len % 4 != 0)
@@ -670,7 +670,7 @@ bool stlinkv2::writeRegister(quint32 val, quint8 index) // Not working on F4 ?
 
     const quint32 tmpval = this->readRegister(index);
     if (tmpval != val) {
-        qCritical("Failed to set register %d to %08X, current value is %08x", index, val, tmpval);
+        qCritical("Failed to set register %d to 0x%08X, current value is 0x%08x", index, val, tmpval);
         return false;
     }
     qDebug("Set register %d to %08X", index, val);
@@ -733,7 +733,7 @@ bool stlinkv2::writeDbgRegister(quint32 addr, quint32 val)
   this->sendCommand(cmd);
   mUsbDevice->read(&value, 2);
 
-  return value.at(0) == STLink::Status::OK;
+  return (quint8)value.at(0) == STLink::Status::OK;
 }
 
 qint32 stlinkv2::sendCommand(const QByteArray& cmd)
@@ -764,7 +764,7 @@ bool stlinkv2::sendLoader() {
     QByteArray loader_data, check_data;
     const char *data = mLoader.refData().constData();
     const int size = mLoader.refData().size();
-    quint32 offset, addr;
+    quint32 offset = 0, addr = mDevice->value("sram_base");
     const int step = 128;
     int sent;
     int i=0;
@@ -807,7 +807,8 @@ bool stlinkv2::sendLoader() {
         return false;
     }
 
-    this->writeRegister(mDevice->value("sram_base"), 15); // PC register to sram base.
+    if (!this->writeRegister(mDevice->value("sram_base"), 15)) // PC register to sram base.
+      return false;
     qInfo("Sent loader at 0x%08X", mDevice->value("sram_base"));
 
     return true;

@@ -19,8 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with QSTLink2.  If not, see <http://www.gnu.org/licenses/>.
 
-QT += core gui xml
-contains(QT_MAJOR_VERSION, 5) { QT += widgets }
+QT += core gui xml widgets
 #win32:CONFIG += console
 win32:CONFIG += winusb
 

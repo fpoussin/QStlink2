@@ -18,17 +18,6 @@ This file is part of QSTLink2.
 #define COMPAT_H
 #include <stdio.h>
 #include <QApplication>
-#include <QThread>
-
-#if QT_VERSION >= 0x040700
-    #include <QElapsedTimer> // QElapsedTimer was introduced in QT 4.7
-    #ifdef __GNUC__
-        #include <unistd.h> //for usleep starting with GCC 4.7
-    #endif
-#else
-    #include <QTime>
-    #define QElapsedTimer QTime
-#endif
 
 #if QT_VERSION < 0x050500
     #define QtInfoMsg QtWarningMsg // Little hack to have an "info" level of output. Needed for Qt < 5.5.0
@@ -36,14 +25,6 @@ This file is part of QSTLink2.
 #endif
 
 #define PrintError() qCritical ("In %s, at %s:%d", Q_FUNC_INFO, __FILE__, __LINE__)
-#define PrintFuncName() qDebug() << "***[" << Q_FUNC_INFO << "]***"
-
-/* Workaround for Qt 4  */
-class SleepThread : public QThread {
-public:
-   static inline void msleep(unsigned long msecs) {
-       QThread::msleep(msecs);
-   }
-};
+#define PrintFuncName() qDebug() << "{" << Q_FUNC_INFO << "}"
 
 #endif // COMPAT_H
