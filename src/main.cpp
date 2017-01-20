@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
 
     QCommandLineParser parser;
-    parser.setApplicationDescription("STLink V2 GUI");
+    parser.setApplicationDescription(QString().sprintf("QSTlink2 v%s", __QSTL_VER__));
     parser.addHelpOption();
     parser.addOption(QCommandLineOption(QStringList() << "q" << "quiet", QCoreApplication::translate("quiet", "Supress output")));
     parser.addOption(QCommandLineOption(QStringList() << "d" << "debug", QCoreApplication::translate("debug", "Debug output")));
