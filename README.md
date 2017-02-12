@@ -3,7 +3,7 @@
 
 [![GitHub version](https://badge.fury.io/gh/fpoussin%2Fqstlink2.svg)](https://badge.fury.io/gh/fpoussin%2Fqstlink2)  
 [![Travis Build Status](https://travis-ci.org/fpoussin/QStlink2.svg?branch=master)](https://travis-ci.org/fpoussin/QStlink2) Travis - Ubuntu 14.04 - Qt5.2.1  
-[![Jenkins Build Status](http://vps2.netyxia.net/jenkins/buildStatus/icon?job=QStlink2)](http://vps2.netyxia.net/jenkins/job/QStlink2/) Jenkins - Ubuntu 16.04 - Qt5.5.1  
+[![Jenkins Build Status](http://jenkins.netyxia.net/buildStatus/icon?job=QStlink2)](http://jenkins.netyxia.net/job/QStlink2/) Jenkins - Ubuntu 16.04 - Qt5.5.1  
 
 **Description**  
 
