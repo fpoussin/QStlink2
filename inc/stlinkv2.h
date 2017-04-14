@@ -39,8 +39,6 @@ const quint8 USB_PIPE_OUT = 0x02;	   /**< Bulk input endpoint for commands */
 const quint8 USB_PIPE_OUT_NUCLEO = 0x01;	   /**< Bulk input endpoint for commands */
 const quint8 USB_PIPE_ERR = 0x83;	   /**< An apparently-unused bulk endpoint. */
 const quint16 USB_TIMEOUT_MSEC = 300; /**< The usb bulk transfer timeout in ms */
-const QString USB_STLINK_GUID("DBCE1CD9-A320-4b51-A365-A0C3F3C5FB29"); /**< USB Guid for stlink v2 */
-const QString USB_NUCLEO_GUID("8326506F-7260-4854-9C03-26E416F04494"); /**< USB Guid for nucleo */
 
 namespace STLink {
   namespace Status {

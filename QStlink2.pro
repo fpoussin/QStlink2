@@ -55,18 +55,15 @@ HEADERS  += inc/mainwindow.h \
 
 include(QtUsb/src/QtUsb.pri)
 
-win32 {
+windows {
     TARGET = qstlink2_$${VERSION}
-    CONFIG(console) {
-        message(Building with debug console.)
-        TARGET = qstlink2_console_$${VERSION}
-    }
+    DEFINES += WINDOWS
 }
 
 RESOURCES += res/ressources.qrc loaders/loaders.qrc
 
 # Icon for windows
-win32:RC_FILE = res/qstlink2.rc
+windows:RC_FILE = res/qstlink2.rc
 # OSX
 macx:ICON = res/images/icon.icns
 

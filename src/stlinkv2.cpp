@@ -32,12 +32,10 @@ stlinkv2::stlinkv2(QObject *parent) :
     QtUsb::DeviceConfig cfg;
     QtUsb::DeviceFilter f1, f2;
 
-    f1.guid = USB_STLINK_GUID;
     f1.pid = USB_STLINKv2_PID;
     f1.vid = USB_ST_VID;
 
-    f2 = f1;
-    f2.guid = USB_NUCLEO_GUID;
+    f2.vid = USB_ST_VID;
     f2.pid = USB_NUCLEO_PID;
 
     cfg.readEp = USB_PIPE_IN;
@@ -93,7 +91,6 @@ void stlinkv2::setSTLinkIDs()
     cfg.writeEp = USB_PIPE_OUT;
     mUsbDevice->setConfig(cfg);
 
-    filt.guid = USB_STLINK_GUID;
     filt.vid = USB_ST_VID;
     filt.pid = USB_STLINKv2_PID;
     filt.cfg = cfg;
@@ -109,7 +106,6 @@ void stlinkv2::setNucleoIDs()
     cfg.writeEp = USB_PIPE_OUT_NUCLEO;
     mUsbDevice->setConfig(cfg);
 
-    filt.guid = USB_NUCLEO_GUID;
     filt.vid = USB_ST_VID;
     filt.pid = USB_NUCLEO_PID;
     filt.cfg = cfg;
@@ -169,6 +165,8 @@ quint8 stlinkv2::getStatus()
     {
        quint32 st;
        st = this->readDbgRegister(Cortex::Reg::DCB_DHCSR);
+       qDebug("Status Reg: 0x%08X", st);
+       qDebug() << QString::number(st, 2);
 
        if (st & Cortex::Status::HALT)
          return STLink::Status::HALTED;
@@ -318,9 +316,10 @@ void stlinkv2::stepMCU()
     if (mVersion.api == 1)
       this->debugCommand(&buf, STLink::Cmd::Dbg::StepCore, 0, 2);
     else {
+      this->haltMCU();
       this->writeDbgRegister(Cortex::Reg::DCB_DHCSR, DBGKEY | HALT | MASKINTS | DEBUGEN);
       this->writeDbgRegister(Cortex::Reg::DCB_DHCSR, DBGKEY | STEP | MASKINTS | DEBUGEN);
-      this->writeDbgRegister(Cortex::Reg::DCB_DHCSR, DBGKEY | HALT | DEBUGEN);
+      this->haltMCU();
     }
 }
 
@@ -333,6 +332,7 @@ void stlinkv2::haltMCU()
       this->debugCommand(&buf, STLink::Cmd::Dbg::ForceDebug, 0, 2);
     else {
       this->writeDbgRegister(Cortex::Reg::DCB_DHCSR, DBGKEY | HALT | DEBUGEN);
+        while (!(this->readDbgRegister(Cortex::Reg::DCB_DHCSR) & Cortex::Status::HALT)) QThread::msleep(50);
     }
 }
 

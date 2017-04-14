@@ -70,14 +70,14 @@ int main(int argc, char *argv[])
     QCommandLineParser parser;
     parser.setApplicationDescription(QString().sprintf("QSTlink2 v%s", __QSTL_VER__));
     parser.addHelpOption();
-    parser.addOption(QCommandLineOption(QStringList() << "q" << "quiet", QCoreApplication::translate("quiet", "Supress output")));
-    parser.addOption(QCommandLineOption(QStringList() << "d" << "debug", QCoreApplication::translate("debug", "Debug output")));
-    parser.addOption(QCommandLineOption(QStringList() << "c" << "cli", QCoreApplication::translate("cli", "CLI")));
-    parser.addOption(QCommandLineOption(QStringList() << "e" << "erase", QCoreApplication::translate("erase", "Erase memory")));
-    parser.addOption(QCommandLineOption(QStringList() << "r" << "read", QCoreApplication::translate("read", "Read to file")));
-    parser.addOption(QCommandLineOption(QStringList() << "w" << "write", QCoreApplication::translate("Write", "Write file")));
-    parser.addOption(QCommandLineOption(QStringList() << "v" << "verify", QCoreApplication::translate("verify", "Verify file")));
-    parser.addPositionalArgument("file", QCoreApplication::translate("main", "Bin file"));
+    parser.addOption(QCommandLineOption(QStringList() << "q" << "quiet", "Supress output."));
+    parser.addOption(QCommandLineOption(QStringList() << "d" << "debug", "Debug output."));
+    parser.addOption(QCommandLineOption(QStringList() << "c" << "cli", "Commande line mode."));
+    parser.addOption(QCommandLineOption(QStringList() << "e" << "erase", "Erase memory."));
+    parser.addOption(QCommandLineOption(QStringList() << "r" << "read", "Read to file."));
+    parser.addOption(QCommandLineOption(QStringList() << "w" << "write", "Write file."));
+    parser.addOption(QCommandLineOption(QStringList() << "v" << "verify", "Verify file."));
+    parser.addPositionalArgument("file", "Bin file");
     parser.process(a);
 
     if (parser.isSet("quiet"))
@@ -107,7 +107,7 @@ int main(int argc, char *argv[])
     }
 
     else {
-#ifdef WIN32
+#if defined(WINDOWS)
         // detach from the current console window
         FreeConsole();
         // create a separate new console window
