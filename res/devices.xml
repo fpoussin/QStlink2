@@ -184,6 +184,15 @@
       <buffer_size>0x1000</buffer_size>
       <loader>loader_f0.bin</loader>
     </device>
+    
+    <device type="STM32F09x" coretype="CM0">
+      <core_id>0x0bb11477</core_id>
+      <chip_id>0x442</chip_id>
+      <flash_size_reg>0x1FFFF7CC</flash_size_reg>
+      <flash_int_reg>0x40022000</flash_int_reg>
+      <buffer_size>0x1000</buffer_size>
+      <loader>loader_f0.bin</loader>
+    </device>
 
     <device type="STM32F100" coretype="CM3">
       <core_id>0x1ba01477</core_id>
