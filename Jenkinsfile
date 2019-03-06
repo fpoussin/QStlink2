@@ -14,7 +14,10 @@ git submodule update --init'''
     }
     stage('Build') {
       steps {
-        sh 'nice make -j $(nproc)'
+        sh '''mkdir build
+cd build
+qmake ..
+nice make -j $(nproc)'''
       }
     }
   }
