@@ -1,15 +1,14 @@
 #include "loader.h"
 
-LoaderData::LoaderData(QObject *parent) :
-    QObject(parent)
+LoaderData::LoaderData(QObject *parent)
+    : QObject(parent)
 {
-
-
 }
 
-bool LoaderData::loadBin(const QString &path) {
+bool LoaderData::loadBin(const QString &path)
+{
 
-    const QString _path = ":/bin/"+path;
+    const QString _path = ":/bin/" + path;
     qInfo() << "Loader" << _path;
 
     QFile file(_path);
@@ -23,7 +22,8 @@ bool LoaderData::loadBin(const QString &path) {
     return true;
 }
 
-QByteArray& LoaderData::refData(void) {
+QByteArray &LoaderData::refData(void)
+{
 
     return mData;
 }

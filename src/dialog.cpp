@@ -17,16 +17,15 @@
 #include "dialog.h"
 #include "ui_dialog.h"
 
-Dialog::Dialog(QWidget *parent) :
-    QDialog(parent),
-    mUi(new Ui::Dialog)
+Dialog::Dialog(QWidget *parent)
+    : QDialog(parent), mUi(new Ui::Dialog)
 {
     mUi->setupUi(this);
-//    this->ui->l_text->setStyleSheet(QString::fromUtf8("background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 0), stop:1 rgba(255, 255, 255, 0));"));
+    //    this->ui->l_text->setStyleSheet(QString::fromUtf8("background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 0), stop:1 rgba(255, 255, 255, 0));"));
     mUi->l_version->setText(__QSTL_VER__);
-    mUi->l_cmpdate->setText(QString(__DATE__)+" "+QString(__TIME__));
+    mUi->l_cmpdate->setText(QString(__DATE__) + " " + QString(__TIME__));
 
-    QObject::connect(mUi->b_qt,SIGNAL(clicked()),qApp,SLOT(aboutQt()));
+    QObject::connect(mUi->b_qt, SIGNAL(clicked()), qApp, SLOT(aboutQt()));
 }
 
 Dialog::~Dialog()

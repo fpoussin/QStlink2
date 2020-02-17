@@ -30,34 +30,34 @@ static quint8 verbose_level = 3; // Level = info by default
 static QElapsedTimer timer;
 
 #if QT_VERSION >= 0x050000
-    static void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
-    {
-        QByteArray localMsg = msg.toLocal8Bit();
-        (void)context;
-        switch (type) {
-        case QtFatalMsg: // Always print!
-                fprintf(stderr, "%lld - Fatal: %s\n", timer.elapsed(), localMsg.constData());
-                abort();
-        case QtCriticalMsg:
-            if (verbose_level >= 1)
-                fprintf(stderr, "%lld - Error: %s\n", timer.elapsed(), localMsg.constData());
-            break;
+static void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
+{
+    QByteArray localMsg = msg.toLocal8Bit();
+    (void)context;
+    switch (type) {
+    case QtFatalMsg: // Always print!
+        fprintf(stderr, "%lld - Fatal: %s\n", timer.elapsed(), localMsg.constData());
+        abort();
+    case QtCriticalMsg:
+        if (verbose_level >= 1)
+            fprintf(stderr, "%lld - Error: %s\n", timer.elapsed(), localMsg.constData());
+        break;
 #if QT_VERSION >= 0x050500
-        case QtWarningMsg:
-            if (verbose_level >= 2)
-                fprintf(stderr, "%lld - Warning: %s\n", timer.elapsed(), localMsg.constData());
-            break;
+    case QtWarningMsg:
+        if (verbose_level >= 2)
+            fprintf(stderr, "%lld - Warning: %s\n", timer.elapsed(), localMsg.constData());
+        break;
 #endif
-        case QtInfoMsg: // Since there is no "Info" level before 5.5.0, we use qWarning which we alias with #define...
-            if (verbose_level >= 2)
-                fprintf(stdout, "%lld - Info: %s\n", timer.elapsed(), localMsg.constData());
-            break;
-        case QtDebugMsg:
-            if (verbose_level >= 5)
-                fprintf(stdout, "%lld - Debug: %s\n", timer.elapsed(), localMsg.constData());
-            break;
-        }
+    case QtInfoMsg: // Since there is no "Info" level before 5.5.0, we use qWarning which we alias with #define...
+        if (verbose_level >= 2)
+            fprintf(stdout, "%lld - Info: %s\n", timer.elapsed(), localMsg.constData());
+        break;
+    case QtDebugMsg:
+        if (verbose_level >= 5)
+            fprintf(stdout, "%lld - Debug: %s\n", timer.elapsed(), localMsg.constData());
+        break;
     }
+}
 #endif
 
 int main(int argc, char *argv[])
@@ -70,33 +70,47 @@ int main(int argc, char *argv[])
     QCommandLineParser parser;
     parser.setApplicationDescription(QString().sprintf("QSTlink2 v%s", __QSTL_VER__));
     parser.addHelpOption();
-    parser.addOption(QCommandLineOption(QStringList() << "q" << "quiet", "Supress output."));
-    parser.addOption(QCommandLineOption(QStringList() << "d" << "debug", "Debug output."));
-    parser.addOption(QCommandLineOption(QStringList() << "c" << "cli", "Commande line mode."));
-    parser.addOption(QCommandLineOption(QStringList() << "e" << "erase", "Erase memory."));
-    parser.addOption(QCommandLineOption(QStringList() << "r" << "read", "Read to file."));
-    parser.addOption(QCommandLineOption(QStringList() << "w" << "write", "Write file."));
-    parser.addOption(QCommandLineOption(QStringList() << "v" << "verify", "Verify file."));
+    parser.addOption(QCommandLineOption(QStringList() << "q"
+                                                      << "quiet",
+                                        "Supress output."));
+    parser.addOption(QCommandLineOption(QStringList() << "d"
+                                                      << "debug",
+                                        "Debug output."));
+    parser.addOption(QCommandLineOption(QStringList() << "c"
+                                                      << "cli",
+                                        "Commande line mode."));
+    parser.addOption(QCommandLineOption(QStringList() << "e"
+                                                      << "erase",
+                                        "Erase memory."));
+    parser.addOption(QCommandLineOption(QStringList() << "r"
+                                                      << "read",
+                                        "Read to file."));
+    parser.addOption(QCommandLineOption(QStringList() << "w"
+                                                      << "write",
+                                        "Write file."));
+    parser.addOption(QCommandLineOption(QStringList() << "v"
+                                                      << "verify",
+                                        "Verify file."));
     parser.addPositionalArgument("file", "Bin file");
     parser.process(a);
 
     if (parser.isSet("quiet"))
-      verbose_level = 0;
+        verbose_level = 0;
     else if (parser.isSet("debug"))
-      verbose_level = 5;
+        verbose_level = 5;
     if (parser.isSet("cli"))
-       show = false;
+        show = false;
     if (parser.isSet("erase"))
-       erase = true;
+        erase = true;
     if (parser.isSet("write"))
-       write_flash = true;
+        write_flash = true;
     if (parser.isSet("read"))
-       read_flash = true;
+        read_flash = true;
     if (parser.isSet("verify"))
-       verify = true;
+        verify = true;
 
     if (parser.positionalArguments().size() > 0)
-      path = parser.positionalArguments().at(0);
+        path = parser.positionalArguments().at(0);
 
     qDebug("Verbose level: %u", verbose_level);
     qDebug("Version: %s", __QSTL_VER__);
@@ -130,22 +144,26 @@ int main(int argc, char *argv[])
             }
             if (write_flash) {
                 w->send(path);
-                while (w->mTfThread->isRunning()) { QThread::msleep(100); }
-            }
-            else if (read_flash) {
+                while (w->mTfThread->isRunning()) {
+                    QThread::msleep(100);
+                }
+            } else if (read_flash) {
                 w->receive(path);
-                while (w->mTfThread->isRunning()) { QThread::msleep(100); }
+                while (w->mTfThread->isRunning()) {
+                    QThread::msleep(100);
+                }
             }
             if (verify) {
                 w->verify(path);
-                while (w->mTfThread->isRunning()) { QThread::msleep(100); }
+                while (w->mTfThread->isRunning()) {
+                    QThread::msleep(100);
+                }
             }
             QThread::msleep(300);
             w->disconnect();
             w->close();
             return 0;
-            }
-        else if (erase) {
+        } else if (erase) {
             qInfo("Only erasing flash");
             if (!w->connect())
                 return 1;

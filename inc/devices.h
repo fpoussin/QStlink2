@@ -52,28 +52,28 @@ public:
      * @param k
      * @return quint32 operator
      */
-    quint32 operator[] (QString k) const { return mMap[k]; }
+    quint32 operator[](QString k) const { return mMap[k]; }
     /**
      * @brief
      *
      * @param k
      * @return quint32 &operator
      */
-    quint32& operator[] (QString k) { return mMap[k]; }
+    quint32 &operator[](QString k) { return mMap[k]; }
     /**
      * @brief
      *
      * @param k
      * @return quint32
      */
-    quint32 value (QString k) { return mMap.value(k); }
+    quint32 value(QString k) { return mMap.value(k); }
     /**
      * @brief
      *
      * @param k
      * @param v
      */
-    void insert (QString k, quint32 v) { mMap.insert(k, v); }
+    void insert(QString k, quint32 v) { mMap.insert(k, v); }
     /**
      * @brief
      *
@@ -131,7 +131,7 @@ public:
 private:
     QDomDocument *mDoc; /**< XML document */
     bool mLoaded; /**< loaded status */
-    QVector<DeviceInfo*> mDevices; /**< devices list */
+    QVector<DeviceInfo *> mDevices; /**< devices list */
     DeviceInfo *mDefaultDevice; /**< default devices (to copy default values from) */
 };
 

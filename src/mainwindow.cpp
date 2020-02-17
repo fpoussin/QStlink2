@@ -18,9 +18,8 @@
 #include <ui_mainwindow.h>
 #include <stdlib.h>
 
-MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    mUi(new Ui::MainWindow)
+MainWindow::MainWindow(QWidget *parent)
+    : QMainWindow(parent), mUi(new Ui::MainWindow)
 {
     mUi->setupUi(this);
     mUi->b_disconnect->setEnabled(false);
@@ -33,8 +32,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     if (mDevices->IsLoaded()) {
 
-        this->log(QString::number(mDevices->getDevicesCount())+" Device descriptions loaded.");
-        QObject::connect(mUi->b_quit,SIGNAL(clicked()),this,SLOT(quit()));
+        this->log(QString::number(mDevices->getDevicesCount()) + " Device descriptions loaded.");
+        QObject::connect(mUi->b_quit, SIGNAL(clicked()), this, SLOT(quit()));
         QObject::connect(mUi->b_connect, SIGNAL(clicked()), this, SLOT(connect()));
         QObject::connect(mUi->b_disconnect, SIGNAL(clicked()), this, SLOT(disconnect()));
         QObject::connect(mUi->b_send, SIGNAL(clicked()), this, SLOT(send()));
@@ -81,7 +80,7 @@ MainWindow::~MainWindow()
 void MainWindow::showHelp()
 {
 
-    mDialog.setText("Help","Could no load help file");
+    mDialog.setText("Help", "Could no load help file");
 
     QFile file(":/help.html");
     if (!file.open(QIODevice::ReadOnly)) {
@@ -120,7 +119,7 @@ bool MainWindow::connect()
 #elif !defined(WIN32)
         this->log("Did you install the udev rules ?");
 #endif
-        this->log("USB error: "+QString::number(ret));
+        this->log("USB error: " + QString::number(ret));
         return false;
     }
 
@@ -139,8 +138,7 @@ bool MainWindow::connect()
         if (this->getMCU()) {
             this->lockUI(false);
             return true;
-        }
-        else {
+        } else {
             this->disconnect();
             return false;
         }
@@ -210,15 +208,14 @@ void MainWindow::send()
             qCritical("Could not open the file.");
             return;
         }
-        this->log("Size: "+QString::number(file.size()/1024)+"KB");
+        this->log("Size: " + QString::number(file.size() / 1024) + "KB");
 
-        if (file.size() > mStlink->mDevice->value("flash_size")*1024) {
-            if(QMessageBox::question(this, "Flash size exceeded", "The file is bigger than the flash size!\n\nThe flash memory will be erased and the new file programmed, continue?", QMessageBox::Yes|QMessageBox::No) != QMessageBox::Yes){
+        if (file.size() > mStlink->mDevice->value("flash_size") * 1024) {
+            if (QMessageBox::question(this, "Flash size exceeded", "The file is bigger than the flash size!\n\nThe flash memory will be erased and the new file programmed, continue?", QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes) {
                 return;
             }
-        }
-        else {
-            if(QMessageBox::question(this, "Confirm", "The flash memory will be erased and the new file programmed, continue?", QMessageBox::Yes|QMessageBox::No) != QMessageBox::Yes){
+        } else {
+            if (QMessageBox::question(this, "Confirm", "The flash memory will be erased and the new file programmed, continue?", QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes) {
                 return;
             }
         }
@@ -232,7 +229,7 @@ void MainWindow::send()
 void MainWindow::send(const QString &path)
 {
     qDebug("Writing flash");
-    this->log("Sending "+path);
+    this->log("Sending " + path);
     mStlink->resetMCU(); // We stop the MCU
     mUi->tabw_info->setCurrentIndex(3);
     mUi->pgb_transfer->setValue(0);
@@ -262,7 +259,7 @@ void MainWindow::receive()
 
 void MainWindow::receive(const QString &path)
 {
-    this->log("Saving to "+path);
+    this->log("Saving to " + path);
     mUi->tabw_info->setCurrentIndex(3);
     mUi->pgb_transfer->setValue(0);
     mUi->l_progress->setText("Starting transfer...");
@@ -293,26 +290,26 @@ void MainWindow::repeat()
 {
     switch (mLastAction) {
 
-        case ACTION_SEND:
-            this->send(mFilename);
-            break;
-        case ACTION_RECEIVE:
-            this->receive(mFilename);
-            break;
-        case ACTION_VERIFY:
-            this->verify(mFilename);
-            break;
-        case ACTION_NONE:
-            this->log("Nothing to repeat.");
-            break;
-        default:
-            break;
+    case ACTION_SEND:
+        this->send(mFilename);
+        break;
+    case ACTION_RECEIVE:
+        this->receive(mFilename);
+        break;
+    case ACTION_VERIFY:
+        this->verify(mFilename);
+        break;
+    case ACTION_NONE:
+        this->log("Nothing to repeat.");
+        break;
+    default:
+        break;
     }
 }
 
 void MainWindow::verify(const QString &path)
 {
-    this->log("Verifying "+path);
+    this->log("Verifying " + path);
     mUi->tabw_info->setCurrentIndex(3);
     mUi->pgb_transfer->setValue(0);
     mUi->l_progress->setText("Starting Verification...");
@@ -407,23 +404,23 @@ void MainWindow::getMode()
     const quint8 mode = mStlink->getMode();
     QString mode_str;
     switch (mode) {
-        case STLink::Mode::UNKNOWN:
-            mode_str = "Unknown";
-            break;
-        case STLink::Mode::DFU:
-            mode_str = "DFU";
-            break;
-        case STLink::Mode::MASS:
-            mode_str = "Mass Storage";
-            break;
-        case STLink::Mode::DEBUG:
-            mode_str = "Debug";
-            break;
-        default:
-            mode_str = "Unknown";
-            break;
-        }
-        this->log("Mode: "+mode_str);
+    case STLink::Mode::UNKNOWN:
+        mode_str = "Unknown";
+        break;
+    case STLink::Mode::DFU:
+        mode_str = "DFU";
+        break;
+    case STLink::Mode::MASS:
+        mode_str = "Mass Storage";
+        break;
+    case STLink::Mode::DEBUG:
+        mode_str = "Debug";
+        break;
+    default:
+        mode_str = "Unknown";
+        break;
+    }
+    this->log("Mode: " + mode_str);
 }
 
 void MainWindow::getStatus()
@@ -432,17 +429,17 @@ void MainWindow::getStatus()
     const quint8 status = mStlink->getStatus();
     QString status_str;
     switch (status) {
-        case STLink::Status::RUNNING:
-            status_str = "Core Running";
-            break;
-        case STLink::Status::HALTED:
-            status_str = "Core Halted";
-            break;
-        default:
-            status_str = "Unknown";
-            break;
-        }
-        this->log("Status: "+status_str);
+    case STLink::Status::RUNNING:
+        status_str = "Core Running";
+        break;
+    case STLink::Status::HALTED:
+        status_str = "Core Halted";
+        break;
+    default:
+        status_str = "Unknown";
+        break;
+    }
+    this->log("Status: " + status_str);
 }
 
 bool MainWindow::getMCU()
@@ -457,21 +454,21 @@ bool MainWindow::getMCU()
         qInfo() << "Device type: " << mStlink->mDevice->mType;
 
         mUi->le_type->setText(mStlink->mDevice->mType);
-        mUi->le_chipid->setText("0x"+QString::number(mStlink->mDevice->value("chip_id"), 16));
-        mUi->le_flashbase->setText("0x"+QString::number(mStlink->mDevice->value("flash_base"), 16));
+        mUi->le_chipid->setText("0x" + QString::number(mStlink->mDevice->value("chip_id"), 16));
+        mUi->le_flashbase->setText("0x" + QString::number(mStlink->mDevice->value("flash_base"), 16));
         //this->ui->le_flashsize->setText(QString::number((*this->stlink->device)["flash_size"]/1024)+"KB");
 
         mUi->le_stlver->setText(QString::number(mStlink->mVersion.stlink));
         mUi->le_jtagver->setText(QString::number(mStlink->mVersion.jtag));
         mUi->le_swimver->setText(QString::number(mStlink->mVersion.swim));
 
-        if(!mStlink->mVersion.stlink)
+        if (!mStlink->mVersion.stlink)
             mUi->le_jtagver->setToolTip("Not supported");
-        if(!mStlink->mVersion.swim)
+        if (!mStlink->mVersion.swim)
             mUi->le_swimver->setToolTip("Not supported");
 
         mStlink->mDevice->insert("flash_size", mStlink->readFlashSize());
-        mUi->le_flashsize->setText(QString::number(mStlink->mDevice->value("flash_size"))+"KB");
+        mUi->le_flashsize->setText(QString::number(mStlink->mDevice->value("flash_size")) + "KB");
 
         return true;
     }

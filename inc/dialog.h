@@ -23,7 +23,7 @@
 #include <QStyle>
 
 namespace Ui {
-    class Dialog;
+class Dialog;
 }
 
 /**

@@ -31,7 +31,7 @@ This file is part of QSTLink2.
 #include "compat.h"
 
 namespace Ui {
-    class MainWindow;
+class MainWindow;
 }
 
 /**
@@ -236,7 +236,6 @@ private slots:
      *
      */
     void quit();
-
 };
 
 #endif // MAINWINDOW_H

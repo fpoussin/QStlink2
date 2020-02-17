@@ -20,11 +20,11 @@ This file is part of QSTLink2.
 #include <QApplication>
 
 #if QT_VERSION < 0x050500
-    #define QtInfoMsg QtWarningMsg // Little hack to have an "info" level of output. Needed for Qt < 5.5.0
-    #define qInfo qWarning
+#define QtInfoMsg QtWarningMsg // Little hack to have an "info" level of output. Needed for Qt < 5.5.0
+#define qInfo qWarning
 #endif
 
-#define PrintError() qCritical ("In %s, at %s:%d", Q_FUNC_INFO, __FILE__, __LINE__)
+#define PrintError() qCritical("In %s, at %s:%d", Q_FUNC_INFO, __FILE__, __LINE__)
 #define PrintFuncName() qDebug() << "{" << Q_FUNC_INFO << "}"
 
 #endif // COMPAT_H
