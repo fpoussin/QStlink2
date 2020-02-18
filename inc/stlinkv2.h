@@ -22,7 +22,9 @@ This file is part of QSTLink2.
 #include <QFile>
 #include <QByteArray>
 #include <QtEndian>
-#include <QUsb>
+#include <qusbdevice.h>
+#include <qusbinfo.h>
+#include <qusbendpoint.h>
 #include <compat.h>
 #include <devices.h>
 #include <loader.h>
@@ -499,12 +501,16 @@ private slots:
      *
      * @param list
      */
-    void scanNewDevices(QtUsb::FilterList list);
+    void scanNewDevices(QUsbDevice::IdList list);
 
 private:
-    QUsbManager *mUsbMgr; /**< TODO: describe */
-    QUsbDevice *mUsbDevice; /**< TODO: describe */
-    QtUsb::FilterList mUsbDeviceList; /**< TODO: describe */
+    QUsbDevice *const mUsbDevice; /**< TODO: describe */
+    QUsbInfo *const mUsbInfo; /**< TODO: describe */
+    QUsbEndpoint *const mUsbEndpointIn; /**< TODO: describe */
+    QUsbEndpoint *const mUsbEndpointStlinkOut; /**< TODO: describe */
+    QUsbEndpoint *const mUsbEndpointNucleoOut; /**< TODO: describe */
+    QUsbEndpoint *mUsbEndpointOut; /**< TODO: describe */
+    QUsbDevice::IdList mUsbDeviceList; /**< TODO: describe */
 
     quint32 mCoreId; /**< TODO: describe */
     quint32 mRevId; /**< TODO: describe */

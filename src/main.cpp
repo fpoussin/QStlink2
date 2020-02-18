@@ -20,6 +20,7 @@ This file is part of QSTLink2.
 #include <QDebug>
 #include <QFile>
 #include <QCommandLineParser>
+#include <QElapsedTimer>
 #include "compat.h"
 
 bool show = true;

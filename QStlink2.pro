@@ -37,23 +37,23 @@ FORMS += ui/mainwindow.ui \
     ui/dialog.ui
 
 SOURCES += src/main.cpp\
-        src/mainwindow.cpp \
-    src/stlinkv2.cpp \
-    src/devices.cpp \
-    src/dialog.cpp \
-   src/transferthread.cpp \
-    src/loader.cpp
+           src/mainwindow.cpp \
+           src/stlinkv2.cpp \
+           src/devices.cpp \
+           src/dialog.cpp \
+           src/transferthread.cpp \
+           src/loader.cpp
 
 HEADERS  += inc/mainwindow.h \
-    inc/stlinkv2.h \
-    inc/devices.h \
-    inc/dialog.h \
-    inc/transferthread.h \
-    inc/compat.h \
-    inc/loader.h \
-    res/version.h
+            inc/stlinkv2.h \
+            inc/devices.h \
+            inc/dialog.h \
+            inc/transferthread.h \
+            inc/compat.h \
+            inc/loader.h \
+            res/version.h
 
-include(QtUsb/src/QtUsb.pri)
+include(QtUsb/src/usb/usb-lib.pri)
 
 windows {
     TARGET = qstlink2_$${VERSION}

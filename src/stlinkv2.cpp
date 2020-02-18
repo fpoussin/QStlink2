@@ -19,18 +19,17 @@ This file is part of QSTLink2.
 //using namespace std;
 
 stlinkv2::stlinkv2(QObject *parent)
-    : QThread(parent)
+    : QThread(parent), mUsbDevice(new QUsbDevice), mUsbInfo(new QUsbInfo), mUsbEndpointIn(new QUsbEndpoint(mUsbDevice, QUsbEndpoint::bulkEndpoint, USB_PIPE_IN)), mUsbEndpointStlinkOut(new QUsbEndpoint(mUsbDevice, QUsbEndpoint::bulkEndpoint, USB_PIPE_OUT)), mUsbEndpointNucleoOut(new QUsbEndpoint(mUsbDevice, QUsbEndpoint::bulkEndpoint, USB_PIPE_OUT_NUCLEO)), mUsbEndpointOut(mUsbEndpointStlinkOut)
+
 {
-    mUsbDevice = new QUsbDevice;
-    mUsbMgr = new QUsbManager;
     mModeId = -1;
     mCoreId = 0;
     mChipId = 0;
     mVersion.stlink = 0;
     mConnected = false;
 
-    QtUsb::DeviceConfig cfg;
-    QtUsb::DeviceFilter f1, f2;
+    QUsbDevice::Config cfg;
+    QUsbDevice::Id f1, f2;
 
     f1.pid = USB_STLINKv2_PID;
     f1.vid = USB_ST_VID;
@@ -38,29 +37,27 @@ stlinkv2::stlinkv2(QObject *parent)
     f2.vid = USB_ST_VID;
     f2.pid = USB_NUCLEO_PID;
 
-    cfg.readEp = USB_PIPE_IN;
-    cfg.writeEp = USB_PIPE_OUT;
     cfg.config = USB_CONFIGURATION;
     cfg.alternate = USB_ALTERNATE;
     cfg.interface = USB_INTERFACE;
 
-    mUsbMgr->addDevice(f1);
-    mUsbMgr->addDevice(f2);
+    mUsbInfo->addDevice(f1);
+    mUsbInfo->addDevice(f2);
 
     mUsbDevice->setConfig(cfg);
-    mUsbDevice->setFilter(f1);
-    mUsbDevice->setDebug(false);
+    mUsbDevice->setId(f1);
+    mUsbDevice->setLogLevel(QUsbDevice::logDebug);
     mUsbDevice->setTimeout(USB_TIMEOUT_MSEC);
 
-    QObject::connect(mUsbMgr, SIGNAL(deviceInserted(QtUsb::FilterList)), this, SLOT(scanNewDevices(QtUsb::FilterList)));
+    QObject::connect(mUsbInfo, SIGNAL(deviceInserted(QtUsb::FilterList)), this, SLOT(scanNewDevices(QtUsb::FilterList)));
 }
 
 stlinkv2::~stlinkv2()
 {
-    QObject::disconnect(mUsbMgr, SIGNAL(deviceInserted(QtUsb::FilterList)), this, SLOT(scanNewDevices(QtUsb::FilterList)));
+    QObject::disconnect(mUsbInfo, SIGNAL(deviceInserted(QtUsb::FilterList)), this, SLOT(scanNewDevices(QtUsb::FilterList)));
     this->disconnect();
     delete mUsbDevice;
-    delete mUsbMgr;
+    delete mUsbInfo;
 }
 
 qint32 stlinkv2::connect()
@@ -84,32 +81,14 @@ void stlinkv2::disconnect()
 
 void stlinkv2::setSTLinkIDs()
 {
-    QtUsb::DeviceConfig cfg = mUsbDevice->getConfig();
-    QtUsb::DeviceFilter filt;
-
-    cfg.readEp = USB_PIPE_IN;
-    cfg.writeEp = USB_PIPE_OUT;
-    mUsbDevice->setConfig(cfg);
-
-    filt.vid = USB_ST_VID;
-    filt.pid = USB_STLINKv2_PID;
-    filt.cfg = cfg;
-    mUsbDevice->setFilter(filt);
+    mUsbEndpointOut = mUsbEndpointStlinkOut;
+    mUsbDevice->setId({ USB_ST_VID, USB_STLINKv2_PID });
 }
 
 void stlinkv2::setNucleoIDs()
 {
-    QtUsb::DeviceConfig cfg = mUsbDevice->getConfig();
-    QtUsb::DeviceFilter filt;
-
-    cfg.readEp = USB_PIPE_IN;
-    cfg.writeEp = USB_PIPE_OUT_NUCLEO;
-    mUsbDevice->setConfig(cfg);
-
-    filt.vid = USB_ST_VID;
-    filt.pid = USB_NUCLEO_PID;
-    filt.cfg = cfg;
-    mUsbDevice->setFilter(filt);
+    mUsbEndpointOut = mUsbEndpointNucleoOut;
+    mUsbDevice->setId({ USB_ST_VID, USB_NUCLEO_PID });
 }
 
 bool stlinkv2::isConnected()
@@ -120,7 +99,6 @@ bool stlinkv2::isConnected()
 void stlinkv2::flush()
 {
     PrintFuncName();
-    mUsbDevice->flush();
 }
 
 stlinkv2::STVersion stlinkv2::getVersion()
@@ -588,7 +566,7 @@ qint32 stlinkv2::writeMem32(quint32 addr, const QByteArray &buf)
     this->sendCommand(cmdbuf); // Send the header
 
     // The actual data we are writing is on the second command
-    return mUsbDevice->write(&sendbuf, sendbuf.size()) - remain;
+    return mUsbEndpointOut->write(sendbuf) - remain;
 }
 
 qint32 stlinkv2::readMem32(QByteArray *buf, quint32 addr, quint16 len)
@@ -606,7 +584,8 @@ qint32 stlinkv2::readMem32(QByteArray *buf, quint32 addr, quint16 len)
     cmd_buf.append((const char *)_addr, sizeof(_addr));
     cmd_buf.append((const char *)_len, sizeof(_len)); //length the data we are requesting
     this->sendCommand(cmd_buf);
-    return mUsbDevice->read(buf, len);
+    *buf = mUsbEndpointIn->read(len);
+    return buf->size();
 }
 
 qint32 stlinkv2::command(QByteArray *buf, quint8 st_cmd0, quint8 st_cmd1, quint32 resp_len)
@@ -618,7 +597,8 @@ qint32 stlinkv2::command(QByteArray *buf, quint8 st_cmd0, quint8 st_cmd1, quint3
 
     this->sendCommand(cmd);
     if (resp_len > 0) {
-        return mUsbDevice->read(buf, resp_len);
+        *buf = mUsbEndpointIn->read(resp_len);
+        return buf->size();
     }
     return 0;
 }
@@ -641,7 +621,8 @@ qint32 stlinkv2::debugCommand(QByteArray *buf, quint8 st_cmd1, quint8 st_cmd2, q
     qint32 res = this->sendCommand(cmd);
 
     if (resp_len > 0) {
-        return mUsbDevice->read(buf, resp_len);
+        *buf = mUsbEndpointIn->read(resp_len);
+        return buf->size();
     }
     return res;
 }
@@ -660,7 +641,7 @@ bool stlinkv2::writeRegister(quint32 val, quint8 index) // Not working on F4 ?
     qToLittleEndian(val, tval);
     cmd.append((const char *)tval, sizeof(tval));
     this->sendCommand(cmd);
-    mUsbDevice->read(&tmp, 2);
+    tmp = mUsbEndpointIn->read(2);
 
     const quint32 tmpval = this->readRegister(index);
     if (tmpval != val) {
@@ -686,7 +667,7 @@ quint32 stlinkv2::readRegister(quint8 index)
     cmd.append(index);
     this->sendCommand(cmd);
 
-    mUsbDevice->read(&value, 4 + offset);
+    value = mUsbEndpointIn->read(4 + offset);
     return qFromLittleEndian<quint32>((const uchar *)value.data() + offset);
 }
 
@@ -706,7 +687,7 @@ quint32 stlinkv2::readDbgRegister(quint32 addr)
 
     this->sendCommand(cmd);
 
-    mUsbDevice->read(&value, 8);
+    value = mUsbEndpointIn->read(8);
     return qFromLittleEndian<quint32>((const uchar *)value.data() + 4);
 }
 
@@ -726,7 +707,7 @@ bool stlinkv2::writeDbgRegister(quint32 addr, quint32 val)
     cmd.append((const char *)_val, sizeof(_val));
 
     this->sendCommand(cmd);
-    mUsbDevice->read(&value, 2);
+    value = mUsbEndpointIn->read(2);
 
     return (quint8)value.at(0) == STLink::Status::OK;
 }
@@ -742,7 +723,7 @@ qint32 stlinkv2::sendCommand(const QByteArray &cmd)
     tmp.prepend(cmd);
     tmp.resize(cmd_size);
 
-    ret = mUsbDevice->write(&tmp, tmp.size());
+    ret = mUsbEndpointOut->write(tmp);
     if (ret <= 0) {
         PrintError();
     }
@@ -917,9 +898,9 @@ QString stlinkv2::regPrint(quint32 reg) const
     return top + "|" + bottom + "|";
 }
 
-void stlinkv2::scanNewDevices(QtUsb::FilterList list)
+void stlinkv2::scanNewDevices(QUsbDevice::IdList list)
 {
-    QtUsb::DeviceFilter f1, f2;
+    QUsbDevice::Id f1, f2;
 
     f1.pid = USB_STLINKv2_PID;
     f1.vid = USB_ST_VID;
@@ -927,11 +908,11 @@ void stlinkv2::scanNewDevices(QtUsb::FilterList list)
     f2.pid = USB_NUCLEO_PID;
     f2.vid = USB_ST_VID;
 
-    if (mUsbMgr->findDevice(f1, list) >= 0) {
+    if (mUsbInfo->findDevice(f1, list) >= 0) {
         emit deviceDetected("STLink V2 inserted");
     }
 
-    else if (mUsbMgr->findDevice(f2, list) >= 0) {
+    else if (mUsbInfo->findDevice(f2, list) >= 0) {
         emit deviceDetected("Nucleo inserted");
     }
 }
