@@ -126,7 +126,7 @@ if __name__ == "__main__":
         sendSrc(folder_name.replace('-','_'))
     if args.sbuild:
       if not args.source:  # Need to make sources first
-    makeSrc(folder_name)
+        makeSrc(folder_name)
       makeSBuild(folder_name)
     if args.bin:
       makeBin(folder_name)
