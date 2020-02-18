@@ -1,6 +1,6 @@
 # QSTLink2 [![GitHub version](https://badge.fury.io/gh/fpoussin%2Fqstlink2.svg)](https://badge.fury.io/gh/fpoussin%2Fqstlink2) [![Total alerts](https://img.shields.io/lgtm/alerts/g/fpoussin/QStlink2.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/fpoussin/QStlink2/alerts/) [![Language grade: C/C++](https://img.shields.io/lgtm/grade/cpp/g/fpoussin/QStlink2.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/fpoussin/QStlink2/context:cpp)  
 
-Travis - Ubuntu 14.04 - Qt5.2.1 [![Travis Build Status](https://travis-ci.org/fpoussin/QStlink2.svg?branch=master)](https://travis-ci.org/fpoussin/QStlink2)  
+Travis - Ubuntu 16.04 - Qt5.5.1 [![Travis Build Status](https://travis-ci.org/fpoussin/QStlink2.svg?branch=master)](https://travis-ci.org/fpoussin/QStlink2)  
 Jenkins - Ubuntu 18.04 - Qt5.9.5 [![Build Status](https://jenkins.netyxia.net/buildStatus/icon?job=QStlink2%2Fmaster)](https://jenkins.netyxia.net/job/QStlink2/job/master/)  
 
 ## Description
