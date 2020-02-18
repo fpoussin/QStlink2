@@ -82,13 +82,19 @@ void stlinkv2::disconnect()
 void stlinkv2::setSTLinkIDs()
 {
     mUsbEndpointOut = mUsbEndpointStlinkOut;
-    mUsbDevice->setId({ USB_ST_VID, USB_STLINKv2_PID });
+    QUsbDevice::Id id;
+    id.vid = USB_ST_VID;
+    id.pid = USB_STLINKv2_PID;
+    mUsbDevice->setId(id);
 }
 
 void stlinkv2::setNucleoIDs()
 {
     mUsbEndpointOut = mUsbEndpointNucleoOut;
-    mUsbDevice->setId({ USB_ST_VID, USB_NUCLEO_PID });
+    QUsbDevice::Id id;
+    id.vid = USB_ST_VID;
+    id.pid = USB_NUCLEO_PID;
+    mUsbDevice->setId(id);
 }
 
 bool stlinkv2::isConnected()
