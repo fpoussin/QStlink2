@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
 
     QCommandLineParser parser;
-    parser.setApplicationDescription(QString().sprintf("QSTlink2 v%s", __QSTL_VER__));
+    parser.setApplicationDescription(QString().asprintf("QSTlink2 v%s", __QSTL_VER__));
     parser.addHelpOption();
     parser.addOption(QCommandLineOption(QStringList() << "q"
                                                       << "quiet",

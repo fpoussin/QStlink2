@@ -553,7 +553,7 @@ bool stlinkv2::isBusy()
 
 qint32 stlinkv2::writeMem32(quint32 addr, const QByteArray &buf)
 {
-    PrintFuncName() << QString().sprintf("Writing %d bytes to 0x%08X", buf.size(), addr);
+    PrintFuncName() << QString().asprintf("Writing %d bytes to 0x%08X", buf.size(), addr);
     QByteArray cmdbuf, sendbuf(buf);
 
     int remain = buf.size() % 4;
@@ -577,7 +577,7 @@ qint32 stlinkv2::writeMem32(quint32 addr, const QByteArray &buf)
 
 qint32 stlinkv2::readMem32(QByteArray *buf, quint32 addr, quint16 len)
 {
-    PrintFuncName() << QString().sprintf("Reading %d bytes from %08X", len, addr);
+    PrintFuncName() << QString().asprintf("Reading %d bytes from %08X", len, addr);
     Q_CHECK_PTR(buf);
     QByteArray cmd_buf;
     if (len % 4 != 0)

@@ -22,12 +22,12 @@ This file is part of QSTLink2.
 #include <QFile>
 #include <QByteArray>
 #include <QtEndian>
-#include <qusbdevice.h>
-#include <qusbinfo.h>
-#include <qusbendpoint.h>
-#include <compat.h>
-#include <devices.h>
-#include <loader.h>
+#include "qusbdevice.h"
+#include "qusbinfo.h"
+#include "qusbendpoint.h"
+#include "compat.h"
+#include "devices.h"
+#include "loader.h"
 
 const quint16 USB_ST_VID = 0x0483; /**< USB Vid */
 const quint16 USB_STLINK_PID = 0x3744; /**< USB Pid for stlink v1 */

@@ -53,7 +53,7 @@ HEADERS  += inc/mainwindow.h \
             inc/loader.h \
             res/version.h
 
-include(QtUsb/src/usb/usb-lib.pri)
+include(QtUsb/src/usb/files.pri)
 
 windows {
     TARGET = qstlink2_$${VERSION}

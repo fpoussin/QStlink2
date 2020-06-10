@@ -163,7 +163,7 @@ void transferThread::sendWithLoader(const QString &filename)
                 qInfo("Progress: %u%%", progress);
             }
 
-            emit sendStatus(QString().sprintf("Transferred %u/%lldKB", i / 1024, loader_file.size() / 1024));
+            emit sendStatus(QString().asprintf("Transferred %u/%lldKB", i / 1024, loader_file.size() / 1024));
             QThread::msleep(30);
             if (mStop)
                 break;
@@ -232,7 +232,7 @@ void transferThread::receive(const QString &filename)
             emit sendProgress(progress);
             qInfo("Progress: %u%%", progress);
         }
-        emit sendStatus(tmpStr.sprintf("Transferred %u/%uKB", i / 1024, flash_size / 1024));
+        emit sendStatus(tmpStr.asprintf("Transferred %u/%uKB", i / 1024, flash_size / 1024));
     }
     file.close();
     emit sendProgress(100);
@@ -285,8 +285,8 @@ void transferThread::verify(const QString &filename, quint32 address)
 
             QString stmp, sbuf;
             for (int b = 0; b < file_buffer.size(); b++) {
-                stmp.append(tmp_str.sprintf("%02X ", (uchar)file_buffer.at(b)));
-                sbuf.append(tmp_str.sprintf("%02X ", (uchar)usb_buffer.at(b)));
+                stmp.append(tmp_str.asprintf("%02X ", (uchar)file_buffer.at(b)));
+                sbuf.append(tmp_str.asprintf("%02X ", (uchar)usb_buffer.at(b)));
             }
             qCritical("Verification failed at %08X \r\n Expecting: %s\r\n       Got:%s",
                       addr, stmp.toStdString().c_str(), sbuf.toStdString().c_str());
@@ -300,7 +300,7 @@ void transferThread::verify(const QString &filename, quint32 address)
             emit sendProgress(progress);
             qInfo("Progress: %u%%", progress);
         }
-        emit sendStatus(tmp_str.sprintf("Verified %u/%lldKB", i / 1024, file.size() / 1024));
+        emit sendStatus(tmp_str.asprintf("Verified %u/%lldKB", i / 1024, file.size() / 1024));
     }
     file.close();
     emit sendProgress(100);
